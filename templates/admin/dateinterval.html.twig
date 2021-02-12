@@ -1,0 +1,16 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+<div>
+    {% if field.value.y %}
+        {{ field.value.y }} Year(s)
+    {% endif %}
+
+    {% if field.value.m %}
+        {{ field.value.m }} Month(s)
+    {% endif %}
+
+    {% if field.value.d %}
+        {{ field.value.d }} Day(s)
+    {% endif %}
+</div>

@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Archer - Landing{% endblock %}
+
+{% block body %}
+    <div>
+        <div class="container">
+            {% if is_granted('ROLE_USER') %}
+                <a href="{{ path("app_dashboard_client") }}">Enter</a>
+            {% else %}
+                <a href="{{  path("app_login") }}">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+{% endblock %}

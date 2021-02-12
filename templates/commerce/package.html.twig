@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/commerce/package.scss') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div class="store container content-container p-0">
+
+        <section class="content-header">
+            {{ package }}
+        </section>
+
+        <section class="content-body">
+            <div class="container mt-4">
+                <div class="row">
+                    <div style="width:360px">
+                        <div class="text-center">
+                            <img
+                                class="mx-auto"
+                                width="280px"
+                                height=280px"
+                                src="{{ asset( "build/images/__commerce#{package.getImageURI()}" ) }}"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="row">
+                            <div class="package-title">{{ package.name }}</div>
+                        </div>
+                        <div class="row">
+                            {{ form_start(form, {'method': 'POST'}) }}
+                                <div class="form-row">
+                                    {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field'}}) }}
+                                </div>
+                                {{ form_rest(form) }}
+                                {# convert submit to form field#}
+                                <div class="form-row">
+                                    <div>
+                                        <button class="btn btn-primary btn-lg btn-block">Purchase</button>
+                                    </div>
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-4">{{ package.storeDescription|raw }}</div>
+        </section>
+
+    </div>
+
+{% endblock %}

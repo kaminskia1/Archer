@@ -1,0 +1,12 @@
+<div class="store-item card">
+    <a href="{{ url("app_commerce_store_group", {gid: item.getId()}) }}">
+        <div class="card-body">
+            <div class="card-img">
+                <img class="short-img" width="125px" height="125px" src="{{ asset( "build/images/__commerce#{item.getImageURI()}" ) }}" alt="Group {{ item.getName() }}" />
+            </div>
+            <div class="card-title">
+                {{ item.getName() }}
+            </div>
+        </div>
+    </a>
+</div>

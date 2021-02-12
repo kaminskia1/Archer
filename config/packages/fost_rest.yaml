@@ -1,0 +1,4 @@
+fos_rest:
+  view:
+    view_response_listener:  true
+  format_listener:

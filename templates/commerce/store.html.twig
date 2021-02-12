@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/commerce/store.scss') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div class="store container content-container p-0">
+
+        <section class="content-header">
+            {{ items|length }} product(s)
+        </section>
+
+        <section class="content-body">
+            <div class="panel-body">{% for item in items %}{{ include(template) }}{% endfor %}</div>
+        </section>
+
+    </div>
+
+{% endblock %}
