@@ -1,6 +1,4 @@
 <?php
-
-// src/Form/Type/ShippingType.php
 namespace App\Form\Type;
 
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

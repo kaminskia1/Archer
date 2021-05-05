@@ -3,19 +3,16 @@
 namespace App\Controller\Admin;
 
 use App\Admin\Field\DateIntervalField;
-use App\Entity\CommerceInvoice;
-use App\Entity\CommercePackage;
-use App\Entity\CommerceGatewayInstance;
-use App\Enum\CommerceInvoicePaymentStateEnum;
+use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommercePackage;
+use App\Entity\Commerce\CommerceGatewayInstance;
+use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;

@@ -1,6 +1,6 @@
 security:
     encoders:
-        App\Entity\User:
+        App\Entity\Core\User:
             algorithm: auto
 
 
@@ -9,7 +9,7 @@ security:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
             entity:
-                class: App\Entity\User
+                class: App\Entity\Core\User
                 property: uuid
         # used to reload user from session & other features (e.g. switch_user)
     firewalls:
@@ -23,6 +23,8 @@ security:
             guard:
                 authenticators:
                     - App\Security\LoginAuthenticator
+                    - App\Security\ApiAuthenticator
+                entry_point: App\Security\ApiAuthenticator
             logout:
                 path: app_logout
                 # where to redirect after logout

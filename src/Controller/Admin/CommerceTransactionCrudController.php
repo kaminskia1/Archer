@@ -2,8 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\CommerceTransaction;
-use App\Entity\CommerceUserSubscription;
+use App\Entity\Commerce\CommerceTransaction;
+use App\Entity\Commerce\CommerceUserSubscription;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;

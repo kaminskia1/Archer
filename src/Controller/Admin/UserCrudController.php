@@ -2,17 +2,14 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\User;
+use App\Entity\Core\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -63,7 +60,13 @@ class UserCrudController extends AbstractCrudController
                 "Subscriber" => "ROLE_SUBSCRIBER",
                 "Admin" => "ROLE_ADMIN"
             ]),
-            AssociationField::new('registrationCode')->onlyWhenCreating()->setRequired(true),
+            AssociationField::new('registrationCode')
+                ->onlyWhenCreating()
+                ->setRequired(true)
+                ->formatValue(function($val)
+                {
+                    return $val;
+                }),
             TextField::new('hwid', 'Hardware ID')->onlyOnDetail(),
             DateTimeField::new('lastWebsiteLoginDate', "Last Site Login")->hideOnForm(),
             DateTimeField::new('lastLoaderLoginDate', "Last Loader Login")->onlyOnDetail(),

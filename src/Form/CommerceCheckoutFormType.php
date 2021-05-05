@@ -2,9 +2,9 @@
 
 namespace App\Form;
 
-use App\Entity\CommerceGatewayInstance;
-use App\Entity\CommerceInvoice;
-use App\Entity\CommercePackage;
+use App\Entity\Commerce\CommerceGatewayInstance;
+use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommercePackage;
 use App\Form\Type\EntityHiddenType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

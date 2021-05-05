@@ -2,8 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\CommerceDiscountCode;
-use App\Entity\RegistrationCode;
+use App\Entity\Commerce\CommerceDiscountCode;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;

@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Admin\Field\DateIntervalField;
-use App\Entity\CommercePurchase;
+use App\Entity\Commerce\CommercePurchase;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;

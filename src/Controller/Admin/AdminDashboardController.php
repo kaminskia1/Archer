@@ -2,17 +2,18 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\CommerceDiscountCode;
-use App\Entity\CommerceGatewayInstance;
-use App\Entity\CommerceGatewayType;
-use App\Entity\CommerceInvoice;
-use App\Entity\CommercePackage;
-use App\Entity\CommercePackageGroup;
-use App\Entity\CommercePurchase;
-use App\Entity\CommerceTransaction;
-use App\Entity\CommerceUserSubscription;
-use App\Entity\User;
-use App\Entity\RegistrationCode;
+use App\Entity\Commerce\CommerceDiscountCode;
+use App\Entity\Commerce\CommerceGatewayInstance;
+use App\Entity\Commerce\CommerceGatewayType;
+use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommercePackage;
+use App\Entity\Commerce\CommercePackageGroup;
+use App\Entity\Commerce\CommercePurchase;
+use App\Entity\Commerce\CommerceTransaction;
+use App\Entity\Commerce\CommerceUserSubscription;
+use App\Entity\Core\CoreModule;
+use App\Entity\Core\User;
+use App\Entity\Core\RegistrationCode;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -53,6 +54,7 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::section('Core');
         yield MenuItem::linkToCrud('Users', 'fas fa-list', User::class);
         yield MenuItem::linkToCrud('Registration Codes', 'fas fa-list', RegistrationCode::class);
+        yield MenuItem::linkToCrud('Site Modules', 'fas fa-list', CoreModule::class);
 
         yield MenuItem::section('Commerce');
         yield MenuItem::linkToCrud('Package Groups', 'fas fa-list', CommercePackageGroup::class);
@@ -60,9 +62,13 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Invoices', 'fas fa-list', CommerceInvoice::class);
         yield MenuItem::linkToCrud('Discount Codes', 'fas fa-list', CommerceDiscountCode::class);
         yield MenuItem::linkToCrud('Payment Gateways', 'fas fa-list', CommerceGatewayInstance::class);
-        yield MenuItem::linkToCrud('DEBUG: Payment Gateway Types', 'fas fa-list', CommerceGatewayType::class);
+
         yield MenuItem::linkToCrud('Purchases', 'fas fa-list', CommercePurchase::class);
         yield MenuItem::linkToCrud('User Subscriptions', 'fas fa-list', CommerceUserSubscription::class);
         yield MenuItem::linkToCrud('Transactions', 'fas fa-list', CommerceTransaction::class);
+        if ($_ENV['APP_ENV'] == "dev")
+        {
+            yield MenuItem::linkToCrud('DEV: Gateway Types', 'fas fa-list', CommerceGatewayType::class);
+        }
     }
 }

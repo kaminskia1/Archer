@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\RegistrationCode;
-use App\Entity\User;
+use App\Entity\Core\RegistrationCode;
+use App\Entity\Core\User;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
