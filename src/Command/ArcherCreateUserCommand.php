@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\Core\RegistrationCode;
 use App\Entity\Core\User;
+use App\Module\Core\CorePasswordHasher;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -60,7 +61,7 @@ class ArcherCreateUserCommand extends Command
         $user->setPassword(
             $this->passwordEncoder->encodePassword(
                 $user,
-                $password
+                CorePasswordHasher::hashPassword($password)
             )
         );
         $user->__populate();

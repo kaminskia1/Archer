@@ -26,6 +26,11 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/register", name="app_register")
+     * @param Request $request
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     * @param GuardAuthenticatorHandler $guardHandler
+     * @param LoginAuthenticator $authenticator
+     * @return Response
      */
     public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginAuthenticator $authenticator): Response
     {
@@ -79,7 +84,7 @@ class RegistrationController extends AbstractController
             }
         }
 
-        return $this->render('registration/register.html.twig', [
+        return $this->render('core/registration/register.html.twig', [
             'form' => $form->createView(),
             'page_title' => "Archer",
             'target_path' => $this->generateUrl('app_dashboard_client'),
@@ -89,12 +94,14 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/reset-password", name="app_reset_password")
+     * @param Request $request
+     * @return Response
      */
     public function resetPassword(Request $request): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard_client');
         }
-        return new Response("ASD");
+        return new Response("Not yet implemented.");
     }
 }

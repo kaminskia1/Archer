@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Entity\Core\User;
+use App\Module\Core\CorePasswordHasher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,7 +50,7 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
     {
         $credentials = [
             'uuid' => $request->request->get('uuid'),
-            'password' => $request->request->get('password'),
+            'password' => CorePasswordHasher::hashPassword($request->request->get('password')),
             'csrf_token' => $request->request->get('_csrf_token'),
         ];
         $request->getSession()->set(

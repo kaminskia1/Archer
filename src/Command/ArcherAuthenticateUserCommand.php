@@ -24,6 +24,14 @@ class ArcherAuthenticateUserCommand extends Command
 
     private $passwordEncoder;
 
+    private const AUTH_SUCCESS = 0;
+
+    private const AUTH_INVALID_CREDS = 1;
+
+    private const AUTH_INVALID_HWID = 2;
+
+
+
     public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->entityManager = $entityManager;
@@ -34,15 +42,53 @@ class ArcherAuthenticateUserCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Create a new user')
+            ->setDescription('Check a user\'s Credentials')
+            ->addArgument('uuid', InputArgument::REQUIRED, 'User\'s UUID')
+            ->addArgument('password', InputArgument::REQUIRED, 'User\'s password')
+            ->addArgument('hwid', InputArgument::REQUIRED, 'User\'s HWID')
+        ;
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $uuid = $input->getArgument('uuid');
+        $password = $input->getArgument('password');
+        $hwid = $input->getArgument('hwid');
+
+        /**
+         * @var User $user
+         */
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['uuid' => $uuid]);
+
+        // Check that user exists
+        if (!$user) {
+            // fail authentication with invalid credentials
+            $output->write(self::AUTH_INVALID_CREDS);
+            return Command::FAILURE;
+        }
+        
+        // Check that password is correct
+        if ($this->passwordEncoder->isPasswordValid($user, $password))
+        {
+            $output->write(self::AUTH_INVALID_CREDS);
+            return Command::FAILURE;
+        }
 
 
+        if ($user->getHwid() == null)
+        {
+            $user->setHwid($hwid);
+        }
+
+        if ($user->getHwid() != $hwid)
+        {
+            $output->write(self::AUTH_INVALID_HWID);
+            return Command::FAILURE;
+        }
+
+
+        $output->write(self::AUTH_SUCCESS);
         return Command::SUCCESS;
     }
 }
