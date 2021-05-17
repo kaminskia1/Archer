@@ -8,13 +8,18 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * @ORM\Entity(repositoryClass=CommercePackageRepository::class)
  */
 class CommercePackage
 {
 
+    /**
+     * Import the base module
+     */
     use CommerceTraitModel;
+
 
     /**
      * @ORM\Id
@@ -59,12 +64,12 @@ class CommercePackage
     private $imageURI;
 
     /**
-     * @ORM\OneToMany(targetEntity=App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="CommercePackageAssoc")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="CommercePackageAssoc")
      */
     private $commerceUserSubscriptions;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Commerce\CommercePackageGroup::class, inversedBy="CommercePackage")
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Commerce\CommercePackageGroup::class, inversedBy="CommercePackage")
      */
     private $CommercePackageGroup;
 
@@ -83,16 +88,30 @@ class CommercePackage
      */
     private $storeDescription;
 
+
+    /**
+     * CommercePackage constructor.
+     */
     public function __construct()
     {
         $this->commerceUserSubscriptions = new ArrayCollection();
     }
 
+    /**
+     * Convert this entity to a string
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->getName();
     }
 
+    /**
+     * Get lowest price
+     *
+     * @return string
+     */
     public function __getLowestPriceString(): string
     {
         // please create custom object field and change this in the future so it isn't shitty like it is now (0 => 12:23.99) to (12 => 23.99)
@@ -109,6 +128,11 @@ class CommercePackage
         return "From: " . ( @min($tmp) ?? "Error") . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
+    /**
+     * Get formatted duration to price
+     *
+     * @return array
+     */
     public function __getFormattedDurationToPrice()
     {
         $tmp = $this->getDurationToPrice();
@@ -120,16 +144,33 @@ class CommercePackage
         return array_flip($tmp);
     }
 
+
+    /**
+     * Get id
+     *
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Set id
+     *
+     * @return int|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return $this
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -137,11 +178,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get duration to price
+     *
+     * @return array|null
+     */
     public function getDurationToPrice(): ?array
     {
         return $this->durationToPrice;
     }
 
+    /**
+     * Set duration to price
+     *
+     * @param array $durationToPrice
+     * @return $this
+     */
     public function setDurationToPrice(array $durationToPrice): self
     {
         $this->durationToPrice = $durationToPrice;
@@ -149,11 +201,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get stock
+     *
+     * @return int|null
+     */
     public function getStock(): ?int
     {
         return $this->stock;
     }
 
+    /**
+     * Set stock
+     *
+     * @param int|null $stock
+     * @return $this
+     */
     public function setStock(?int $stock): self
     {
         $this->stock = $stock;
@@ -161,11 +224,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get enabled state
+     *
+     * @return bool|null
+     */
     public function getIsEnabled(): ?bool
     {
         return $this->isEnabled;
     }
 
+    /**
+     * Set enabled state
+     *
+     * @param bool $isEnabled
+     * @return $this
+     */
     public function setIsEnabled(bool $isEnabled): self
     {
         $this->isEnabled = $isEnabled;
@@ -173,11 +247,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get visible state
+     *
+     * @return bool|null
+     */
     public function getIsVisible(): ?bool
     {
         return $this->isVisible;
     }
 
+    /**
+     * Set visible state
+     *
+     * @param bool $isVisible
+     * @return $this
+     */
     public function setIsVisible(bool $isVisible): self
     {
         $this->isVisible = $isVisible;
@@ -185,11 +270,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get package user roles
+     *
+     * @return string|null
+     */
     public function getPackageUserRole(): ?string
     {
         return $this->packageUserRole;
     }
 
+    /**
+     * Set package user roles
+     *
+     * @param string|null $packageUserRole
+     * @return $this
+     */
     public function setPackageUserRole(?string $packageUserRole): self
     {
         $this->packageUserRole = $packageUserRole;
@@ -197,11 +293,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get image uri
+     *
+     * @return string|null
+     */
     public function getImageURI(): ?string
     {
         return $this->imageURI;
     }
 
+    /**
+     * Set image uri
+     *
+     * @param string|null $imageURI
+     * @return $this
+     */
     public function setImageURI(?string $imageURI): self
     {
         $this->imageURI = $imageURI;
@@ -209,11 +316,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get staff message
+     *
+     * @return string|null
+     */
     public function getStaffMessage(): ?string
     {
         return $this->staffMessage;
     }
 
+    /**
+     * Set staff message
+     *
+     * @param string|null $staffMessage
+     * @return $this
+     */
     public function setStaffMessage(?string $staffMessage): self
     {
         $this->staffMessage = $staffMessage;
@@ -221,11 +339,22 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get custom json
+     *
+     * @return array|null
+     */
     public function getCustomJSON(): ?array
     {
         return $this->customJSON;
     }
 
+    /**
+     * Set custom json
+     *
+     * @param array|null $customJSON
+     * @return $this
+     */
     public function setCustomJSON(?array $customJSON): self
     {
         $this->customJSON = $customJSON;
@@ -234,6 +363,8 @@ class CommercePackage
     }
 
     /**
+     * Get commerce user subscription
+     *
      * @return Collection|CommerceUserSubscription[]
      */
     public function getCommerceUserSubscriptions(): Collection
@@ -241,6 +372,12 @@ class CommercePackage
         return $this->commerceUserSubscriptions;
     }
 
+    /**
+     * Add commerce user subscription
+     *
+     * @param CommerceUserSubscription $commerceUserSubscription
+     * @return $this
+     */
     public function addCommerceUserSubscription(CommerceUserSubscription $commerceUserSubscription): self
     {
         if (!$this->commerceUserSubscriptions->contains($commerceUserSubscription)) {
@@ -251,6 +388,12 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Remove commerce user subscription
+     *
+     * @param CommerceUserSubscription $commerceUserSubscription
+     * @return $this
+     */
     public function removeCommerceUserSubscription(CommerceUserSubscription $commerceUserSubscription): self
     {
         if ($this->commerceUserSubscriptions->removeElement($commerceUserSubscription)) {
@@ -263,23 +406,45 @@ class CommercePackage
         return $this;
     }
 
+    /**
+     * Get commerce package group
+     *
+     * @return CommercePackageGroup|null
+     */
     public function getCommercePackageGroup(): ?CommercePackageGroup
     {
         return $this->CommercePackageGroup;
     }
 
-    public function setCommercePackageGroup(?CommercePackageGroup $CommercePackageGroup): self
+    /**
+     * Set commerce package group
+     *
+     * @param CommercePackageGroup $CommercePackageGroup
+     * @return $this
+     */
+    public function setCommercePackageGroup(CommercePackageGroup $CommercePackageGroup): self
     {
         $this->CommercePackageGroup = $CommercePackageGroup;
 
         return $this;
     }
 
+    /**
+     * Get store description
+     *
+     * @return string|null
+     */
     public function getStoreDescription(): ?string
     {
         return $this->storeDescription;
     }
 
+    /**
+     * Set store description
+     *
+     * @param string|null $storeDescription
+     * @return $this
+     */
     public function setStoreDescription(?string $storeDescription): self
     {
         $this->storeDescription = $storeDescription;

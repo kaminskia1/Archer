@@ -6,6 +6,7 @@ use App\Model\CoreTraitModel;
 use App\Repository\Core\CoreModuleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * @ORM\Entity(repositoryClass=CoreModuleRepository::class)
  *
@@ -14,8 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
  *  - All classes must inherit their respective model, e.g. for commmerce, it would be ComerceTraitModel in src/Model
  *
  *
- *  Controllers
- *  => Controller/{ModuleName}/{ModuleName}{ControllerName}Controller
+ *  Controller
+ *  => Controller/{ModuleName}/{ModuleName}/Site/{ControllerName}Controller
  *  => Controller/{ModuleName}/{ModuleName}/Api/{ControllerName}Controller
  *  => Controller/{ModuleName}/{ModuleName}/Api/Secure/{ControllerName}Controller
  *
@@ -34,6 +35,9 @@ use Doctrine\ORM\Mapping as ORM;
  *  Form
  *  => Form/{ModuleName}{FormName}
  *
+ *  Model
+ *  => Model/{ModuleName}/{ModuleName}TraitModel
+ *
  *  Module
  *  => Module/{ModuleName}/
  *
@@ -48,7 +52,11 @@ use Doctrine\ORM\Mapping as ORM;
 class CoreModule
 {
 
+    /**
+     * Import the base module
+     */
     use CoreTraitModel;
+
 
     /**
      * @ORM\Id
@@ -77,16 +85,33 @@ class CoreModule
      */
     private $customControllers = [];
 
-    public function getId(): ?int
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * Get name
+     *
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return $this
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -94,11 +119,22 @@ class CoreModule
         return $this;
     }
 
+    /**
+     * Get enable state
+     *
+     * @return bool|null
+     */
     public function getIsEnabled(): ?bool
     {
         return $this->isEnabled;
     }
 
+    /**
+     * Set enable state
+     *
+     * @param bool $isEnabled
+     * @return $this
+     */
     public function setIsEnabled(bool $isEnabled): self
     {
         $this->isEnabled = $isEnabled;
@@ -106,11 +142,22 @@ class CoreModule
         return $this;
     }
 
+    /**
+     * Get custom entities
+     *
+     * @return array|null
+     */
     public function getCustomEntities(): ?array
     {
         return $this->customEntities;
     }
 
+    /**
+     * Set custom entities
+     *
+     * @param array $customEntities
+     * @return $this
+     */
     public function setCustomEntities(array $customEntities): self
     {
         $this->customEntities = $customEntities;
@@ -118,15 +165,27 @@ class CoreModule
         return $this;
     }
 
+    /**
+     * Get custom controllers
+     *
+     * @return array|null
+     */
     public function getCustomControllers(): ?array
     {
         return $this->customControllers;
     }
 
+    /**
+     * Set custom controllers
+     *
+     * @param array $customControllers
+     * @return $this
+     */
     public function setCustomControllers(array $customControllers): self
     {
         $this->customControllers = $customControllers;
 
         return $this;
     }
+
 }

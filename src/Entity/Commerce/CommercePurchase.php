@@ -5,6 +5,9 @@ namespace App\Entity\Commerce;
 use App\Entity\Core\CoreUser;
 use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommercePurchaseRepository;
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,21 +16,11 @@ use Doctrine\ORM\Mapping as ORM;
 class CommercePurchase
 {
 
+    /**
+     * Import the base module
+     */
     use CommerceTraitModel;
 
-    public function __construct( ?CommerceInvoice $invoice )
-    {
-        if ( $invoice instanceof CommerceInvoice )
-        {
-            $this->setCommerceInvoice( $invoice );
-            $this->setUser( $invoice->getUser() );
-            $this->setCommerceGatewayInstance( $invoice->getCommerceGatewayInstance() );
-            $this->setAmountPaid( $invoice->getPrice() );
-            $this->setCommercePackage( $invoice->getCommercePackage() );
-            $this->setDuration( $invoice->getDurationDateInterval() );
-        }
-        $this->setCreatedOn(new \DateTime());
-    }
 
     /**
      * @ORM\Id
@@ -79,33 +72,66 @@ class CommercePurchase
      */
     private $createdOn;
 
+
+    /**
+     * CommercePurchase constructor.
+     *
+     * @param CommerceInvoice|null $invoice
+     */
+    public function __construct(?CommerceInvoice $invoice)
+    {
+        // Check if invoice provided
+        if ($invoice instanceof CommerceInvoice) {
+            // Move invoice info to this entity
+            $this->setCommerceInvoice($invoice);
+            $this->setUser($invoice->getUser());
+            $this->setCommerceGatewayInstance($invoice->getCommerceGatewayInstance());
+            $this->setAmountPaid($invoice->getPrice());
+            $this->setCommercePackage($invoice->getCommercePackage());
+            $this->setDuration($invoice->getDurationDateInterval());
+        }
+
+        // Set creation date to current
+        $this->setCreatedOn(new DateTime());
+    }
+
+    /**
+     * Convert this entity to a string
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->getId() . " (User ID: " . $this->getUser()->getId() . ")";
     }
 
+
+    /**
+     * Get id
+     *
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCommercePackage(): ?CommercePackage
-    {
-        return $this->commercePackage;
-    }
-
-    public function setCommercePackage(?CommercePackage $commercePackage): self
-    {
-        $this->commercePackage = $commercePackage;
-
-        return $this;
-    }
-
+    /**
+     * Get user
+     *
+     * @return CoreUser|null
+     */
     public function getUser(): ?CoreUser
     {
         return $this->user;
     }
 
+    /**
+     * Set user
+     *
+     * @param CoreUser|null $user
+     * @return $this
+     */
     public function setUser(?CoreUser $user): self
     {
         $this->user = $user;
@@ -113,11 +139,45 @@ class CommercePurchase
         return $this;
     }
 
+    /**
+     * Get commerce package
+     *
+     * @return CommercePackage|null
+     */
+    public function getCommercePackage(): ?CommercePackage
+    {
+        return $this->commercePackage;
+    }
+
+    /**
+     * Set commerce package
+     *
+     * @param CommercePackage|null $commercePackage
+     * @return $this
+     */
+    public function setCommercePackage(?CommercePackage $commercePackage): self
+    {
+        $this->commercePackage = $commercePackage;
+
+        return $this;
+    }
+
+    /**
+     * Get amount paid
+     *
+     * @return float|null
+     */
     public function getAmountPaid(): ?float
     {
         return $this->amountPaid;
     }
 
+    /**
+     * Set amount paid
+     *
+     * @param float $amountPaid
+     * @return $this
+     */
     public function setAmountPaid(float $amountPaid): self
     {
         $this->amountPaid = $amountPaid;
@@ -125,23 +185,45 @@ class CommercePurchase
         return $this;
     }
 
-    public function getDuration(): ?\DateInterval
+    /**
+     * Get duration
+     *
+     * @return DateInterval|null
+     */
+    public function getDuration(): ?DateInterval
     {
         return $this->duration;
     }
 
-    public function setDuration(\DateInterval $duration): self
+    /**
+     * Set duration
+     *
+     * @param DateInterval $duration
+     * @return $this
+     */
+    public function setDuration(DateInterval $duration): self
     {
         $this->duration = $duration;
 
         return $this;
     }
 
+    /**
+     * Get staff message
+     *
+     * @return string|null
+     */
     public function getStaffMessage(): ?string
     {
         return $this->staffMessage;
     }
 
+    /**
+     * Set staff message
+     *
+     * @param string|null $staffMessage
+     * @return $this
+     */
     public function setStaffMessage(?string $staffMessage): self
     {
         $this->staffMessage = $staffMessage;
@@ -149,11 +231,22 @@ class CommercePurchase
         return $this;
     }
 
+    /**
+     * Get commerce gateway instance
+     *
+     * @return CommerceGatewayInstance|null
+     */
     public function getCommerceGatewayInstance(): ?CommerceGatewayInstance
     {
         return $this->commerceGatewayInstance;
     }
 
+    /**
+     * Set commerce gateway instance
+     *
+     * @param CommerceGatewayInstance|null $commerceGatewayInstance
+     * @return $this
+     */
     public function setCommerceGatewayInstance(?CommerceGatewayInstance $commerceGatewayInstance): self
     {
         $this->commerceGatewayInstance = $commerceGatewayInstance;
@@ -161,11 +254,22 @@ class CommercePurchase
         return $this;
     }
 
+    /**
+     * Get commerce invoice
+     *
+     * @return CommerceInvoice|null
+     */
     public function getCommerceInvoice(): ?CommerceInvoice
     {
         return $this->commerceInvoice;
     }
 
+    /**
+     * Set commerce invoice
+     *
+     * @param CommerceInvoice|null $commerceInvoice
+     * @return $this
+     */
     public function setCommerceInvoice(?CommerceInvoice $commerceInvoice): self
     {
         $this->commerceInvoice = $commerceInvoice;
@@ -173,15 +277,27 @@ class CommercePurchase
         return $this;
     }
 
-    public function getCreatedOn(): ?\DateTimeInterface
+    /**
+     * Get created on
+     *
+     * @return DateTimeInterface|null
+     */
+    public function getCreatedOn(): ?DateTimeInterface
     {
         return $this->createdOn;
     }
 
-    public function setCreatedOn(\DateTimeInterface $createdOn): self
+    /**
+     * Set created on
+     *
+     * @param DateTimeInterface $createdOn
+     * @return $this
+     */
+    public function setCreatedOn(DateTimeInterface $createdOn): self
     {
         $this->createdOn = $createdOn;
 
         return $this;
     }
+
 }
