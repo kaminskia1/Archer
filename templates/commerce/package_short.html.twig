@@ -1,3 +1,4 @@
+{% if item.isVisible and item.isEnabled %}
 <div class="store-item card">
     <a class="store-item" href="{{ url("app_commerce_package", {pid: item.getId()}) }}">
         <div class="card-body">
@@ -13,3 +14,4 @@
         </div>
     </a>
 </div>
+{% endif %}

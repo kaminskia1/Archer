@@ -6,6 +6,7 @@ use App\Controller\AbstractApiController;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommerceUserSubscription;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
+use App\Model\CoreTraitModel;
 use App\Repository\Commerce\CommerceInvoiceRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -18,8 +19,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserSubscriptionController extends AbstractApiController
 {
+
+    use CoreTraitModel;
+
     /**
-     * User Packages
+     * CoreUser Packages
      *
      * @Rest\View
      * @Rest\Get("/api/secure/core/subscriptions", name="api_core_user_subscriptions")

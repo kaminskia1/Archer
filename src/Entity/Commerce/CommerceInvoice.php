@@ -2,7 +2,9 @@
 
 namespace App\Entity\Commerce;
 
+use App\Entity\Core\CoreUser;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommerceInvoiceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,9 +14,11 @@ use Doctrine\ORM\Mapping as ORM;
 class CommerceInvoice
 {
 
+    use CommerceTraitModel;
+
     public function __toString()
     {
-        return "Invoice " . $this->getId() ?? -1 . " (User ID: " . $this->getUser()->getId() . ")" . (!is_null($this->getPaidOn()) ? "(Paid on: " . $this->getPaidOn()->format("m/d/y h:I:s") . ")" : "");
+        return "Invoice " . $this->getId() ?? -1 . " (CoreUser ID: " . $this->getUser()->getId() . ")" . (!is_null($this->getPaidOn()) ? "(Paid on: " . $this->getPaidOn()->format("m/d/y h:I:s") . ")" : "");
     }
 
 
@@ -32,7 +36,7 @@ class CommerceInvoice
     private $commercePackage;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Core\User::class, inversedBy="CommerceInvoices")
+     * @ORM\ManyToOne(targetEntity=App\Entity\Core\CoreUser::class, inversedBy="CommerceInvoices")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
@@ -106,12 +110,12 @@ class CommerceInvoice
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?CoreUser
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?CoreUser $user): self
     {
         $this->user = $user;
 

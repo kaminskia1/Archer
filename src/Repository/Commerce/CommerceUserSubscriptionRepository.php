@@ -5,6 +5,7 @@ namespace App\Repository\Commerce;
 use App\Entity\Commerce\CommercePackage;
 use App\Entity\Commerce\CommercePurchase;
 use App\Entity\Commerce\CommerceUserSubscription;
+use App\Model\CommerceTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,12 +17,15 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommerceUserSubscriptionRepository extends ServiceEntityRepository
 {
+
+    use CommerceTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CommerceUserSubscription::class);
     }
 
-    public function checkIfPreexisting( CommercePurchase $purchase ): bool
+    public function checkIfPreexisting(CommercePurchase $purchase ): bool
     {
         return count($this->createQueryBuilder('c')
             ->andWhere('c.user = :user')
@@ -33,7 +37,7 @@ class CommerceUserSubscriptionRepository extends ServiceEntityRepository
 
     }
 
-    public function getByPurchase( CommercePurchase $purchase )
+    public function getByPurchase(CommercePurchase $purchase )
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.user = :user')

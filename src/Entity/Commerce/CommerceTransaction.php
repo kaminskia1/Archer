@@ -2,6 +2,8 @@
 
 namespace App\Entity\Commerce;
 
+use App\Entity\Core\CoreUser;
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommerceTransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -11,7 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 class CommerceTransaction
 {
 
-    public function __construct( ?CommerceInvoice $invoice, ?CommercePurchase $purchase )
+    use CommerceTraitModel;
+
+    public function __construct(?CommerceInvoice $invoice, ?CommercePurchase $purchase )
     {
         if ( $invoice instanceof CommerceInvoice )
         {
@@ -48,24 +52,24 @@ class CommerceTransaction
     private $amount;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Commerce\CommerceGatewayInstance::class)
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Commerce\CommerceGatewayInstance::class)
      * @ORM\JoinColumn(nullable=true)
      */
     private $commerceGatewayInstance;
 
     /**
-     * @ORM\OneToOne(targetEntity=App\Entity\Commerce\CommerceInvoice::class, cascade={"persist", "remove"})
-     * @ORM\OneToOne(targetEntity=App\Entity\Commerce\CommerceInvoice::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, cascade={"persist", "remove"})
      */
     private $commerceInvoice;
 
     /**
-     * @ORM\OneToOne(targetEntity=App\Entity\Commerce\CommercePurchase::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=\App\Entity\Commerce\CommercePurchase::class, cascade={"persist", "remove"})
      */
     private $commercePurchase;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Core\User::class, inversedBy="commerceTransactions")
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Core\CoreUser::class, inversedBy="commerceTransactions")
      */
     private $user;
 
@@ -143,12 +147,12 @@ class CommerceTransaction
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?CoreUser
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?CoreUser $user): self
     {
         $this->user = $user;
 

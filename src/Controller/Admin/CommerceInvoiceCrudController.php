@@ -54,7 +54,7 @@ class CommerceInvoiceCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', "Internal ID")->onlyOnDetail();
-        yield AssociationField::new('user', 'User');
+        yield AssociationField::new('user', 'CoreUser');
         yield ChoiceField::new('paymentState', 'Invoice State')->setChoices(
             [
                 'Open' => CommerceInvoicePaymentStateEnum::INVOICE_OPEN,

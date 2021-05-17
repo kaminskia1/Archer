@@ -23,7 +23,7 @@ class AdminPay extends GatewayType
         return [];
     }
 
-    public function handleCallback( CommerceInvoice $invoice, EntityManager $entityManager ): array
+    public function handleCallback(CommerceInvoice $invoice, EntityManager $entityManager ): array
     {
         $invoice->setPaymentState( CommerceInvoicePaymentStateEnum::INVOICE_PAID );
         $invoice->setPaidOn( new \DateTime() );
@@ -41,7 +41,7 @@ class AdminPay extends GatewayType
         return [CommerceGatewayCallbackResponseEnum::TYPE_SUCCESS, []];
     }
 
-    public function handleRedirect( CommerceInvoice $invoice, array $gatewayFormData): RedirectResponse
+    public function handleRedirect(CommerceInvoice $invoice, array $gatewayFormData): RedirectResponse
     {
         return new RedirectResponse("http://localhost:8000/store?invoice_id=" . $invoice->getId());
     }

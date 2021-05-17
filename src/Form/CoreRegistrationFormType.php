@@ -2,7 +2,8 @@
 
 namespace App\Form;
 
-use App\Entity\Core\User;
+use App\Entity\Core\CoreUser;
+use App\Model\CoreTraitModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -13,8 +14,11 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class RegistrationFormType extends AbstractType
+class CoreRegistrationFormType extends AbstractType
 {
+
+    use CoreTraitModel;
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -55,7 +59,7 @@ class RegistrationFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => User::class,
+            'data_class' => CoreUser::class,
         ]);
     }
 }

@@ -2,25 +2,29 @@
 
 namespace App\Repository\Core;
 
-use App\Entity\Core\RegistrationCode;
+use App\Entity\Core\CoreRegistrationCode;
+use App\Model\CoreTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method RegistrationCode|null find($id, $lockMode = null, $lockVersion = null)
- * @method RegistrationCode|null findOneBy(array $criteria, array $orderBy = null)
- * @method RegistrationCode[]    findAll()
- * @method RegistrationCode[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CoreRegistrationCode|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CoreRegistrationCode|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CoreRegistrationCode[]    findAll()
+ * @method CoreRegistrationCode[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RegistrationCodeRepository extends ServiceEntityRepository
+class CoreRegistrationCodeRepository extends ServiceEntityRepository
 {
+
+    use CoreTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, RegistrationCode::class);
+        parent::__construct($registry, CoreRegistrationCode::class);
     }
 
     // /**
-    //  * @return RegistrationCode[] Returns an array of RegistrationCode objects
+    //  * @return CoreRegistrationCode[] Returns an array of CoreRegistrationCode objects
     //  */
     /*
     public function findByExampleField($value)
@@ -36,7 +40,7 @@ class RegistrationCodeRepository extends ServiceEntityRepository
     }
     */
 
-    public function findByCodeEnabled($value): ?RegistrationCode
+    public function findByCodeEnabled($value): ?CoreRegistrationCode
     {
         return $this->createQueryBuilder('r')
             ->andWhere('r.code = :val')
@@ -49,7 +53,7 @@ class RegistrationCodeRepository extends ServiceEntityRepository
     }
 
     /*
-    public funcWhetion findOneBySomeField($value): ?RegistrationCode
+    public funcWhetion findOneBySomeField($value): ?CoreRegistrationCode
     {
         return $this->createQueryBuilder('r')
             ->andre('r.exampleField = :val')

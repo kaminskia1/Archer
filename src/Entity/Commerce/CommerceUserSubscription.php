@@ -2,8 +2,9 @@
 
 namespace App\Entity\Commerce;
 
+use App\Entity\Core\CoreUser;
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommerceUserSubscriptionRepository;
-use DateInterval;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CommerceUserSubscription
 {
+
+    use CommerceTraitModel;
 
     public function __construct( ?CommerceInvoice $invoice )
     {
@@ -44,13 +47,13 @@ class CommerceUserSubscription
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Core\User::class, inversedBy="CommerceUserSubscriptions")
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Core\CoreUser::class, inversedBy="CommerceUserSubscriptions")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Commerce\CommercePackage::class, inversedBy="commerceUserSubscriptions")
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Commerce\CommercePackage::class, inversedBy="commerceUserSubscriptions")
      * @ORM\JoinColumn(nullable=false)
      */
     private $commercePackageAssoc;
@@ -70,12 +73,12 @@ class CommerceUserSubscription
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?CoreUser
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?CoreUser $user): self
     {
         $this->user = $user;
 

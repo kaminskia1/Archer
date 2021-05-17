@@ -2,6 +2,7 @@
 
 namespace App\Entity\Commerce;
 
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommerceGatewayTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CommerceGatewayType
 {
+
+    use CommerceTraitModel;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

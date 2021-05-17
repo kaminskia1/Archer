@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Controller\Commerce;
+namespace App\Controller\Commerce\Site;
 
+use App\Controller\Commerce\AbstractCommerceController;
 use App\Entity\Commerce\CommerceGatewayInstance;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePackage;
 use App\Entity\Commerce\CommercePackageGroup;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Form\CommerceCheckoutFormType;
+use App\Model\CommerceTraitModel;
 use DateInterval;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\Package;
@@ -16,14 +18,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * Class CommerceController
+ * @TODO Seperate into multiple files
  * @IsGranted("ROLE_USER")
  * @package App\Controller
  */
-class CommerceController extends AbstractController
+class CommerceController extends AbstractCommerceController
 {
+
+    use CommerceTraitModel;
+
+
     /**
      * @Route("/store", name="app_commerce_store")
      */
@@ -38,7 +47,8 @@ class CommerceController extends AbstractController
         return $this->render('commerce/store.html.twig', [
             'template' => 'commerce/group_short.html.twig',
             'items' => $items,
-            'name' => 'store'
+            'name' => 'store',
+            'productCount' => count($items)
         ]);
     }
 
@@ -57,10 +67,20 @@ class CommerceController extends AbstractController
             ->find($gid)
             ->getCommercePackage();
 
+        $count = count($items);
+        foreach ($items as $item)
+        {
+            if (!$item->getIsVisible() || !$item->getIsEnabled())
+            {
+                $count -= 1;
+            }
+        }
+
         return $this->render('commerce/store.html.twig', [
             'template' => 'commerce/package_short.html.twig',
             'items' => $items,
-            'name' => 'store'
+            'name' => 'store',
+            'productCount' => $count
         ]);
     }
 

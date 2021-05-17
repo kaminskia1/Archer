@@ -3,6 +3,7 @@
 namespace App\Repository\Commerce;
 
 use App\Entity\Commerce\CommercePackageGroup;
+use App\Model\CommerceTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommercePackageGroupRepository extends ServiceEntityRepository
 {
+
+    use CommerceTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CommercePackageGroup::class);

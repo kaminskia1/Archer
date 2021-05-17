@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Controller\Core;
+namespace App\Controller\Core\Site;
 
-use App\Entity\Core\RegistrationCode;
-use App\Entity\Core\User;
-use App\Form\RegistrationFormType;
+use App\Controller\Core\AbstractCoreController;
+use App\Entity\Core\CoreRegistrationCode;
+use App\Entity\Core\CoreUser;
+use App\Form\CoreRegistrationFormType;
+use App\Model\CoreTraitModel;
 use App\Security\LoginAuthenticator;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,8 +23,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  * Class RegistrationController
  * @package App\Controller
  */
-class RegistrationController extends AbstractController
+class RegistrationController extends AbstractCoreController
 {
+
+    use CoreTraitModel;
 
     /**
      * @Route("/register", name="app_register")
@@ -38,8 +42,8 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_dashboard_client');
         }
 
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $user = new CoreUser();
+        $form = $this->createForm(CoreRegistrationFormType::class, $user);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid())
@@ -48,7 +52,7 @@ class RegistrationController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             if (
                 !is_null( $code = $entityManager
-                    ->getRepository(RegistrationCode::class)
+                    ->getRepository(CoreRegistrationCode::class)
                     ->findByCodeEnabled(
                         $form
                             ->get('registrationCode')

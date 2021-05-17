@@ -18,16 +18,16 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Class ArcherCreateUserCommand
+ * Class ArcherResetUserPasswordCommand
  *
  * @package App\Command
  */
-class ArcherCreateUserCommand extends Command
+class ArcherResetUserPasswordCommand extends Command
 {
     /**
      * @var string Command name
      */
-    protected static $defaultName = 'archer:create-user';
+    protected static $defaultName = 'archer:reset-password';
 
     /**
      * @var EntityManagerInterface Entity Manager instance
@@ -41,26 +41,27 @@ class ArcherCreateUserCommand extends Command
 
     /**
      * Command constructor.
+     *
      * @param EntityManagerInterface $entityManager
      * @param UserPasswordEncoderInterface $passwordEncoder
      */
     public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $passwordEncoder)
     {
-        // Import EntityManager and PasswordEncoder
+        // Inject EntityManager and PasswordEncoder services
         $this->entityManager = $entityManager;
         $this->passwordEncoder = $passwordEncoder;
 
-        // Call the parent command constructor
+        // Run parent command constructor
         parent::__construct();
     }
 
     /**
-     * Command configuration
+     * Command configuraiton
      */
     protected function configure()
     {
         $this
-            ->setDescription('Create a new user')
+            ->setDescription('Reset a user\'s password')
         ;
     }
 
@@ -73,31 +74,24 @@ class ArcherCreateUserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Create SymfonyStyle IO instance
+        // Create symfonystyle io
         $io = new SymfonyStyle($input, $output);
 
-        // Prompt for password, nickname if applicable, and custom role to bind if applicable
-        $password = $io->ask("Enter a password", "password");
-        $nickname = $io->ask("Enter a nickname (optional)");
-        $extraRole = $io->ask("Add a custom role (optional)");
+        // Grab username & new password
+        $uuid = $io->ask("Enter a username", "password");
+        $password = $io->ask("Enter a password");
 
-        // Create registration code
-        $code = new CoreRegistrationCode();
+        // Grab user from entitymanager
+        $user = $this->entityManager->getRepository(CoreUser::class)->findOneBy(['uuid' => $uuid]);
 
-        // Populate, enable, and set usage datetime to current
-        $code->populateCode();
-        $code->setEnabled(false);
-        $code->setUsageDate(new DateTime);
+        // Check that user exists
+        if (!$user) {
+            // fail authentication with invalid credentials
+            $output->write("Invalid username");
+            return Command::FAILURE;
+        }
 
-        // create user
-        $user = new CoreUser();
-
-        // Bind new user to previous registration code, set nickname and roles
-        $user->setRegistrationCode($code);
-        $user->setNickname($nickname);
-        $user->setRoles(array_merge($user->getRoles(), [$extraRole]));
-
-        // Encode password with CorePasswordHasher, and then encode again with the server's standard encoding
+        // Set user password, encode with custom then with default
         $user->setPassword(
             $this->passwordEncoder->encodePassword(
                 $user,
@@ -105,23 +99,11 @@ class ArcherCreateUserCommand extends Command
             )
         );
 
-        // Populate remaining empty fields on the user
-        $user->__populate();
+        // Print success message
+        $io->success("CoreUser [" . $user->getUuid() . "] " . (strlen($user->getNickname()) > 0 ? "(" . $user->getNickname() . ") " : "") . "has been updated!");
 
-        // Set the generated registration code as ised
-        $code->setUsedBy($user);
-
-        // Ensure that both the generated registration code, and new user are saved to the database
-        $this->entityManager->persist($code);
-        $this->entityManager->persist($user);
-
-        // Flush the Entity Manger
-        $this->entityManager->flush();
-
-        // Output success with the user's data, as creation is complete
-        $io->success("CoreUser [" . $user->getUuid() . "] " . (strlen($user->getNickname()) > 0 ? "(" . $user->getNickname() . ") " : "") . "has been created!");
-
-        // Return successful execution
+        // Return success
         return Command::SUCCESS;
     }
+
 }

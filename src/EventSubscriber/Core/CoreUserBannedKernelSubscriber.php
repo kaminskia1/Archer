@@ -1,6 +1,7 @@
 <?php
 namespace App\EventSubscriber\Core;
 
+use App\Model\CoreTraitModel;
 use ErrorException;
 use Symfony\Component\ErrorHandler\Error\FatalError;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -9,8 +10,10 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Exception\InsufficientAuthenticationException;
 use Symfony\Component\Security\Core\Security;
 
-class UserBannedKernelSubscriber implements EventSubscriberInterface
+class CoreUserBannedKernelSubscriber implements EventSubscriberInterface
 {
+
+    use CoreTraitModel;
 
     private $security;
 
@@ -32,7 +35,7 @@ class UserBannedKernelSubscriber implements EventSubscriberInterface
         {
             if ($this->security->isGranted("ROLE_BANNED"))
             {
-                throw new AccessDeniedException("User is banned!");
+                throw new AccessDeniedException("CoreUser is banned!");
             }
         }
     }

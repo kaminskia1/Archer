@@ -2,6 +2,8 @@
 
 namespace App\Entity\Commerce;
 
+use App\Entity\Core\CoreUser;
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommercePurchaseRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CommercePurchase
 {
+
+    use CommerceTraitModel;
 
     public function __construct( ?CommerceInvoice $invoice )
     {
@@ -33,13 +37,13 @@ class CommercePurchase
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Commerce\CommercePackage::class)
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Commerce\CommercePackage::class)
      * @ORM\JoinColumn(nullable=false)
      */
     private $commercePackage;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Core\User::class, inversedBy="CommercePurchases")
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Core\CoreUser::class, inversedBy="CommercePurchases")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
@@ -60,13 +64,13 @@ class CommercePurchase
     private $staffMessage;
 
     /**
-     * @ORM\ManyToOne(targetEntity=App\Entity\Commerce\CommerceGatewayInstance::class)
+     * @ORM\ManyToOne(targetEntity=\App\Entity\Commerce\CommerceGatewayInstance::class)
      * @ORM\JoinColumn(nullable=true)
      */
     private $commerceGatewayInstance;
 
     /**
-     * @ORM\OneToOne(targetEntity=App\Entity\Commerce\CommerceInvoice::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, cascade={"persist", "remove"})
      */
     private $commerceInvoice;
 
@@ -97,12 +101,12 @@ class CommercePurchase
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?CoreUser
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?CoreUser $user): self
     {
         $this->user = $user;
 

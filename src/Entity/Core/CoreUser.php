@@ -2,7 +2,12 @@
 
 namespace App\Entity\Core;
 
-use App\Repository\Core\UserRepository;
+use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommercePurchase;
+use App\Entity\Commerce\CommerceTransaction;
+use App\Entity\Commerce\CommerceUserSubscription;
+use App\Model\CoreTraitModel;
+use App\Repository\Core\CoreUserRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,11 +17,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ORM\Entity(repositoryClass=CoreUserRepository::class)
  * @UniqueEntity(fields={"uuid"}, message="There is already an account with this uuid")
  */
-class User implements UserInterface
+class CoreUser implements UserInterface
 {
+
+    use CoreTraitModel;
 
     /**
      * @ORM\Id
@@ -62,7 +69,7 @@ class User implements UserInterface
     private $plainPassword;
 
     /**
-     * @ORM\OneToOne(targetEntity=App\Entity\Core\RegistrationCode::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=\App\Entity\Core\CoreRegistrationCode::class, cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $registrationCode;
@@ -94,22 +101,22 @@ class User implements UserInterface
     private $hwid;
 
     /**
-     * @ORM\OneToMany(targetEntity=App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="User", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="CoreUser", orphanRemoval=true)
      */
     private $CommerceUserSubscriptions;
 
     /**
-     * @ORM\OneToMany(targetEntity=App\Entity\Commerce\CommerceInvoice::class, mappedBy="User")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, mappedBy="CoreUser")
      */
     private $CommerceInvoices;
 
     /**
-     * @ORM\OneToMany(targetEntity=App\Entity\Commerce\CommercePurchase::class, mappedBy="User")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommercePurchase::class, mappedBy="CoreUser")
      */
     private $CommercePurchases;
 
     /**
-     * @ORM\OneToMany(targetEntity=App\Entity\Commerce\CommerceTransaction::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceTransaction::class, mappedBy="user")
      */
     private $commerceTransactions;
 
@@ -285,12 +292,12 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getRegistrationCode(): ?RegistrationCode
+    public function getRegistrationCode(): ?CoreRegistrationCode
     {
         return $this->registrationCode;
     }
 
-    public function setRegistrationCode(RegistrationCode $registrationCode): self
+    public function setRegistrationCode(CoreRegistrationCode $registrationCode): self
     {
         $this->registrationCode = $registrationCode;
 

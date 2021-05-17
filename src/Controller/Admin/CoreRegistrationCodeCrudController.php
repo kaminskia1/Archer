@@ -2,8 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\User;
-use App\Entity\Core\RegistrationCode;
+use App\Entity\Core\CoreUser;
+use App\Entity\Core\CoreRegistrationCode;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -17,11 +17,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * Class RegistrationCodeCrudController
+ * Class CoreRegistrationCodeCrudController
  * @package App\Controller\Admin
  * @IsGranted("ROLE_ADMIN")
  */
-class RegistrationCodeCrudController extends AbstractCrudController
+class CoreRegistrationCodeCrudController extends AbstractCrudController
 {
 
     public function configureCrud(Crud $crud): Crud
@@ -29,7 +29,7 @@ class RegistrationCodeCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInPlural('Registration Codes')
             ->setEntityLabelInSingular(
-                fn (?RegistrationCode $code, string $pageName = "0") => $code ? ("Code: " . $code->getCode() ) : 'Code'
+                fn (?CoreRegistrationCode $code, string $pageName = "0") => $code ? ("Code: " . $code->getCode() ) : 'Code'
 
             )
             ->setEntityPermission('ROLE_ADMIN')
@@ -46,7 +46,7 @@ class RegistrationCodeCrudController extends AbstractCrudController
 
     public static function getEntityFqcn(): string
     {
-        return RegistrationCode::class;
+        return CoreRegistrationCode::class;
     }
 
     public function configureFields(string $pageName): iterable

@@ -2,6 +2,7 @@
 
 namespace App\Entity\Commerce;
 
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommercePackageGroupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CommercePackageGroup
 {
+
+    use CommerceTraitModel;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -30,7 +34,7 @@ class CommercePackageGroup
     private $imageURI;
 
     /**
-     * @ORM\OneToMany(targetEntity=App\Entity\Commerce\CommercePackage::class, mappedBy="CommercePackageGroup")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommercePackage::class, mappedBy="CommercePackageGroup")
      */
     private $commercePackage;
 

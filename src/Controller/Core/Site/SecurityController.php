@@ -1,14 +1,18 @@
 <?php
 
-namespace App\Controller\Core;
+namespace App\Controller\Core\Site;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Controller\Core\AbstractCoreController;
+use App\Model\CoreTraitModel;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class SecurityController extends AbstractController
+class SecurityController extends AbstractCoreController
 {
+
+    use CoreTraitModel;
+
     /**
      * @Route("/login", name="app_login")
      * @param AuthenticationUtils $authenticationUtils

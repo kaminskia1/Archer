@@ -2,6 +2,7 @@
 
 namespace App\Entity\Commerce;
 
+use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommerceDiscountCodeRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,6 +13,8 @@ use Symfony\Component\Uid\Uuid;
  */
 class CommerceDiscountCode
 {
+
+    use CommerceTraitModel;
 
     public function __toString()
     {

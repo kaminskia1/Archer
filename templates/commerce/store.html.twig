@@ -9,11 +9,15 @@
     <div class="store container content-container p-0">
 
         <section class="content-header">
-            {{ items|length }} product(s)
+            {{ productCount }} product(s)
         </section>
 
         <section class="content-body">
-            <div class="panel-body">{% for item in items %}{{ include(template) }}{% endfor %}</div>
+            <div class="panel-body">
+                {% for item in items %}
+                        {{ include(template) }}
+                {% endfor %}
+            </div>
         </section>
 
     </div>

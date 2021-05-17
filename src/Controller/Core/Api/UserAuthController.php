@@ -5,6 +5,7 @@ namespace App\Controller\Core\Api;
 use App\Controller\AbstractApiController;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
+use App\Model\CoreTraitModel;
 use App\Repository\Commerce\CommerceInvoiceRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -17,8 +18,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserAuthController extends AbstractApiController
 {
+    use CoreTraitModel;
+
     /**
-     * User Packages
+     * CoreUser Packages
      *
      * @Rest\View
      * @Rest\Post("/api/core/auth", name="api_core_user_auth")

@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\User;
+use App\Entity\Core\CoreUser;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -17,18 +17,18 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * Class UserCrudController
+ * Class CoreUserCrudController
  * @package App\Controller\Admin
  * @IsGranted("ROLE_ADMIN")
  */
-class UserCrudController extends AbstractCrudController
+class CoreUserCrudController extends AbstractCrudController
 {
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInPlural('Users')
             ->setEntityLabelInSingular(
-                fn (?User $user, string $pageName = "0") => $user ? ($user->getUuid() . ( $user->getNickname() != "" ? " (" . $user->getNickname() . ")" : "" ) ) : 'User'
+                fn (?CoreUser $user, string $pageName = "0") => $user ? ($user->getUuid() . ( $user->getNickname() != "" ? " (" . $user->getNickname() . ")" : "" ) ) : 'CoreUser'
             )
             ->setEntityPermission('ROLE_ADMIN')
             ->setPageTitle('index', 'Users')
@@ -43,7 +43,7 @@ class UserCrudController extends AbstractCrudController
 
     public static function getEntityFqcn(): string
     {
-        return User::class;
+        return CoreUser::class;
     }
 
     public function configureFields(string $pageName): iterable
@@ -62,11 +62,7 @@ class UserCrudController extends AbstractCrudController
             ]),
             AssociationField::new('registrationCode')
                 ->onlyWhenCreating()
-                ->setRequired(true)
-                ->formatValue(function($val)
-                {
-                    return $val;
-                }),
+                ->setRequired(true),
             TextField::new('hwid', 'Hardware ID')->onlyOnDetail(),
             DateTimeField::new('lastWebsiteLoginDate', "Last Site Login")->hideOnForm(),
             DateTimeField::new('lastLoaderLoginDate', "Last Loader Login")->onlyOnDetail(),

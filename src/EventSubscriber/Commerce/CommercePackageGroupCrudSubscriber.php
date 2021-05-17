@@ -2,12 +2,15 @@
 namespace App\EventSubscriber\Commerce;
 
 use App\Entity\Commerce\CommercePackageGroup;
+use App\Model\CommerceTraitModel;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CommercePackageGroupCrudSubscriber implements EventSubscriberInterface
 {
+
+    use CommerceTraitModel;
 
     public static function getSubscribedEvents()
     {

@@ -29,13 +29,13 @@ class _SamplePay extends GatewayType
         return [];
     }
 
-    public function handleCallback( CommerceInvoice $invoice, EntityManager $entityManager ): array
+    public function handleCallback(CommerceInvoice $invoice, EntityManager $entityManager ): array
     {
         // Handles callback from payment processor
         return [CommerceGatewayCallbackResponseEnum::TYPE_FAILURE, []];
     }
 
-    public function handleRedirect( CommerceInvoice $invoice, array $gatewayFormData ): RedirectResponse
+    public function handleRedirect(CommerceInvoice $invoice, array $gatewayFormData ): RedirectResponse
     {
         // Redirects user to payment processor
         return new RedirectResponse("http://example.com/");

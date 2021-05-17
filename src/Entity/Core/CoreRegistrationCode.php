@@ -2,15 +2,18 @@
 
 namespace App\Entity\Core;
 
-use App\Repository\Core\RegistrationCodeRepository;
+use App\Model\CoreTraitModel;
+use App\Repository\Core\CoreRegistrationCodeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * @ORM\Entity(repositoryClass=RegistrationCodeRepository::class)
+ * @ORM\Entity(repositoryClass=CoreRegistrationCodeRepository::class)
  */
-class RegistrationCode
+class CoreRegistrationCode
 {
+
+    use CoreTraitModel;
 
     public function __toString()
     {
@@ -40,7 +43,7 @@ class RegistrationCode
     private $usageDate;
 
     /**
-     * @ORM\OneToOne(targetEntity=App\Entity\Core\User::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=App\Entity\Core\CoreUser::class, cascade={"persist", "remove"})
      */
     private $usedBy;
 
@@ -85,12 +88,12 @@ class RegistrationCode
         return $this;
     }
 
-    public function getUsedBy(): ?User
+    public function getUsedBy(): ?CoreUser
     {
         return $this->usedBy;
     }
 
-    public function setUsedBy(?User $usedBy): self
+    public function setUsedBy(?CoreUser $usedBy): self
     {
         $this->usedBy = $usedBy;
 

@@ -6,6 +6,7 @@ use App\Entity\Commerce\CommerceGatewayInstance;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePackage;
 use App\Form\Type\EntityHiddenType;
+use App\Model\CommerceTraitModel;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,6 +19,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommerceCheckoutFormType extends AbstractType
 {
+
+    use CommerceTraitModel;
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 

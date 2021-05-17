@@ -5,10 +5,24 @@ use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 use Symfony\Component\Form\Extension\Core\Type\DateIntervalType;
 
+/**
+ * Class DateIntervalField
+ * @package App\Admin\Field
+ */
 final class DateIntervalField implements FieldInterface
 {
+    /**
+     * Import FieldTrait
+     */
     use FieldTrait;
 
+    /**
+     * Field constructor
+     *
+     * @param string $propertyName
+     * @param string|null $label
+     * @return static
+     */
     public static function new(string $propertyName, ?string $label = null): self
     {
         return (new self())

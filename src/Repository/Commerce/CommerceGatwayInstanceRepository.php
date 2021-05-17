@@ -3,6 +3,7 @@
 namespace App\Repository\Commerce;
 
 use App\Entity\Commerce\CommerceGatewayInstance;
+use App\Model\CommerceTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommerceGatwayInstanceRepository extends ServiceEntityRepository
 {
+
+    use CommerceTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CommerceGatewayInstance::class);

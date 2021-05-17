@@ -2,14 +2,54 @@
 
 namespace App\Entity\Core;
 
+use App\Model\CoreTraitModel;
 use App\Repository\Core\CoreModuleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CoreModuleRepository::class)
+ *
+ * Module Layout
+ *
+ *  - All classes must inherit their respective model, e.g. for commmerce, it would be ComerceTraitModel in src/Model
+ *
+ *
+ *  Controllers
+ *  => Controller/{ModuleName}/{ModuleName}{ControllerName}Controller
+ *  => Controller/{ModuleName}/{ModuleName}/Api/{ControllerName}Controller
+ *  => Controller/{ModuleName}/{ModuleName}/Api/Secure/{ControllerName}Controller
+ *
+ *  Entity
+ *  => Entity/{ModuleName}/{ModuleName}{EntityName}
+ *
+ *  Enum
+ *  => Enum/{ModuleName}/{ModuleName}{EnumName}
+ *
+ *  EventListener
+ *  => EventListener/{ModuleName}/{ModuleName}{EventName}Listener
+ *
+ *  EventSubscriber
+ *  => EventSubscriber/{ModuleName}/{ModuleName}{SubscriberName}Subscriber
+ *
+ *  Form
+ *  => Form/{ModuleName}{FormName}
+ *
+ *  Module
+ *  => Module/{ModuleName}/
+ *
+ *  Repository
+ *  => Repository/{ModuleName}/{ModuleName}{EntityName}
+ *
+ *  Template
+ *  => {modulename}/{template}
+ *
+ *
  */
 class CoreModule
 {
+
+    use CoreTraitModel;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

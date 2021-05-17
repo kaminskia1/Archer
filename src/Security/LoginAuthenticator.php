@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\Core\User;
+use App\Entity\Core\CoreUser;
 use App\Module\Core\CorePasswordHasher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -68,7 +68,7 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
             throw new InvalidCsrfTokenException();
         }
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['uuid' => $credentials['uuid']]);
+        $user = $this->entityManager->getRepository(CoreUser::class)->findOneBy(['uuid' => $credentials['uuid']]);
 
         if (!$user) {
             // fail authentication with a custom error
@@ -105,4 +105,5 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
+
 }

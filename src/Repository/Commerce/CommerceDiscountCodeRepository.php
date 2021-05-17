@@ -3,6 +3,7 @@
 namespace App\Repository\Commerce;
 
 use App\Entity\Commerce\CommerceDiscountCode;
+use App\Model\CommerceTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommerceDiscountCodeRepository extends ServiceEntityRepository
 {
+
+    use CommerceTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CommerceDiscountCode::class);

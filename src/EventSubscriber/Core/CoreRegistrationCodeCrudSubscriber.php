@@ -1,13 +1,16 @@
 <?php
 namespace App\EventSubscriber\Core;
 
-use App\Entity\Core\RegistrationCode;
+use App\Entity\Core\CoreRegistrationCode;
+use App\Model\CoreTraitModel;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class CoreRegistrationCodeCrudSubscriber implements EventSubscriberInterface
 {
+
+    use CoreTraitModel;
 
     private $passwordEncoder;
 
@@ -28,7 +31,7 @@ class CoreRegistrationCodeCrudSubscriber implements EventSubscriberInterface
     {
         $entity = $event->getEntityInstance();
 
-        if (!($entity instanceof RegistrationCode))
+        if (!($entity instanceof CoreRegistrationCode))
         {
             return;
         }

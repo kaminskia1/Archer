@@ -1,8 +1,10 @@
 <?php
 namespace App\EventSubscriber\Core;
 
+use App\Model\CoreTraitModel;
+use App\Module\Core\CorePasswordHasher;
 use DateTime;
-use App\Entity\Core\User;
+use App\Entity\Core\CoreUser;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -10,6 +12,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class CoreUserCrudSubscriber implements EventSubscriberInterface
 {
+
+    use CoreTraitModel;
 
     private $passwordEncoder;
 
@@ -30,7 +34,7 @@ class CoreUserCrudSubscriber implements EventSubscriberInterface
     {
         $entity = $event->getEntityInstance();
 
-        if (!($entity instanceof User))
+        if (!($entity instanceof CoreUser))
         {
             return;
         }
@@ -46,7 +50,7 @@ class CoreUserCrudSubscriber implements EventSubscriberInterface
     {
         $entity = $event->getEntityInstance();
 
-        if (!($entity instanceof User))
+        if (!($entity instanceof CoreUser))
         {
             return;
         }
@@ -63,7 +67,7 @@ class CoreUserCrudSubscriber implements EventSubscriberInterface
         $entity->setNickname( $entity->getNickname() ?? "" );
     }
 
-    public function _encodePassword( User &$entity)
+    public function _encodePassword(CoreUser &$entity)
     {
         if ( strlen($entity->getPlainPassword()) > 0 )
         {
@@ -71,7 +75,7 @@ class CoreUserCrudSubscriber implements EventSubscriberInterface
             $entity->setPassword(
                 $this->passwordEncoder->encodePassword(
                     $entity,
-                    $entity->getPlainPassword()
+                    CorePasswordHasher::hashPassword($entity->getPlainPassword())
                 )
             );
 

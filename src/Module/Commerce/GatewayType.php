@@ -16,11 +16,11 @@ abstract class GatewayType
 
     abstract public function getInstanceOptions(): array;
 
-    abstract public function handleCallback( CommerceInvoice $invoice, EntityManager $entityManager ): array;
+    abstract public function handleCallback(CommerceInvoice $invoice, EntityManager $entityManager ): array;
 
-    abstract public function handleRedirect( CommerceInvoice $invoice, array $gatewayFormData ): RedirectResponse;
+    abstract public function handleRedirect(CommerceInvoice $invoice, array $gatewayFormData ): RedirectResponse;
 
-    public function createPST( CommerceInvoice $invoice, EntityManager $entityManager ): array
+    public function createPST(CommerceInvoice $invoice, EntityManager $entityManager ): array
     {
 
         $purchase = new CommercePurchase( $invoice );

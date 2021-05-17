@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\User;
+use App\Entity\Core\CoreUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +38,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     {
         if ( $credentials == null ) return null;
 
-        $user = $this->entityManager->getRepository(User::class)->findBy( ['apiKey' => $credentials] );
+        $user = $this->entityManager->getRepository(CoreUser::class)->findBy( ['apiKey' => $credentials] );
         if (!$user || $user->getApiKeyExpiry() < new \DateTime())
         {
             throw new CustomUserMessageAuthenticationException("Expired Token");

@@ -3,8 +3,11 @@
 namespace App\Controller\Commerce\Api;
 
 use App\Controller\AbstractApiController;
+use App\Controller\Commerce\AbstractCommerceApiController;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
+use App\Model\CommerceTraitModel;
+use App\Module\Commerce\GatewayType;
 use App\Repository\Commerce\CommerceInvoiceRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -15,8 +18,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CheckoutCallbackController extends AbstractApiController
+class CheckoutCallbackController extends AbstractCommerceApiController
 {
+
+    use CommerceTraitModel;
+
+
     /**
      * Commerce checkout callback handler
      *
@@ -29,6 +36,11 @@ class CheckoutCallbackController extends AbstractApiController
      */
     public function index( Request $request ): Response
     {
+
+        if (!$this->isEntityModuleEnabled())
+        {
+            return $this->handleView( $this->view([], Response::HTTP_NOT_FOUND)->setFormat('json'));
+        }
 
         $entityManager = $this
             ->getDoctrine()
@@ -57,7 +69,6 @@ class CheckoutCallbackController extends AbstractApiController
             ], Response::HTTP_NOT_FOUND,
             )->setFormat('json'));
         }
-
 
         $handle = $invoice->getCommerceGatewayInstance()->getCommerceGatewayType()->getClass()::handleCallback( $invoice, $entityManager );
         return $this->handleView( $this->view([

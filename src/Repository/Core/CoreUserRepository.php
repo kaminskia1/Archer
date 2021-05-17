@@ -2,32 +2,42 @@
 
 namespace App\Repository\Core;
 
-use App\Entity\Core\User;
+use App\Entity\Core\CoreUser;
+use App\Model\CoreTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @method User|null find($id, $lockMode = null, $lockVersion = null)
- * @method User|null findOneBy(array $criteria, array $orderBy = null)
- * @method User[]    findAll()
- * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CoreUser|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CoreUser|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CoreUser[]    findAll()
+ * @method CoreUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+class CoreUserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+
+    use CoreTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, User::class);
+        parent::__construct($registry, CoreUser::class);
     }
 
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
+     * @param UserInterface $user
+     * @param string $newEncodedPassword
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof CoreUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
@@ -37,7 +47,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     // /**
-    //  * @return User[] Returns an array of User objects
+    //  * @return CoreUser[] Returns an array of CoreUser objects
     //  */
     /*
     public function findByExampleField($value)
@@ -54,7 +64,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     */
 
     /*
-    public function findOneBySomeField($value): ?User
+    public function findOneBySomeField($value): ?CoreUser
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.exampleField = :val')

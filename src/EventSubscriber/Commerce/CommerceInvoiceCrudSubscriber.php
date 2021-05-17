@@ -2,6 +2,7 @@
 namespace App\EventSubscriber\Commerce;
 
 use App\Entity\Commerce\CommerceInvoice;
+use App\Model\CommerceTraitModel;
 use DateInterval;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityUpdatedEvent;
@@ -9,6 +10,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CommerceInvoiceCrudSubscriber implements EventSubscriberInterface
 {
+
+    use CommerceTraitModel;
 
     public static function getSubscribedEvents()
     {

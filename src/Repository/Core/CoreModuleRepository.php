@@ -3,6 +3,7 @@
 namespace App\Repository\Core;
 
 use App\Entity\Core\CoreModule;
+use App\Model\CoreTraitModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CoreModuleRepository extends ServiceEntityRepository
 {
+
+    use CoreTraitModel;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CoreModule::class);
@@ -22,7 +26,7 @@ class CoreModuleRepository extends ServiceEntityRepository
     public function isModuleLoaded($value): bool
     {
         $res = $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
+            ->andWhere('c.name = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult();

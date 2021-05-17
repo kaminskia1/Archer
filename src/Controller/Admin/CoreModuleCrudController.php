@@ -19,7 +19,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  * @IsGranted("ROLE_ADMIN")
  *
  *
- * Layout
+ *
+ * Module Layout
+ *
+ *  - All classes must inherit their respective model, e.g. for commmerce, it would be ComerceTraitModel in src/Model
  *
  *  Controllers
  *  => Controller/{ModuleName}/{ModuleName}{ControllerName}Controller
@@ -50,6 +53,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  *  Template
  *  => {modulename}/{template}
  *
+ *
  */
 class CoreModuleCrudController extends AbstractCrudController
 {
@@ -60,7 +64,7 @@ class CoreModuleCrudController extends AbstractCrudController
             ->setPageTitle('index', 'Modules')
             ->setEntityLabelInPlural('Modules')
             ->setEntityLabelInSingular(
-                fn (?CoreModuleCrudController $module, string $pageName = "0") => $module ? ("Module: " . $module->getName() ): 'Module'
+                fn (?CoreModule $module, string $pageName = "0") => $module ? ("Module: " . $module->getName() ): 'Module'
 
             )
             ->setEntityPermission('ROLE_ADMIN')

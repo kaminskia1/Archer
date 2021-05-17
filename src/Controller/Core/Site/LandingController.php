@@ -1,20 +1,24 @@
 <?php
 
-namespace App\Controller\Core;
+namespace App\Controller\Core\Site;
 
+use App\Controller\Core\AbstractCoreController;
+use App\Model\CoreTraitModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
-class LandingController extends AbstractController
+class LandingController extends AbstractCoreController
 {
-     private $security;
+    use CoreTraitModel;
 
-     public function __construct(Security $security)
-     {
-         $this->security = $security;
-     }
+    private $security;
+
+    public function __construct(Security $security)
+    {
+     $this->security = $security;
+    }
 
     /**
      * @Route("/", name="landing")
