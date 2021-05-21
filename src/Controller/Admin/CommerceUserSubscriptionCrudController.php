@@ -25,8 +25,8 @@ class CommerceUserSubscriptionCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setPageTitle('index', 'CoreUser Subscriptions')
-            ->setEntityLabelInPlural('CoreUser Subscriptions')
+            ->setPageTitle('index', 'User Subscriptions')
+            ->setEntityLabelInPlural('User Subscriptions')
             ->setEntityLabelInSingular(
                 fn (?CommerceUserSubscription $subscription, string $pageName = "0") => $subscription ? ("Subscription: " . $subscription->getId() ): 'Subscription'
 

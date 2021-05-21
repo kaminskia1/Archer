@@ -61,6 +61,9 @@ class ArcherCreateUserCommand extends Command
     {
         $this
             ->setDescription('Create a new user')
+            ->addArgument('password', InputArgument::OPTIONAL, 'The password to encode')
+            ->addArgument('nickname', InputArgument::OPTIONAL, 'A Nickname to append')
+            ->addArgument('customRole', InputArgument::OPTIONAL, 'A custom role to accompany ROLE_USER')
         ;
     }
 
@@ -77,9 +80,9 @@ class ArcherCreateUserCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         // Prompt for password, nickname if applicable, and custom role to bind if applicable
-        $password = $io->ask("Enter a password", "password");
-        $nickname = $io->ask("Enter a nickname (optional)");
-        $extraRole = $io->ask("Add a custom role (optional)");
+        $password = $input->getArgument('password') ?? $io->ask("Enter a password", "password");
+        $nickname = $input->getArgument('nickname') ?? $io->ask("Enter a nickname (optional)");
+        $customRole = $input->getArgument('customRole') ?? $io->ask("Add a custom role (optional)");
 
         // Create registration code
         $code = new CoreRegistrationCode();
@@ -95,7 +98,7 @@ class ArcherCreateUserCommand extends Command
         // Bind new user to previous registration code, set nickname and roles
         $user->setRegistrationCode($code);
         $user->setNickname($nickname);
-        $user->setRoles(array_merge($user->getRoles(), [$extraRole]));
+        $user->setRoles(array_merge($user->getRoles(), [$customRole]));
 
         // Encode password with CorePasswordHasher, and then encode again with the server's standard encoding
         $user->setPassword(

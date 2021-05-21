@@ -4,6 +4,8 @@
     <link rel="stylesheet" href="{{ asset('build/commerce/package.scss') }}">
 {% endblock %}
 
+{% block title %} - Store{% endblock %}
+
 {% block body %}
 
     <div class="store container content-container p-0">
@@ -18,7 +20,7 @@
                     <div style="width:360px">
                         <div class="text-center">
                             <img
-                                class="mx-auto"
+                                class="mx-auto img-thumbnail"
                                 width="280px"
                                 height=280px"
                                 src="{{ asset( "build/images/__commerce#{package.getImageURI()}" ) }}"
@@ -26,16 +28,16 @@
                         </div>
                     </div>
                     <div class="col-sm">
-                        <div class="row">
+                        <div class="row pb-3">
                             <div class="package-title">{{ package.name }}</div>
                         </div>
                         <div class="row">
                             {{ form_start(form, {'method': 'POST'}) }}
                                 <div class="form-row">
-                                    {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field'}}) }}
+                                    {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field p1'}}) }}
                                 </div>
                                 {{ form_rest(form) }}
-                                {# convert submit to form field#}
+                                {# convert submit to form field #}
                                 <div class="form-row">
                                     <div>
                                         <button class="btn btn-primary btn-lg btn-block">Purchase</button>

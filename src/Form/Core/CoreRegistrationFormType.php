@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Core;
 
 use App\Entity\Core\CoreUser;
 use App\Model\CoreTraitModel;

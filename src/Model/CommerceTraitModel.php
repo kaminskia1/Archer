@@ -15,22 +15,6 @@ use App\Entity\Core\CoreModule;
 trait CommerceTraitModel
 {
 
-
-    /**
-     * Get if entity's module is installed and enabled
-     *
-     * @return bool
-     */
-    public function isEntityModuleEnabled(): bool
-    {
-        // Hack in entitymanager
-        return $GLOBALS['kernel']
-            ->getContainer()
-            ->get('doctrine.orm.entity_manager')
-            ->getRepository(CoreModule::class)
-            ->isModuleLoaded('Commerce');
-    }
-
     /**
      * Get the entity's base installation module
      *
@@ -39,6 +23,21 @@ trait CommerceTraitModel
     public function getBaseModule(): string
     {
         return 'Commerce';
+    }
+
+    /**
+     * Get if entity's module is installed and enabled
+     *
+     * @return bool
+     */
+    public function isEntityModuleEnabled(): bool
+    {
+        // Hack in Entity Manager
+        return $GLOBALS['kernel']
+            ->getContainer()
+            ->get('doctrine.orm.entity_manager')
+            ->getRepository(CoreModule::class)
+            ->isModuleLoaded($this->getBaseModule());
     }
 
 }

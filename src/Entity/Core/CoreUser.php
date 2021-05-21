@@ -108,17 +108,17 @@ class CoreUser implements UserInterface
     private $hwid;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="CoreUser", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="user", orphanRemoval=true)
      */
     private $CommerceUserSubscriptions;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, mappedBy="CoreUser")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, mappedBy="user")
      */
     private $CommerceInvoices;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommercePurchase::class, mappedBy="CoreUser")
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommercePurchase::class, mappedBy="user")
      */
     private $CommercePurchases;
 
@@ -146,6 +146,16 @@ class CoreUser implements UserInterface
      * @ORM\Column(type="string", length=32, nullable=true)
      */
     private $apiAesIV;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $infractionPoints = 0;
+
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $infractionTypes = [];
 
 
     /**
@@ -796,6 +806,78 @@ class CoreUser implements UserInterface
     public function setApiAesIV(?string $apiAesIV): self
     {
         $this->apiAesIV = $apiAesIV;
+
+        return $this;
+    }
+
+    /**
+     * Get infraction points
+     *
+     * @return int
+     */
+    public function getInfractionPoints(): int
+    {
+        return $this->infractionPoints;
+    }
+
+    /**
+     * Set infraction points
+     *
+     * @param int $infractionPoints
+     * @return $this
+     */
+    public function setInfractionPoints(int $infractionPoints): self
+    {
+        $this->infractionPoints = $infractionPoints;
+
+        return $this;
+    }
+
+    /**
+     * Add infraction points
+     *
+     * @param int $infractionPoints
+     * @return $this
+     */
+    public function addInfractionPoints(int $infractionPoints): self
+    {
+        $this->infractionPoints = ($this->infractionPoints ?? 0) + $infractionPoints;
+
+        return $this;
+    }
+
+    /**
+     * Get infraction types
+     *
+     * @return array|null
+     */
+    public function getInfractionTypes(): ?array
+    {
+        return $this->infractionTypes;
+    }
+
+    /**
+     * Set infraction types
+     *
+     * @param array|null $infractionTypes
+     * @return $this
+     */
+    public function setInfractionTypes(?array $infractionTypes): self
+    {
+        $this->infractionTypes = $infractionTypes;
+
+        return $this;
+    }
+
+    /**
+     * Add infraction type
+     *
+     * @param int $value
+     * @return $this
+     */
+    public function addInfractionType(int $value): self
+    {
+        $this->infractionTypes = array_merge($this->infractionTypes, [$value]);
 
         return $this;
     }

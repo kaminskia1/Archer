@@ -38,4 +38,5 @@ class LandingController extends AbstractCoreController
         return $this->redirectToRoute('app_login');
 
     }
+
 }

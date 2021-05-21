@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}{% endblock %}
+
+{% block title %} - Client{% endblock %}
+
+{% block body %}
+
+    <div class="container content-container p-0">
+
+        <section class="content-header">
+            My Account
+        </section>
+
+        {# Check that subscriptions exist and that commerce is enabled #}
+        {% if user.commerceUserSubscriptions.count > 0 and user.commerceUserSubscriptions.current.entityModuleEnabled %}
+        <section class="content-body">
+            <p class="text-dark title">Subscriptions</p>
+            <div class="row p-2 pl-4 pr-4">
+                {% for subscription in user.commerceUserSubscriptions %}
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ subscription.commercePackageAssoc.name }}</h5>
+                            {% if subscription.active %}
+                                <p class="card-text pt-2">Expires: {{ subscription.expiryDateTime.format('m/d/y') }}</p>
+                                <a href="{{ url( 'app_commerce_package', {'pid': subscription.commercePackageAssoc.id} ) }}" class="btn btn-primary">Add Time</a>
+                            {% else %}
+                                <p class="card-text pt-2 text-danger">Expired</p>
+                                <a href="{{ url( 'app_commerce_package', {'pid': subscription.commercePackageAssoc.id} ) }}" class="btn btn-primary">Renew</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </div>
+
+{% endblock %}

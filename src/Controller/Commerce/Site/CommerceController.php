@@ -8,18 +8,12 @@ use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePackage;
 use App\Entity\Commerce\CommercePackageGroup;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
-use App\Form\CommerceCheckoutFormType;
+use App\Form\Commerce\CommerceCheckoutFormType;
 use App\Model\CommerceTraitModel;
-use DateInterval;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Asset\Package;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * Class CommerceController
@@ -44,8 +38,9 @@ class CommerceController extends AbstractCommerceController
             ->getRepository(CommercePackageGroup::class)
             ->findAll();
 
-        return $this->render('commerce/store.html.twig', [
-            'template' => 'commerce/group_short.html.twig',
+        return $this->render('module/commerce/store.html.twig', [
+            'title' => 'Store',
+            'template' => 'module/commerce/group_short.html.twig',
             'items' => $items,
             'name' => 'store',
             'productCount' => count($items)
@@ -68,16 +63,15 @@ class CommerceController extends AbstractCommerceController
             ->getCommercePackage();
 
         $count = count($items);
-        foreach ($items as $item)
-        {
-            if (!$item->getIsVisible() || !$item->getIsEnabled())
-            {
+        foreach ($items as $item) {
+            if (!$item->getIsVisible() || !$item->getIsEnabled()) {
                 $count -= 1;
             }
         }
 
-        return $this->render('commerce/store.html.twig', [
-            'template' => 'commerce/package_short.html.twig',
+        return $this->render('module/commerce/store.html.twig', [
+            'title' => 'Store',
+            'template' => 'module/commerce/package_short.html.twig',
             'items' => $items,
             'name' => 'store',
             'productCount' => $count
@@ -91,7 +85,7 @@ class CommerceController extends AbstractCommerceController
      * @param int $pid
      * @return Response
      */
-    public function storePackage(int $pid)
+    public function storePackage(int $pid): Response
     {
         // get package
         $package = $this
@@ -105,9 +99,10 @@ class CommerceController extends AbstractCommerceController
         $invoice->setCommercePackage($package);
 
         // create form, will redirect to checkout (app_commerce_checkout) when submitted
-        $form = $this->createForm(CommerceCheckoutFormType::class, $invoice, ['form_stage' => 0, 'action'=> '/store/checkout']);
+        $form = $this->createForm(CommerceCheckoutFormType::class, $invoice, ['form_stage' => 0, 'action' => '/store/checkout']);
 
-        return $this->render('commerce/package.html.twig', [
+        return $this->render('module/commerce/package.html.twig', [
+            'title' => 'Store',
             'name' => 'store',
             'package' => $package,
             'form' => $form->createView()
@@ -120,7 +115,7 @@ class CommerceController extends AbstractCommerceController
      * @param Request $r
      * @return Response
      */
-    public function storeCheckout(Request $r)
+    public function storeCheckout(Request $r): Response
     {
         /**
          * @TODO Ensure package, packageDTP value exist are valid and are active (isActive). If not, throw error (XSS?)
@@ -131,8 +126,7 @@ class CommerceController extends AbstractCommerceController
         $invoice = new CommerceInvoice();
         $entityManager = $this->getDoctrine()->getManager();
         $ikey = $r->get('commerce_checkout_form')['commerceGatewayInstance'] ?? null;
-        if (!is_null($ikey))
-        {
+        if (!is_null($ikey)) {
             $stage = 2;
             $instance = $entityManager
                 ->getRepository(CommerceGatewayInstance::class)
@@ -146,40 +140,60 @@ class CommerceController extends AbstractCommerceController
 
         $form->handleRequest($r);
 
-        $dtp = explode(":", $form->getData()->getCommercePackage()->getDurationToPrice()[$form->getData()->getCommercePackageDurationToPriceID()]);
-        $invoice->setPrice($dtp[1]);
-        $invoice->setDurationDateInterval(date_interval_create_from_date_string($dtp[0] . " days"));
+        /**
+         * @var CommercePackage $package
+         */
+        $package = $form->getData()->getCommercePackage();
+        $dtp = $form->getData()->getCommercePackageDurationToPriceID();
 
-        // final submit, build invoice and run gateway redirect
-        if ($form->isSubmitted() && $form->isValid() && $form->offsetExists('confirm') && $form->get('confirm') == true)
+        // Verify that valid package and duration to price id provided
+        if (!$package || is_null($dtp))
         {
-            /**
-             * @TODO Verify that Duration and Instance is 100% set, refactor this garbage into something clean
-             */
-            $data = $form->getData();
-            $invoice->setCommerceGatewayType($invoice->getCommerceGatewayInstance()->getCommerceGatewayType());
-            // implement in future
+            return $this->render('module/core/error/400.html.twig');
+        }
+
+        // Verify that package is enabled and duration to price exists
+        if (!$package->getIsEnabled() && isset($package->getDurationToPrice()[$dtp]))
+        {
+            return $this->render('module/core/error/400.html.twig');
+        }
+
+        // Get corresponding duration and price
+        list($duration, $price) = explode(":", $package->getDurationToPrice()[$dtp]);
+
+        // Bind price and duration to invoice
+        $invoice->setPrice($price);
+        $invoice->setDurationDateInterval(date_interval_create_from_date_string($duration . " days"));
+
+
+        /**
+         * Begin secondary stage of checkout (Process as if page is "submitted"
+         */
+        // Build invoice and run gateway redirect
+        if ($form->isSubmitted() && $form->isValid() && $form->offsetExists('confirm') && $form->get('confirm') == true) {
+
+
+            // @TODO: Implement discount codes
             //$invoice->setDiscountCode();
-            $invoice->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_OPEN);
-            $invoice->setUser( $this->getUser() );
+
+            $invoice->setCommerceGatewayType($invoice->getCommerceGatewayInstance()->getCommerceGatewayType());
+            $invoice->setUser($this->getUser());
 
             $gatewayData = [];
             $fields = $invoice
                 ->getCommerceGatewayType()
-                ->__getClassInstance()
+                ->getClassInstance()
                 ->getFormFields();
-            foreach ($fields as $element)
-            {
+
+            foreach ($fields as $element) {
                 if (
                     $form->offsetExists('gateway__' . $element->title)
                     && $data = $form->get('gateway__' . $element->title)->getData()
-                )
-                {
+                ) {
                     $gatewayData[$element->title] = $data;
-                }
-                else
-                {
-                    return $this->render('commerce/checkout.html.twig', [
+                } else {
+                    return $this->render('module/commerce/checkout.html.twig', [
+                        'title' => 'Checkout',
                         'name' => 'checkout',
                         'invoice' => $invoice,
                         'currency' => $_ENV['COMMERCE_CURRENCY'],
@@ -187,17 +201,91 @@ class CommerceController extends AbstractCommerceController
                     ]);
                 }
             }
+
+            // Save the invoice
             $entityManager->persist($invoice);
             $entityManager->flush();
-            
-            return $invoice->getCommerceGatewayInstance()->getCommerceGatewayType()->getClass()::handleRedirect( $invoice, $gatewayData );
+
+            // Handle the redirect
+            $response = $invoice
+                ->getCommerceGatewayInstance()
+                ->getCommerceGatewayType()
+                ->getClassInstance()
+                ->handleRedirect(
+
+                    // Invoice object
+                    $invoice,
+
+                    // User payment-complete callback url
+                    $this->generateUrl('app_commerce_checkout_complete', [
+                        'id' => $invoice->getId()
+                    ]),
+
+                    // Custom gateway data
+                    $gatewayData
+                );
+
+            // Save any pass-by-ref changes to the invoice
+            $entityManager->flush();
+
+            // Return the handled redirect
+            return $response;
         }
 
-        return $this->render('commerce/checkout.html.twig', [
+        return $this->render('module/commerce/checkout.html.twig', [
+            'title' => 'Checkout',
             'name' => 'checkout',
             'invoice' => $invoice,
             'currency' => $_ENV['COMMERCE_CURRENCY'],
             'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/checkout/complete/{id}", name="app_commerce_checkout_complete")
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function checkoutComplete(int $id)
+    {
+        $invoice = $this
+            ->getDoctrine()
+            ->getRepository(CommerceInvoice::class)
+            ->findOneBy(['user' => $this->getUser(), 'id' => $id]);
+
+        if (!$invoice) {
+            return $this->render("module/core/error/404.html.twig");
+        }
+
+        return $this->render("module/commerce/checkout_complete.html.twig", [
+            'title' => 'Checkout',
+            'name' => 'checkout',
+            'invoice' => $invoice
+        ]);
+    }
+
+
+    /**
+     * @Route("/invoice/{id}", name="app_commerce_invoice_view")
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function viewInvoice(int $id)
+    {
+        $invoice = $this
+            ->getDoctrine()
+            ->getRepository(CommerceInvoice::class)
+            ->findOneBy(['user' => $this->getUser(), 'id' => $id]);
+
+        if (!$invoice) {
+            return $this->render("module/core/error/404.html.twig");
+        }
+
+        return $this->render("module/commerce/invoice_view.html.twig", [
+            'title' => 'Invoice',
+            'invoice' => $invoice
         ]);
     }
 

@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/commerce/checkout.scss') }}">
+{% endblock %}
+
+{% block title %} - Checkout{% endblock %}
+
+{% block body %}
+
+    <div class="text-center mb-4">
+        {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
+            or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING") %}
+            <i class="far fa-clock text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Awaiting Payment</p>
+
+        {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PAID") %}
+            <i class="fas fa-check text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Payment Received</p>
+
+        {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED") %}
+            <i class="fas fa-times text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Transaction Cancelled</p>
+
+        {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_EXPIRED") %}
+            <i class="fas fa-times text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Transaction Expired</p>
+
+        {% else %}
+            <i class="fas fa-times text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Error</p>
+
+        {% endif %}
+    </div>
+
+    <div class="invoice container content-container p-0">
+
+
+        <div class="text-center p-3">
+            Thank you for your order.
+        </div>
+
+        {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
+            or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING") %}
+            <p class="text-center">
+                <strong>We are working on processing this transaction.</strong><br>
+
+            </p>
+
+            <div class="container p-3">
+                <div class="container with-background bg-light p-2 pl-3 pr-3">
+                    <p>
+                        {{ invoice.commerceGatewayInstance.description }}
+                    </p>
+                </div>
+            </div>
+
+            <p class="text-center">
+                <i class="fa fa-info-circle"></i> You can refresh this page to track the status of this order.
+            </p>
+        {% endif %}
+
+        <div class="container p-5">
+
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-left font-weight-bold" style="font-size: 16px">Review</h2>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+
+
+
+                {% if invoice.commerceGatewayType.getClassInstance().manualOnly == false
+                    and (invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
+                    or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING")) %}
+
+                    <div class="col-9">
+                        <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">Invoice
+                            #{{ invoice.id }}</h2>
+                    </div>
+
+                    <div class="col-3 align-content-end">
+                        <div class="btn-group" role="group">
+
+                            <a href="{{ url('app_commerce_invoice_view', {id: invoice.id}) }}">
+                                <button class="btn bg-light text-secondary">View Invoice</button>
+                            </a>
+
+                            <a href="{{ invoice.paymentUrl }}">
+                                <button class="btn bg-light text-secondary">Pay Invoice</button>
+                            </a>
+
+                        </div>
+                    </div>
+
+                {% else %}
+
+                    <div class="col-10">
+                        <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">Invoice
+                            #{{ invoice.id }}</h2>
+                    </div>
+
+                    <div class="col-2 align-content-end">
+                        <a href="{{ url('app_commerce_invoice_view', {id: invoice.id}) }}">
+                            <button class="btn bg-light text-secondary">View Invoice</button>
+                        </a>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <hr>
+
+
+            <div class="row">
+
+                <div class="col-6">
+
+                    <h5 class="text-dark font-weight-bold">Payment Details</h5>
+
+                    <ul class="list-group-flush pl-0">
+                        <li class="list-group-item">
+                            <div>
+                                <span class="font-weight-bold">Status:</span>
+                                {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN") or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING") %}
+                                    Pending
+                                {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PAID") %}
+                                    Payment Received
+                                {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED") %}
+                                    Transaction Cancelled
+                                {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_EXPIRED") %}
+                                    Transaction Expired
+                                {% else %}
+                                    Error
+                                {% endif %}
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <span class="font-weight-bold">Gateway:</span> {{ invoice.commerceGatewayInstance.name }}
+                            </div>
+                        </li>
+
+                        {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PAID") %}
+                            <li class="list-group-item">
+                                <div><span class="font-weight-bold">Amount Paid:</span> {{ invoice.prettyPrice }}</div>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item">
+                                <div><span class="font-weight-bold">Amount Due:</span> {{ invoice.prettyPrice }}</div>
+                            </li>
+                        {% endif %}
+
+
+                        {% if invoice.commerceGatewayType.getClassInstance().manualOnly == true
+                            and (invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
+                            or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING")) %}
+                            <li class="list-group-item">
+                                <div class="font-weight-bold text-danger">Manual approval is required.</div>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="col-6">
+                    <h5 class="text-dark font-weight-bold">Order Review</h5>
+
+                    <div class="row pt-3 pl-2">
+                        <div class="col-1">
+                            <img width="40px"
+                                 src="{{ asset( "build/images/__commerce#{invoice.commercePackage.getImageURI()}" ) }}"
+                                 class="ipsNoThumb ipsNoThumb_product ipsThumb_tiny" alt=""/>
+                        </div>
+
+                        <div class="col-9">
+                            <p class="text-secondary">1 x {{ invoice.commercePackage.name }}
+                                ({{ invoice.durationDateInterval.d }} days)</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

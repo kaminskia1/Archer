@@ -8,7 +8,11 @@
     </head>
     <body>
         <div id="app">
-
+            {% if is_granted('IS_IMPERSONATOR') %}
+                <div class="alert alert-primary alert-dismissible fade show fixed-top" role="alert">
+                    <a href="{{ impersonation_exit_path(path('app_dashboard_admin') ) }}">Exit impersonation</a>
+                </div>
+            {% endif %}
             <nav class="navbar navbar-expand-lg navbar-light container">
                 <div class="navbar-brand"><a href="{{ url("app_dashboard_client") }}" class="navbar-brand-bold">Archer</a> {% if name|default(null) is not null %} > {{ name }} {% endif %}</div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,9 +43,12 @@
                                 <i class="fa fa-user-circle"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <h6 class="dropdown-header">{{ app.user.username }}</h6>
+                                <h6 class="dropdown-header">
+                                    {{ app.user.username }} {% if app.user.nickname is not null %} <span class="text-dark">({{ app.user.nickname }})</span> {% endif %}
+                                </h6>
                                 <div class="dropdown-divider"></div>
                                 {# <a class="dropdown-item" href="#">Action</a> #}
+                                <a class="dropdown-item" href="{{ url("app_dashboard_account") }}">My Account</a>
                                 {% if is_granted('ROLE_ADMIN') %}
                                     <a class="dropdown-item text-danger" href="{{ url("app_dashboard_admin") }}">Admin View</a>
                                 {% endif %}
@@ -60,8 +67,20 @@
             </div>
 
             <footer class="footer navbar-default" role="contentinfo">
-                <div class="container">
-                    <p class="fa-copyright">&copy; 2020 Archer Systems</p>
+                <div class="container container">
+                    <div class="row mb-5">
+                        <div class="col-md-6 ">
+                            <ul class="nav-links list-unstyled nav-left">
+                                <p class="fa-copyright ">&copy; 2021 Archer Systems</p>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 text-md-right">
+                            <ul class="nav-links list-unstyled nav-right">
+                                <li class="d-inline-flex"><a class="nav-link text-muted" style="padding: 0 10px 0 10px" href="{{ url("app_terms") }}">terms</a></li>
+                                <li class="d-inline-flex"><a class="nav-link text-muted" style="padding: 0 10px 0 10px" href="{{ url("app_privacy") }}">privacy</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </footer>
             {% block javascripts %}

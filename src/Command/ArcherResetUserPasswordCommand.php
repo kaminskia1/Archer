@@ -62,6 +62,8 @@ class ArcherResetUserPasswordCommand extends Command
     {
         $this
             ->setDescription('Reset a user\'s password')
+            ->addArgument('uuid', InputArgument::OPTIONAL, 'UUID to reset')
+            ->addArgument('password', InputArgument::OPTIONAL, 'New password to use');
         ;
     }
 
@@ -74,12 +76,12 @@ class ArcherResetUserPasswordCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Create symfonystyle io
+        // Create SymfonyStyle io
         $io = new SymfonyStyle($input, $output);
 
         // Grab username & new password
-        $uuid = $io->ask("Enter a username", "password");
-        $password = $io->ask("Enter a password");
+        $uuid = $input->getArgument('uuid') ?? $io->ask("Enter a username");
+        $password = $input->getArgument('password') ?? $io->ask("Enter a password");
 
         // Grab user from entitymanager
         $user = $this->entityManager->getRepository(CoreUser::class)->findOneBy(['uuid' => $uuid]);

@@ -26,7 +26,27 @@ class ClientViewController extends AbstractCoreController
      */
     public function index(): Response
     {
-        return $this->render("base.html.twig");
+        return $this->render("module/core/client/client.html.twig", ['title'=>'Client']);
     }
 
+
+    /**
+     * @Route("/terms", name="app_terms")
+     *
+     * @return Response
+     */
+    public function terms(): Response
+    {
+        return $this->render("module/core/landing/terms.html.twig", ['title'=>'Terms']);
+    }
+
+    /**
+     * @Route("/privacy", name="app_privacy")
+     *
+     * @return Response
+     */
+    public function privacy(): Response
+    {
+        return $this->render("module/core/landing/privacy.html.twig", ['title'=>'Privacy']);
+    }
 }

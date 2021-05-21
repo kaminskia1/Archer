@@ -77,7 +77,7 @@ class CommerceUserSubscription
      *
      * @param DateInterval $interval
      */
-    public function _addTime(DateInterval $interval)
+    public function addTime(DateInterval $interval)
     {
 
         $exp = clone $this->getExpiryDateTime();
@@ -88,6 +88,25 @@ class CommerceUserSubscription
         $this->setExpiryDateTime($exp);
     }
 
+    /**
+     * Get if the subscription is active
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->getExpiryDateTime() > new DateTime('now');
+    }
+
+    /**
+     * Get if the subscription is expired
+     *
+     * @return bool
+     */
+    public function isExpired()
+    {
+        return !$this->isActive();
+    }
 
     /**
      * Get id

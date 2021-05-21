@@ -5,7 +5,7 @@ namespace App\Controller\Core\Site;
 use App\Controller\Core\AbstractCoreController;
 use App\Entity\Core\CoreRegistrationCode;
 use App\Entity\Core\CoreUser;
-use App\Form\CoreRegistrationFormType;
+use App\Form\Core\CoreRegistrationFormType;
 use App\Model\CoreTraitModel;
 use App\Security\LoginAuthenticator;
 use DateTime;
@@ -88,7 +88,7 @@ class RegistrationController extends AbstractCoreController
             }
         }
 
-        return $this->render('core/registration/register.html.twig', [
+        return $this->render('module\core/registration/register.html.twig', [
             'form' => $form->createView(),
             'page_title' => "Archer",
             'target_path' => $this->generateUrl('app_dashboard_client'),

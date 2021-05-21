@@ -95,6 +95,7 @@ class CommercePackage
     public function __construct()
     {
         $this->commerceUserSubscriptions = new ArrayCollection();
+
     }
 
     /**
@@ -112,7 +113,7 @@ class CommercePackage
      *
      * @return string
      */
-    public function __getLowestPriceString(): string
+    public function getLowestPriceString(): string
     {
         // please create custom object field and change this in the future so it isn't shitty like it is now (0 => 12:23.99) to (12 => 23.99)
 
@@ -133,7 +134,7 @@ class CommercePackage
      *
      * @return array
      */
-    public function __getFormattedDurationToPrice()
+    public function getFormattedDurationToPrice()
     {
         $tmp = $this->getDurationToPrice();
         for ($i=0;$i<count($tmp);$i++)

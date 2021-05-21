@@ -104,6 +104,16 @@ class ArcherSetupCommand extends Command
             $output->writeln("> Added module: IRC");
         }
 
+        // Create Linker module
+        if ($this->entityManager->getRepository(CoreModule::class)->findOneBy(['name'=>'Linker']) == null)
+        {
+            $LinkerModule = new CoreModule();
+            $LinkerModule->setName('Linker');
+            $LinkerModule->setIsEnabled(false);
+            $this->entityManager->persist($LinkerModule);
+            $output->writeln("> Added module: Linker");
+        }
+
 
         /**
          * Create and save gateways that exist within the commerce module

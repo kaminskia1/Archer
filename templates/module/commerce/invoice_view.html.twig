@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/commerce/checkout.scss') }}">
+{% endblock %}
+
+{% block title %} - Invoice{% endblock %}
+
+{% block body %}
+
+    <div class="invoice container content-container p-0">
+
+        <section class="content-header">
+            Invoice: {{ invoice.id() }}
+        </section>
+
+
+            <div class="text-center text-info" style="font-size: 32px">
+            {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN") %}
+                Open
+            {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PAID") %}
+                Paid
+            {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED") %}
+                Cancelled
+            {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_EXPIRED") %}
+                Expired
+            {% elseif invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING") %}
+                Pending
+            {% else %}
+                Error
+            {% endif %}
+            </div>
+
+    </div>
+
+{% endblock %}

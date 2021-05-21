@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('build/commerce/checkout.scss') }}">
+{% endblock %}
+
+{% block title %} - Checkout{% endblock %}
+
+{% block body %}
+
+    <div class="store container content-container p-0">
+
+        <section class="content-header">
+            Checkout
+        </section>
+
+        <section class="content-body">
+            <div class="panel-body">
+                <div class="container">
+                    <div class="row border">
+                        <div class="col-sm list-group-item border-0"><img width="200px" height="200px" src="{{ asset( "build/images/__commerce#{invoice.commercePackage.getImageURI()}" ) }}" /></div>
+                        <div class="col-lg-6 list-group-item border-0 align-middle" style="line-height: 200px">{{ invoice.commercePackage.name }} - {{ invoice.durationDateInterval.days }} Days</div>
+                        <div class="col-sm list-group-item border-0" style="line-height: 200px">{{ invoice.price }} {{ currency }}</div>
+                    </div>
+                </div>
+
+
+                <div class="container p-4">
+                    {{ form_start(form) }}
+
+                        {{ form_widget(form.commerceGatewayInstance) }}
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+{% endblock %}

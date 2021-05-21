@@ -29,19 +29,13 @@ class CheckoutCallbackController extends AbstractCommerceApiController
      *
      * @Rest\View
      * @Rest\Post("/api/commerce/callback", name="api_commerce_checkout_callback")
+     * @Rest\Get("/api/commerce/callback", name="api_commerce_checkout_callback")
      * @Rest\RequestParam(name="id")
-     *
      * @param Request $request
      * @return Response
      */
     public function index( Request $request ): Response
     {
-
-        if (!$this->isEntityModuleEnabled())
-        {
-            return $this->handleView( $this->view([], Response::HTTP_NOT_FOUND)->setFormat('json'));
-        }
-
         $entityManager = $this
             ->getDoctrine()
             ->getManager();
@@ -70,7 +64,12 @@ class CheckoutCallbackController extends AbstractCommerceApiController
             )->setFormat('json'));
         }
 
-        $handle = $invoice->getCommerceGatewayInstance()->getCommerceGatewayType()->getClass()::handleCallback( $invoice, $entityManager );
+        $handle = $invoice
+            ->getCommerceGatewayInstance()
+            ->getCommerceGatewayType()
+            ->getClass()
+            ->handleCallback( $invoice, $entityManager );
+
         return $this->handleView( $this->view([
             'success' => $handle[0],
             'message' => $handle[1],

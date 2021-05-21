@@ -11,6 +11,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class AbstractCoreController extends AbstractController
 {
+
     use CoreTraitModel;
 
+
+    public function __construct()
+    {
+
+    }
 }

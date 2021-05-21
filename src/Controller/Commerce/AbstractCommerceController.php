@@ -19,6 +19,7 @@ abstract class AbstractCommerceController extends AbstractController
 
     use CommerceTraitModel;
 
+
     public function __construct()
     {
         if (!$this->isEntityModuleEnabled())

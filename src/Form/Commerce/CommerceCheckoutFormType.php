@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Commerce;
 
 use App\Entity\Commerce\CommerceGatewayInstance;
 use App\Entity\Commerce\CommerceInvoice;
@@ -37,8 +37,11 @@ class CommerceCheckoutFormType extends AbstractType
                             'data'=>$data->getCommercePackage()
                         ])
                         ->add('commercePackageDurationToPriceID', ChoiceType::class, [
-                            'choices' => $data->getCommercePackage()->__getFormattedDurationToPrice(),
+                            'choices' => $data->getCommercePackage()->getFormattedDurationToPrice(),
                             'expanded'=>true,
+                            'choice_attr' => function($s){
+                                return ['class'=>'col-1'];
+                            }
                         ]);
                 });
         }
@@ -83,7 +86,7 @@ class CommerceCheckoutFormType extends AbstractType
                     $fields = $data
                         ->getCommerceGatewayInstance()
                         ->getCommerceGatewayType()
-                        ->__getClassInstance()
+                        ->getClassInstance()
                         ->getFormFields();
 
                     foreach ($fields as $element)

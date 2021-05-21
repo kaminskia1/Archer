@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -34,7 +35,6 @@ class CommerceGatewayInstanceCrudController extends AbstractCrudController
             )
             ->setEntityPermission('ROLE_ADMIN')
             ->showEntityActionsAsDropdown();
-        ;
     }
 
     public static function getEntityFqcn(): string
@@ -51,8 +51,9 @@ class CommerceGatewayInstanceCrudController extends AbstractCrudController
     {
         yield IdField::new('id', "ID")->hideOnForm();
         yield TextField::new('name');
-        yield AssociationField::new('commerceGatewayType', 'Gateway Type')->setRequired(true);
+        yield AssociationField::new('commerceGatewayType', 'Type')->setRequired(true);
+        yield TextEditorField::new('description', 'Description');
         yield ArrayField::new('commerceGatewayTypeSettings', 'Gateway Settings');
-        yield BooleanField::new('isActive');
+        yield BooleanField::new('isActive', 'Active');
     }
 }

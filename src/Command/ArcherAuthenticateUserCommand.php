@@ -3,13 +3,12 @@
 namespace App\Command;
 
 use App\Entity\Core\CoreUser;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
@@ -19,20 +18,20 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  */
 class ArcherAuthenticateUserCommand extends Command
 {
+
     /**
      * @var string Command name
      */
     protected static $defaultName = 'archer:auth';
-
     /**
      * @var EntityManagerInterface Entity Manager
      */
     private $entityManager;
-
     /**
      * @var UserPasswordEncoderInterface Password Encoder
      */
     private $passwordEncoder;
+
 
     /**
      * @const Authentication Successful code
@@ -41,12 +40,24 @@ class ArcherAuthenticateUserCommand extends Command
     /**
      * @const Authentication unsuccessful due to invalid username/password
      */
-    private const AUTH_INVALID_CREDS = 2;
-
+    private const AUTH_FAIL_INVALID_CREDS = 2;
     /**
      * @const Authentication unsuccessful due to invalid HWID provided
      */
-    private const AUTH_INVALID_HWID = 3;
+    private const AUTH_FAIL_INVALID_HWID = 3;
+    /**
+     * @const Authentication unsuccessful due to exceeding max infractions
+     */
+    private const AUTH_FAIL_EXCEEDING_INFRACTIONS = 4;
+    /**
+     * @const Authentication unsuccessful due to nonexistant subscrition
+     */
+    private const AUTH_FAIL_SUBSCRIPTION_NOT_FOUND = 5;
+    /**
+     * @Const Authentication unsuccessful due to expired subscription
+     */
+    private const AUTH_FAIL_SUBSCRIPTION_EXPIRED = 6;
+
 
     /**
      * Command constructor
@@ -71,11 +82,10 @@ class ArcherAuthenticateUserCommand extends Command
     {
         $this
             ->setDescription('Check a user\'s Credentials')
-            ->addArgument('uuid', InputArgument::REQUIRED, 'CoreUser\'s UUID')
-            ->addArgument('password', InputArgument::REQUIRED, 'CoreUser\'s password')
-            ->addArgument('hwid', InputArgument::REQUIRED, 'CoreUser\'s HWID')
-        ;
-        ;
+            ->addArgument('uuid', InputArgument::REQUIRED, 'User\'s UUID')
+            ->addArgument('password', InputArgument::REQUIRED, 'User\'s password')
+            ->addArgument('hwid', InputArgument::REQUIRED, 'User\'s HWID')
+            ->addArgument('package', InputArgument::OPTIONAL, 'Package ID to check');
     }
 
     /**
@@ -91,6 +101,7 @@ class ArcherAuthenticateUserCommand extends Command
         $uuid = $input->getArgument('uuid');
         $password = $input->getArgument('password');
         $hwid = $input->getArgument('hwid');
+        $package = $input->getArgument('package') ?? null;
 
         /**
          * Grab the provided user object
@@ -102,32 +113,48 @@ class ArcherAuthenticateUserCommand extends Command
         // Check that user exists
         if (!$user) {
             // fail authentication with invalid credentials
-            return self::AUTH_INVALID_CREDS;
+            return self::AUTH_FAIL_INVALID_CREDS;
         }
-        
+
         // Check that password is correct
-        if (!$this->passwordEncoder->isPasswordValid($user, $password))
-        {
+        if (!$this->passwordEncoder->isPasswordValid($user, $password)) {
             // fail authentication with invalid credentials
-            return self::AUTH_INVALID_CREDS;
+            return self::AUTH_FAIL_INVALID_CREDS;
         }
 
         // Check that hwid exists
-        if ($user->getHwid() == null)
-        {
+        if ($user->getHwid() == null) {
             $user->setHwid($hwid);
         }
 
         // Check if hwid same as provided
-        if ($user->getHwid() != $hwid)
-        {
-            return self::AUTH_INVALID_HWID;
+        if ($user->getHwid() != $hwid) {
+            return self::AUTH_FAIL_INVALID_HWID;
+        }
+
+        if ($user->getInfractionPoints() >= 500) {
+            return self::AUTH_FAIL_EXCEEDING_INFRACTIONS;
         }
 
         // Save the user, in the event that the hardware identifier was updated
         $this->entityManager->flush();
 
-        // Output command success
-        return self::AUTH_SUCCESS;
+        if ($package == null)
+        {
+            return self::AUTH_SUCCESS;
+        }
+
+        foreach ($user->getCommerceUserSubscriptions() as $sub) {
+            if ($sub->getId() == $package) {
+                if ($sub->getExpiryDateTime() > new DateTime('now')) {
+                    // Output command success, all checks met
+                    return self::AUTH_SUCCESS;
+                }
+                return self::AUTH_FAIL_SUBSCRIPTION_EXPIRED;
+            }
+        }
+
+        return self::AUTH_FAIL_SUBSCRIPTION_NOT_FOUND;
     }
+
 }

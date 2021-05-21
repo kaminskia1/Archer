@@ -34,10 +34,6 @@ class StorePackageController extends AbstractCommerceApiController
      */
     public function index(Request $request)
     {
-        if (!$this->isEntityModuleEnabled())
-        {
-            return $this->handleView( $this->view([], Response::HTTP_NOT_FOUND)->setFormat('json'));
-        }
 
         $raw = $this
             ->getDoctrine()

@@ -13,4 +13,5 @@ class CommerceInvoicePaymentStateEnum
     const INVOICE_PAID = 2;
     const INVOICE_CANCELLED = 3;
     const INVOICE_EXPIRED = 4;
+    const INVOICE_PENDING = 5;
 }

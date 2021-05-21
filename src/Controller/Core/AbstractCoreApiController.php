@@ -17,6 +17,7 @@ abstract class AbstractCoreApiController extends AbstractApiController
 
     use CoreTraitModel;
 
+
     public function __construct()
     {
 

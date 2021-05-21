@@ -28,6 +28,8 @@ class UserAuthController extends AbstractApiController
      * @Rest\RequestParam(name="username")
      * @Rest\RequestParam(name="password")
      *
+     * @TODO Finish this
+     *
      * @param Request $request
      * @return Response
      */

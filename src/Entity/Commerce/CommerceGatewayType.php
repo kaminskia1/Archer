@@ -52,7 +52,7 @@ class CommerceGatewayType
      *
      * @return mixed
      */
-    public function __getClassInstance()
+    public function getClassInstance()
     {
         return new $this->class();
     }

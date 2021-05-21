@@ -3,6 +3,7 @@
 namespace App\Entity\Commerce;
 
 use App\Entity\Core\CoreUser;
+use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommerceInvoiceRepository;
 use DateInterval;
@@ -93,15 +94,94 @@ class CommerceInvoice
      */
     private $gatewayData;
 
+    /**
+     * @ORM\Column(type="string", length=8000, nullable=true)
+     */
+    private $paymentUrl;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isRenewable;
+
+
+    /**
+     * CommerceInvoice constructor.
+     */
+    public function __construct()
+    {
+        $this->paymentState = CommerceInvoicePaymentStateEnum::INVOICE_OPEN;
+        $this->isRenewable = true;
+    }
 
     /**
      * Convert this entity to a string
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return "Invoice " . $this->getId() ?? -1 . " (CoreUser ID: " . $this->getUser()->getId() . ")" . (!is_null($this->getPaidOn()) ? "(Paid on: " . $this->getPaidOn()->format("m/d/y h:I:s") . ")" : "");
+    }
+
+    /**
+     * Get if the invoice is open
+     *
+     * @return bool
+     */
+    public function isOpen(): bool
+    {
+        return $this->paymentState == CommerceInvoicePaymentStateEnum::INVOICE_OPEN;
+    }
+
+    /**
+     * Get if the invoice is waiting
+     *
+     * @return bool
+     */
+    public function isPending(): bool
+    {
+        return $this->paymentState == CommerceInvoicePaymentStateEnum::INVOICE_PENDING;
+    }
+
+    /**
+     * Get if the invoice is paid
+     *
+     * @return bool
+     */
+    public function isPaid(): bool
+    {
+        return $this->paymentState == CommerceInvoicePaymentStateEnum::INVOICE_PAID;
+    }
+
+    /**
+     * Get if the invoice is expired
+     *
+     * @return bool
+     */
+    public function isExpired(): bool
+    {
+        return $this->paymentState == CommerceInvoicePaymentStateEnum::INVOICE_EXPIRED;
+    }
+
+    /**
+     * Get if the invoice is cancelled
+     *
+     * @return bool
+     */
+    public function isCanceled(): bool
+    {
+        return $this->paymentState == CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED;
+    }
+
+    /**
+     * Get pretty price
+     *
+     * @return string
+     */
+    public function getPrettyPrice(): string
+    {
+        return $this->price . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
 
@@ -387,6 +467,30 @@ class CommerceInvoice
     public function setGatewayData($gatewayData): self
     {
         $this->gatewayData = $gatewayData;
+
+        return $this;
+    }
+
+    public function getPaymentUrl(): ?string
+    {
+        return $this->paymentUrl;
+    }
+
+    public function setPaymentUrl(?string $paymentUrl): self
+    {
+        $this->paymentUrl = $paymentUrl;
+
+        return $this;
+    }
+
+    public function getIsRenewable(): ?bool
+    {
+        return $this->isRenewable;
+    }
+
+    public function setIsRenewable(bool $isRenewable): self
+    {
+        $this->isRenewable = $isRenewable;
 
         return $this;
     }

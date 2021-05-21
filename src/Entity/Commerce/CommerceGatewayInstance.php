@@ -47,6 +47,11 @@ class CommerceGatewayInstance
      */
     private $isActive;
 
+    /**
+     * @ORM\Column(type="string", length=8000, nullable=true)
+     */
+    private $description;
+
 
     /**
      * Convert this entity to a string
@@ -157,6 +162,18 @@ class CommerceGatewayInstance
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

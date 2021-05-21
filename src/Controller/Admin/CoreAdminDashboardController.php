@@ -91,7 +91,7 @@ class CoreAdminDashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Discount Codes', 'fas fa-list', CommerceDiscountCode::class);
             yield MenuItem::linkToCrud('Payment Gateways', 'fas fa-list', CommerceGatewayInstance::class);
             yield MenuItem::linkToCrud('Purchases', 'fas fa-list', CommercePurchase::class);
-            yield MenuItem::linkToCrud('CoreUser Subscriptions', 'fas fa-list', CommerceUserSubscription::class);
+            yield MenuItem::linkToCrud('User Subscriptions', 'fas fa-list', CommerceUserSubscription::class);
             yield MenuItem::linkToCrud('Transactions', 'fas fa-list', CommerceTransaction::class);
             if ($_ENV['APP_ENV'] == "dev")
             {
