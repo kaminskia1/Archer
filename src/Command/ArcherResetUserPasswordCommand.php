@@ -22,12 +22,17 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  *
  * @package App\Command
  */
-class ArcherResetUserPasswordCommand extends Command
+class ArcherResetUserPasswordCommand extends AbstractArcherCommand
 {
     /**
      * @var string Command name
      */
     protected static $defaultName = 'archer:reset-password';
+
+    /**
+     * @var string Log name
+     */
+    public $logName = 'ResetPassword';
 
     /**
      * @var EntityManagerInterface Entity Manager instance

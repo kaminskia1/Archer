@@ -6,6 +6,9 @@ use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePurchase;
 use App\Entity\Commerce\CommerceTransaction;
 use App\Entity\Commerce\CommerceUserSubscription;
+use App\Entity\Logger\LoggerCommandAuth;
+use App\Entity\Logger\LoggerCommandUserInfraction;
+use App\Entity\Logger\LoggerCommandUserSubscription;
 use App\Model\CoreTraitModel;
 use App\Repository\Core\CoreUserRepository;
 use DateTime;
@@ -99,7 +102,7 @@ class CoreUser implements UserInterface
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $lastWebsiteLoginDate;
+    private $lastSiteLoginDate;
 
 
     /**
@@ -157,6 +160,41 @@ class CoreUser implements UserInterface
      */
     private $infractionTypes = [];
 
+    /**
+     * @ORM\Column(type="string", length=46, nullable=true)
+     */
+    private $lastSiteIP = "";
+
+    /**
+     * @ORM\Column(type="string", length=46, nullable=true)
+     */
+    private $lastLoaderIP = "";
+
+    /**
+     * @ORM\Column(type="array", nullable=false)
+     */
+    private $siteIPCollection = [];
+
+    /**
+     * @ORM\Column(type="array", nullable=false)
+     */
+    private $loaderIPCollection = [];
+
+    /**
+     * @ORM\OneToMany(targetEntity=LoggerCommandAuth::class, mappedBy="user")
+     */
+    private $loggerCommandAuths;
+
+    /**
+     * @ORM\OneToMany(targetEntity=LoggerCommandUserInfraction::class, mappedBy="user")
+     */
+    private $loggerCommandUserInfractions;
+
+    /**
+     * @ORM\OneToMany(targetEntity=LoggerCommandUserSubscription::class, mappedBy="user")
+     */
+    private $loggerCommandUserSubscriptions;
+
 
     /**
      * CoreUser constructor.
@@ -167,6 +205,16 @@ class CoreUser implements UserInterface
         $this->CommerceInvoices = new ArrayCollection();
         $this->CommercePurchases = new ArrayCollection();
         $this->commerceTransactions = new ArrayCollection();
+        $this->loggerCommandAuths = new ArrayCollection();
+        $this->siteIPCollection = $this->siteIPCollection ?? [];
+        $this->loaderIPCollection = $this->loaderIPCollection ?? [];
+        $this->loggerCommandUserInfractions = new ArrayCollection();
+        $this->loggerCommandUserSubscriptions = new ArrayCollection();
+    }
+
+    public function isBanned(): bool
+    {
+        return in_array("ROLE_BANNED", $this->getRoles());
     }
 
     /**
@@ -271,6 +319,17 @@ class CoreUser implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         $this->plainPassword = null;
+    }
+
+    /**
+     * Ban this user
+     */
+    public function doBanUser()
+    {
+        if (!in_array("ROLE_BANNED", $this->getRoles()))
+        {
+            $this->setRoles(array_merge($this->getRoles(), ["ROLE_BANNED"]));
+        }
     }
 
     /**
@@ -501,20 +560,20 @@ class CoreUser implements UserInterface
      *
      * @return DateTimeInterface|null
      */
-    public function getLastWebsiteLoginDate(): ?DateTimeInterface
+    public function getLastSiteLoginDate(): ?DateTimeInterface
     {
-        return $this->lastWebsiteLoginDate;
+        return $this->lastSiteLoginDate;
     }
 
     /**
      * Set last website login date
      *
-     * @param DateTimeInterface|null $lastWebsiteLoginDate
+     * @param DateTimeInterface|null $lastSiteLoginDate
      * @return $this
      */
-    public function setLastWebsiteLoginDate(?DateTimeInterface $lastWebsiteLoginDate): self
+    public function setLastSiteLoginDate(?DateTimeInterface $lastSiteLoginDate): self
     {
-        $this->lastWebsiteLoginDate = $lastWebsiteLoginDate;
+        $this->lastSiteLoginDate = $lastSiteLoginDate;
 
         return $this;
     }
@@ -841,6 +900,8 @@ class CoreUser implements UserInterface
      */
     public function addInfractionPoints(int $infractionPoints): self
     {
+        // if prev < 500 < new
+        if ($this->getInfractionPoints() < 500 && ($this->getInfractionPoints() + $infractionPoints) >= 500) $this->doBanUser();
         $this->infractionPoints = ($this->infractionPoints ?? 0) + $infractionPoints;
 
         return $this;
@@ -877,7 +938,218 @@ class CoreUser implements UserInterface
      */
     public function addInfractionType(int $value): self
     {
+        if (!is_array($this->infractionTypes)) $this->infractionTypes = [];
         $this->infractionTypes = array_merge($this->infractionTypes, [$value]);
+
+        return $this;
+    }
+
+    /**
+     * Get last site ip
+     *
+     * @return string|null
+     */
+    public function getLastSiteIP(): ?string
+    {
+        return $this->lastSiteIP;
+    }
+
+    /**
+     * Set last site ip
+     *
+     * @param string|null $lastSiteIP
+     * @return $this
+     */
+    public function setLastSiteIP(?string $lastSiteIP): self
+    {
+        $this->lastSiteIP = $lastSiteIP;
+
+        return $this;
+    }
+
+    /**
+     * Get last loader ip
+     *
+     * @return string|null
+     */
+    public function getLastLoaderIP(): ?string
+    {
+        return $this->lastLoaderIP;
+    }
+
+    /**
+     * Set last loader ip
+     *
+     * @param string|null $lastLoaderIP
+     * @return $this
+     */
+    public function setLastLoaderIP(?string $lastLoaderIP): self
+    {
+        $this->lastLoaderIP = $lastLoaderIP;
+
+        return $this;
+    }
+
+    /**
+     * Get site ip collection
+     *
+     * @return array|null
+     */
+    public function getSiteIPCollection(): ?array
+    {
+        return $this->siteIPCollection;
+    }
+
+    /**
+     * Set site ip collection
+     *
+     * @param array|null $siteIPCollection
+     * @return $this
+     */
+    public function setSiteIPCollection(?array $siteIPCollection): self
+    {
+        $this->siteIPCollection = $siteIPCollection;
+
+        return $this;
+    }
+
+    /**
+     * Register a new site IP
+     *
+     * @param string $ip
+     * @return $this
+     */
+    public function registerSiteIP(string $ip): self
+    {
+        $this->lastSiteIP = $ip;
+        if (!is_array($this->siteIPCollection)) $this->siteIPCollection = [];
+        if (!in_array($ip, $this->siteIPCollection)) array_push($this->siteIPCollection, $ip);
+        return $this;
+    }
+
+    /**
+     * Get loader ip collection
+     *
+     * @return array|null
+     */
+    public function getLoaderIPCollection(): ?array
+    {
+        return $this->loaderIPCollection;
+    }
+
+    /**
+     * Set loader ip collection
+     *
+     * @param array|null $loaderIPCollection
+     * @return $this
+     */
+    public function setLoaderIPCollection(?array $loaderIPCollection): self
+    {
+        $this->loaderIPCollection = $loaderIPCollection;
+
+        return $this;
+    }
+
+    /**
+     * Register a new loader IP
+     *
+     * @param string $ip
+     * @return $this
+     */
+    public function registerLoaderIP(string $ip): self
+    {
+        $this->lastLoaderIP = $ip;
+        if (!is_array($this->loaderIPCollection)) $this->loaderIPCollection = [];
+        if (!in_array($ip, $this->loaderIPCollection)) array_push($this->loaderIPCollection, $ip);
+        return $this;
+    }
+
+    /**
+     * @return Collection|LoggerCommandAuth[]
+     */
+    public function getLoggerCommandAuths(): Collection
+    {
+        return $this->loggerCommandAuths;
+    }
+
+    public function addLoggerCommandAuth(LoggerCommandAuth $loggerCommandAuth): self
+    {
+        if (!$this->loggerCommandAuths->contains($loggerCommandAuth)) {
+            $this->loggerCommandAuths[] = $loggerCommandAuth;
+            $loggerCommandAuth->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLoggerCommandAuth(LoggerCommandAuth $loggerCommandAuth): self
+    {
+        if ($this->loggerCommandAuths->removeElement($loggerCommandAuth)) {
+            // set the owning side to null (unless already changed)
+            if ($loggerCommandAuth->getUser() === $this) {
+                $loggerCommandAuth->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|LoggerCommandUserInfraction[]
+     */
+    public function getLoggerCommandUserInfractions(): Collection
+    {
+        return $this->loggerCommandUserInfractions;
+    }
+
+    public function addLoggerCommandUserInfraction(LoggerCommandUserInfraction $loggerCommandUserInfraction): self
+    {
+        if (!$this->loggerCommandUserInfractions->contains($loggerCommandUserInfraction)) {
+            $this->loggerCommandUserInfractions[] = $loggerCommandUserInfraction;
+            $loggerCommandUserInfraction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLoggerCommandUserInfraction(LoggerCommandUserInfraction $loggerCommandUserInfraction): self
+    {
+        if ($this->loggerCommandUserInfractions->removeElement($loggerCommandUserInfraction)) {
+            // set the owning side to null (unless already changed)
+            if ($loggerCommandUserInfraction->getUser() === $this) {
+                $loggerCommandUserInfraction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|LoggerCommandUserSubscription[]
+     */
+    public function getLoggerCommandUserSubscriptions(): Collection
+    {
+        return $this->loggerCommandUserSubscriptions;
+    }
+
+    public function addLoggerCommandUserSubscription(LoggerCommandUserSubscription $loggerCommandUserSubscription): self
+    {
+        if (!$this->loggerCommandUserSubscriptions->contains($loggerCommandUserSubscription)) {
+            $this->loggerCommandUserSubscriptions[] = $loggerCommandUserSubscription;
+            $loggerCommandUserSubscription->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLoggerCommandUserSubscription(LoggerCommandUserSubscription $loggerCommandUserSubscription): self
+    {
+        if ($this->loggerCommandUserSubscriptions->removeElement($loggerCommandUserSubscription)) {
+            // set the owning side to null (unless already changed)
+            if ($loggerCommandUserSubscription->getUser() === $this) {
+                $loggerCommandUserSubscription->setUser(null);
+            }
+        }
 
         return $this;
     }

@@ -32,7 +32,7 @@
                             <div class="package-title">{{ package.name }}</div>
                         </div>
                         <div class="row">
-                            {{ form_start(form, {'method': 'POST'}) }}
+                            {{ form_start(form, {'method': 'POST', 'attr': {'style': 'width: 100%;'}}) }}
                                 <div class="form-row">
                                     {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field p1'}}) }}
                                 </div>

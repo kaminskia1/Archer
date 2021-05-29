@@ -8,11 +8,11 @@ namespace App\Model;
 use App\Entity\Core\CoreModule;
 
 /**
- * Trait SupportTraitModel
+ * Trait LoggerTraitModel
  * This trait should be included on every sub-file of the support package.
  * @package App\Model
  */
-trait SupportTraitModel
+trait LoggerTraitModel
 {
 
     /**
@@ -22,7 +22,7 @@ trait SupportTraitModel
      */
     public function getBaseModule(): string
     {
-        return 'Support';
+        return 'Logger';
     }
 
     /**

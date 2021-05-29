@@ -22,12 +22,17 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  *
  * @package App\Command
  */
-class ArcherCreateUserCommand extends Command
+class ArcherCreateUserCommand extends AbstractArcherCommand
 {
     /**
      * @var string Command name
      */
     protected static $defaultName = 'archer:create-user';
+
+    /**
+     * @var string Log name
+     */
+    public $logName = 'CreateUser';
 
     /**
      * @var EntityManagerInterface Entity Manager instance

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20210215213356 extends AbstractMigration
+final class Version20210527003955 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -20,12 +20,12 @@ final class Version20210215213356 extends AbstractMigration
     public function up(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE user ADD api_aes_key VARCHAR(64) DEFAULT NULL, ADD api_aes_iv VARCHAR(32) DEFAULT NULL');
+        $this->addSql('ALTER TABLE logger_command_user_subscription ADD response INT NOT NULL, CHANGE package_id package_id INT DEFAULT NULL');
     }
 
     public function down(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE user DROP api_aes_key, DROP api_aes_iv');
+        $this->addSql('ALTER TABLE logger_command_user_subscription DROP response, CHANGE package_id package_id INT NOT NULL');
     }
 }

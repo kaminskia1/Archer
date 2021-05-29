@@ -19,7 +19,7 @@
                 <div class="container">
                     <div class="row border">
                         <div class="col-sm list-group-item border-0"><img width="200px" height="200px" src="{{ asset( "build/images/__commerce#{invoice.commercePackage.getImageURI()}" ) }}" /></div>
-                        <div class="col-lg-6 list-group-item border-0 align-middle" style="line-height: 200px">{{ invoice.commercePackage.name }} - {{ invoice.durationDateInterval.days }} Days</div>
+                        <div class="col-lg-6 list-group-item border-0 align-middle" style="line-height: 200px">{{ invoice.commercePackage.name }} - {{ invoice.durationDateInterval.d }} Days</div>
                         <div class="col-sm list-group-item border-0" style="line-height: 200px">{{ invoice.price }} {{ currency }}</div>
                     </div>
                 </div>

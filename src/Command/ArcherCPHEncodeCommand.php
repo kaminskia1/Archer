@@ -14,12 +14,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @package App\Command
  */
-class ArcherCPHEncodeCommand extends Command
+class ArcherCPHEncodeCommand extends AbstractArcherCommand
 {
     /**
      * @var string Command name
      */
     protected static $defaultName = 'archer:cph-encode';
+
+    /**
+     * @var string Log name
+     */
+    public $logName = 'Encoder';
 
     /**
      * Command constructor

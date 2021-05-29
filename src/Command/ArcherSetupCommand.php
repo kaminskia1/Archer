@@ -16,12 +16,17 @@ use Symfony\Component\Finder\Finder;
  *
  * @package App\Command
  */
-class ArcherSetupCommand extends Command
+class ArcherSetupCommand extends AbstractArcherCommand
 {
     /**
      * @var string Command name
      */
     protected static $defaultName = 'archer:setup';
+
+    /**
+     * @var string Log name
+     */
+    public $logName = 'Setup';
 
     /**
      * @var EntityManagerInterface Entity Manager instance
@@ -46,7 +51,7 @@ class ArcherSetupCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Reset a user\'s password')
+            ->setDescription('Instantiate all missing modules and commerce payment gateways')
         ;
     }
 
@@ -73,47 +78,26 @@ class ArcherSetupCommand extends Command
          * Create and save modules, core is enabled as default and cannot be modified, as all files are vital
          */
 
-        // Create commerce module
-        if ($this->entityManager->getRepository(CoreModule::class)->findOneBy(['name'=>'Commerce']) == null)
+        $modules = [
+            'Commerce',
+            'Support',
+            'IRC',
+            'Linker',
+            'Logger',
+        ];
+
+        foreach ($modules as $name)
         {
+            if ($this->entityManager->getRepository(CoreModule::class)->findOneBy(['name'=>$name]) == null)
+            {
 
-            $commerceModule = new CoreModule();
-            $commerceModule->setName('Commerce');
-            $commerceModule->setIsEnabled(false);
-            $this->entityManager->persist($commerceModule);
-            $output->writeln("> Added module: Commerce");
+                $module = new CoreModule();
+                $module->setName($name);
+                $module->setIsEnabled(false);
+                $this->entityManager->persist($module);
+                $output->writeln("> Added module: $name");
+            }
         }
-
-        // Create support module
-        if ($this->entityManager->getRepository(CoreModule::class)->findOneBy(['name'=>'Support']) == null)
-        {
-            $supportModule = new CoreModule();
-            $supportModule->setName('Support');
-            $supportModule->setIsEnabled(false);
-            $this->entityManager->persist($supportModule);
-            $output->writeln("> Added module: Support");
-        }
-
-        // Create IRC module
-        if ($this->entityManager->getRepository(CoreModule::class)->findOneBy(['name'=>'IRC']) == null)
-        {
-            $IRCModule = new CoreModule();
-            $IRCModule->setName('IRC');
-            $IRCModule->setIsEnabled(false);
-            $this->entityManager->persist($IRCModule);
-            $output->writeln("> Added module: IRC");
-        }
-
-        // Create Linker module
-        if ($this->entityManager->getRepository(CoreModule::class)->findOneBy(['name'=>'Linker']) == null)
-        {
-            $LinkerModule = new CoreModule();
-            $LinkerModule->setName('Linker');
-            $LinkerModule->setIsEnabled(false);
-            $this->entityManager->persist($LinkerModule);
-            $output->writeln("> Added module: Linker");
-        }
-
 
         /**
          * Create and save gateways that exist within the commerce module

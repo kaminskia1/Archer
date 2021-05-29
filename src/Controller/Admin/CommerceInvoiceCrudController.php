@@ -76,7 +76,7 @@ class CommerceInvoiceCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id', "Internal ID")->onlyOnDetail();
+        yield IdField::new('id', "ID")->hideOnForm();
         yield AssociationField::new('user', 'CoreUser');
         yield ChoiceField::new('paymentState', 'Invoice State')->setChoices(
             [

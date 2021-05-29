@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\Core\CoreUser;
 use App\Module\Core\CorePasswordHasher;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -94,6 +95,15 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
+        /**
+         * @var CoreUser $user
+         */
+        $user = $token->getUser();
+        $user->registerSiteIP($request->getClientIp());
+        $user->setLastSiteLoginDate(new DateTime('now'));
+
+        $this->entityManager->flush();
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }

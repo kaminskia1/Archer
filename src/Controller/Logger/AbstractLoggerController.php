@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller\Linker;
+namespace App\Controller\Logger;
 
 
 use App\Model\CommerceTraitModel;
 use App\Model\IRCTraitModel;
-use App\Model\LinkerTraitModel;
+use App\Model\LoggerTraitModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -16,10 +16,10 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  * @IsGranted("ROLE_ADMIN")
  * @package App\Controller
  */
-abstract class AbstractLinkerController extends AbstractController
+abstract class AbstractLoggerController extends AbstractController
 {
 
-    use LinkerTraitModel;
+    use LoggerTraitModel;
 
     public function __construct()
     {

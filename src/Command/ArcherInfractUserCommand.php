@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Core\CoreUser;
+use App\Entity\Logger\LoggerCommandUserInfraction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,13 +15,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package App\Command
  */
-class ArcherInfractUserCommand extends Command
+class ArcherInfractUserCommand extends AbstractArcherCommand
 {
 
     /**
      * @var string Command name
      */
     protected static $defaultName = 'archer:infract';
+
+    /**
+     * @var string Log name
+     */
+    public $logName = 'Infract';
 
     /**
      * @var EntityManagerInterface Entity Manager instance
@@ -76,14 +82,32 @@ class ArcherInfractUserCommand extends Command
             return Command::FAILURE;
         }
 
+        if ($this->isEntityModuleEnabled())
+        {
+            // Create log
+            $log = new LoggerCommandUserInfraction(
+                $user,
+                $user->getInfractionPoints(),
+                $points,
+                $type,
+                ($user->getInfractionPoints() < 500 && ($user->getInfractionPoints() + $points) >= 500)
+            );
+            $this->entityManager->persist($log);
+        }
+
         // Add type and points
         $user->addInfractionType((int)$type);
         $user->addInfractionPoints((int)$points);
 
-        // Save user
+        // Save user and log
         $this->entityManager->flush();
 
+
         // Return success
+        if ($user->getInfractionPoints() >= 500)
+        {
+            return Command::FAILURE;
+        }
         return Command::SUCCESS;
     }
 

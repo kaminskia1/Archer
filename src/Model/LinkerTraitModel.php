@@ -8,7 +8,7 @@ namespace App\Model;
 use App\Entity\Core\CoreModule;
 
 /**
- * Trait CoreTraitModel
+ * Trait LinkerTraitModel
  * This trait should be included on every sub-file of the linker package.
  * @package App\Model
  */

@@ -44,7 +44,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <h6 class="dropdown-header">
-                                    {{ app.user.username }} {% if app.user.nickname is not null %} <span class="text-dark">({{ app.user.nickname }})</span> {% endif %}
+                                    {{ app.user.username }} {% if app.user.nickname is not null or "" %} <span class="text-dark">({{ app.user.nickname }})</span> {% endif %}
                                 </h6>
                                 <div class="dropdown-divider"></div>
                                 {# <a class="dropdown-item" href="#">Action</a> #}

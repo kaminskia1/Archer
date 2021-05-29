@@ -32,7 +32,7 @@ class CoreUserCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInPlural('Users')
             ->setEntityLabelInSingular(
-                fn (?CoreUser $user, string $pageName = "0") => $user ? ($user->getUuid() . ( $user->getNickname() != "" ? " (" . $user->getNickname() . ")" : "" ) ) : 'CoreUser'
+                fn (?CoreUser $user, string $pageName = "0") => $user ? ($user->getUuid() . ( $user->getNickname() != "" ? " (" . $user->getNickname() . ")" : "" ) ) : 'User'
             )
             ->setEntityPermission('ROLE_ADMIN')
             ->setPageTitle('index', 'Users')
