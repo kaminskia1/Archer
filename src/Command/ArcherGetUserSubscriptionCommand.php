@@ -75,7 +75,8 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
         $this
             ->setDescription('Check a user\'s Credentials')
             ->addArgument('uuid', InputArgument::REQUIRED, 'User\'s UUID')
-            ->addArgument('package', InputArgument::REQUIRED, 'Package to check');
+            ->addArgument('package', InputArgument::REQUIRED, 'Package to check')
+            ->addArgument('debug', InputArgument::OPTIONAL, 'Show debug output');
     }
 
     /**
@@ -90,6 +91,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
         // Grab uuid, password, and hardware identifier from input arguments
         $uuid = $input->getArgument('uuid');
         $package = $input->getArgument('package');
+        $debug = $input->getArgument('debug') ?? null;
         $log = [];
 
         /**
@@ -106,6 +108,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
                 'flagged' => true,
                 'flagType' => "ERROR_INVALID_USER",
             ]));
+            if (!is_null($debug)) $output->writeln(self::ERROR_INVALID_USER);
             return self::ERROR_INVALID_USER;
         }
 
@@ -123,6 +126,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
                 'flagged' => true,
                 'flagType' => "ERROR_INVALID_PACKAGE",
             ]));
+            if (!is_null($debug)) $output->writeln(self::ERROR_INVALID_PACKAGE);
             return self::ERROR_INVALID_PACKAGE;
         }
 
@@ -140,6 +144,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
                 'flagged' => true,
                 'flagType' => "ERROR_INVALID_SUBSCRIPTION",
             ]));
+            if (!is_null($debug)) $output->writeln(self::ERROR_INVALID_SUBSCRIPTION);
             return self::ERROR_INVALID_SUBSCRIPTION;
         }
 
@@ -158,6 +163,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
                 'response' => $minutes,
             ]));
 
+            if (!is_null($debug)) $output->writeln($minutes);
             return $minutes;
         }
         $this->logSubAction(array_merge($log, [
@@ -165,6 +171,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
             'flagged' => true,
             'flagType' => "ERROR_SUBSCRIPTION_EXPIRED",
         ]));
+        if (!is_null($debug)) $output->writeln(self::ERROR_SUBSCRIPTION_EXPIRED);
         return self::ERROR_SUBSCRIPTION_EXPIRED;
     }
 

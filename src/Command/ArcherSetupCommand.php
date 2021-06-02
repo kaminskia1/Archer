@@ -84,6 +84,7 @@ class ArcherSetupCommand extends AbstractArcherCommand
             'IRC',
             'Linker',
             'Logger',
+            'API'
         ];
 
         foreach ($modules as $name)

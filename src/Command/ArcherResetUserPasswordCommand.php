@@ -85,7 +85,7 @@ class ArcherResetUserPasswordCommand extends AbstractArcherCommand
         $io = new SymfonyStyle($input, $output);
 
         // Grab username & new password
-        $uuid = $input->getArgument('uuid') ?? $io->ask("Enter a username");
+        $uuid = $input->getArgument('uuid') ?? $io->ask("Enter a UUID");
         $password = $input->getArgument('password') ?? $io->ask("Enter a password");
 
         // Grab user from entitymanager
@@ -94,7 +94,7 @@ class ArcherResetUserPasswordCommand extends AbstractArcherCommand
         // Check that user exists
         if (!$user) {
             // fail authentication with invalid credentials
-            $output->write("Invalid username");
+            $output->write("Invalid UUID");
             return Command::FAILURE;
         }
 
@@ -107,7 +107,7 @@ class ArcherResetUserPasswordCommand extends AbstractArcherCommand
         );
 
         // Print success message
-        $io->success("CoreUser [" . $user->getUuid() . "] " . (strlen($user->getNickname()) > 0 ? "(" . $user->getNickname() . ") " : "") . "has been updated!");
+        $io->success("UUID [" . $user->getUuid() . "] " . (strlen($user->getNickname()) > 0 ? "(" . $user->getNickname() . ") " : "") . "has been updated!");
 
         // Return success
         return Command::SUCCESS;

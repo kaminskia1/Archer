@@ -4,10 +4,7 @@ namespace App\Controller\Logger;
 
 
 use App\Controller\AbstractApiController;
-use App\Model\CommerceTraitModel;
-use App\Model\LinkerTraitModel;
 use App\Model\LoggerTraitModel;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
@@ -24,10 +21,10 @@ abstract class AbstractLoggerApiController extends AbstractApiController
 
     public function __construct()
     {
-        if (!$this->isEntityModuleEnabled())
-        {
+        if (!$this->isEntityModuleEnabled()) {
             throw new ResourceNotFoundException("The requested route belongs to \"" . $this->getBaseModule() . "\" and it is currently disabled");
         }
+        parent::__construct();
     }
 
 }

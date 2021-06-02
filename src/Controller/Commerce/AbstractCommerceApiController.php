@@ -29,6 +29,7 @@ abstract class AbstractCommerceApiController extends AbstractApiController
         {
             throw new ResourceNotFoundException("The requested route belongs to \"" . $this->getBaseModule() . "\" and it is currently disabled");
         }
+        parent::__construct();
     }
 
 }

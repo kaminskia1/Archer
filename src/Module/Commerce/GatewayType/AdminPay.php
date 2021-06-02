@@ -42,27 +42,20 @@ class AdminPay extends GatewayType
 
     public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager): array
     {
-        $invoice->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
-        $invoice->setPaidOn(new DateTime());
-
-        list($purchase, $transaction, $subscription) = parent::createPST($invoice);
-
-        $subscription->_addTime($purchase->getDuration());
-
-        $entityManager->persist($invoice);
-        $entityManager->persist($purchase);
-        $entityManager->persist($transaction);
-        $entityManager->persist($subscription);
-        $entityManager->flush();
-
-        return [CommerceGatewayCallbackResponseEnum::TYPE_SUCCESS, []];
+        if (in_array("ROLE_ADMIN", $invoice->getUser()->getRoles()))
+        {
+            $invoice->approve();
+            return [CommerceGatewayCallbackResponseEnum::TYPE_SUCCESS, "The invoice has been approved"];
+        }
+        $invoice->deny();
+        return [CommerceGatewayCallbackResponseEnum::TYPE_FAILURE, "The invoice has been denied"];
     }
 
     public function handleRedirect(CommerceInvoice &$invoice, string $finalUrl, array $gatewayFormData): RedirectResponse
     {
 
         $invoice->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
-        $invoice->setPaymentUrl($GLOBALS['kernel']->get('router')->generate('api_commerce_checkout_callback', ['id' => $invoice->getId()]));
+        $invoice->setPaymentUrl($GLOBALS['kernel']->getContainer()->get('router')->generate('api_commerce_checkout_callback', ['id' => $invoice->getId()]));
         return new RedirectResponse($finalUrl);
     }
 }

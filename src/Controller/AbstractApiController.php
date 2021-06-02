@@ -3,10 +3,28 @@
 namespace App\Controller;
 
 
+use App\Entity\Core\CoreModule;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class AbstractApiController extends AbstractFOSRestController
 {
+
+    /**
+     * AbstractApiController constructor.
+     */
+    public function __construct()
+    {
+        if (!$GLOBALS['kernel']
+            ->getContainer()
+            ->get('doctrine.orm.entity_manager')
+            ->getRepository(CoreModule::class)
+            ->isModuleLoaded('API')) {
+            throw new ResourceNotFoundException("The global API is currently disabled");
+        }
+
+    }
+
     /**
      * Encrypt the provided data
      *

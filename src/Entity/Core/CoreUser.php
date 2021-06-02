@@ -111,7 +111,8 @@ class CoreUser implements UserInterface
     private $hwid;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="user",
+     *                                                                                   orphanRemoval=true)
      */
     private $CommerceUserSubscriptions;
 
@@ -218,6 +219,35 @@ class CoreUser implements UserInterface
     }
 
     /**
+     * Get roles
+     *
+     * @return array
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * Set roles
+     *
+     * @param array $roles
+     *
+     * @return $this
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
      * Convert this entity to a string
      *
      * @return string
@@ -241,6 +271,7 @@ class CoreUser implements UserInterface
      * Set nickname
      *
      * @param string|null $nickname
+     *
      * @return $this
      */
     public function setNickname(?string $nickname): self
@@ -264,6 +295,7 @@ class CoreUser implements UserInterface
      * Set uuid
      *
      * @param string $uuid
+     *
      * @return $this
      */
     public function setUuid(string $uuid): self
@@ -322,17 +354,6 @@ class CoreUser implements UserInterface
     }
 
     /**
-     * Ban this user
-     */
-    public function doBanUser()
-    {
-        if (!in_array("ROLE_BANNED", $this->getRoles()))
-        {
-            $this->setRoles(array_merge($this->getRoles(), ["ROLE_BANNED"]));
-        }
-    }
-
-    /**
      * Get id
      *
      * @return int|null
@@ -340,34 +361,6 @@ class CoreUser implements UserInterface
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * Get roles
-     *
-     * @return array
-     * @see UserInterface
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    /**
-     * Set roles
-     *
-     * @param array $roles
-     * @return $this
-     */
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 
     /**
@@ -385,6 +378,7 @@ class CoreUser implements UserInterface
      * Set password
      *
      * @param string $password
+     *
      * @return $this
      */
     public function setPassword(string $password): self
@@ -408,6 +402,7 @@ class CoreUser implements UserInterface
      * Set backup codes
      *
      * @param array $backupCodes
+     *
      * @return $this
      */
     public function setBackupCodes(array $backupCodes): self
@@ -431,6 +426,7 @@ class CoreUser implements UserInterface
      * Set staff note
      *
      * @param string|null $staffNote
+     *
      * @return $this
      */
     public function setStaffNote(?string $staffNote): self
@@ -454,6 +450,7 @@ class CoreUser implements UserInterface
      * Set plain password
      *
      * @param string|null $plainPassword
+     *
      * @return $this
      */
     public function setPlainPassword(?string $plainPassword): self
@@ -477,6 +474,7 @@ class CoreUser implements UserInterface
      * Set registration code
      *
      * @param CoreRegistrationCode $registrationCode
+     *
      * @return $this
      */
     public function setRegistrationCode(CoreRegistrationCode $registrationCode): self
@@ -500,6 +498,7 @@ class CoreUser implements UserInterface
      * Set registratio date
      *
      * @param DateTimeInterface $registrationDate
+     *
      * @return $this
      */
     public function setRegistrationDate(DateTimeInterface $registrationDate): self
@@ -523,6 +522,7 @@ class CoreUser implements UserInterface
      * Set last login date
      *
      * @param DateTimeInterface|null $lastLoginDate
+     *
      * @return $this
      */
     public function setLastLoginDate(?DateTimeInterface $lastLoginDate): self
@@ -546,6 +546,7 @@ class CoreUser implements UserInterface
      * Set last loader login date
      *
      * @param DateTimeInterface|null $lastLoaderLoginDate
+     *
      * @return $this
      */
     public function setLastLoaderLoginDate(?DateTimeInterface $lastLoaderLoginDate): self
@@ -569,6 +570,7 @@ class CoreUser implements UserInterface
      * Set last website login date
      *
      * @param DateTimeInterface|null $lastSiteLoginDate
+     *
      * @return $this
      */
     public function setLastSiteLoginDate(?DateTimeInterface $lastSiteLoginDate): self
@@ -592,6 +594,7 @@ class CoreUser implements UserInterface
      * Set hwid
      *
      * @param string|null $hwid
+     *
      * @return $this
      */
     public function setHwid(?string $hwid): self
@@ -615,6 +618,7 @@ class CoreUser implements UserInterface
      * Add commerce user subscription
      *
      * @param CommerceUserSubscription $commerceUserSubscription
+     *
      * @return $this
      */
     public function addCommerceUserSubscription(CommerceUserSubscription $commerceUserSubscription): self
@@ -631,6 +635,7 @@ class CoreUser implements UserInterface
      * Remove commerce user subscription
      *
      * @param CommerceUserSubscription $commerceUserSubscription
+     *
      * @return $this
      */
     public function removeCommerceUserSubscription(CommerceUserSubscription $commerceUserSubscription): self
@@ -659,6 +664,7 @@ class CoreUser implements UserInterface
      * Add commerce invoice
      *
      * @param CommerceInvoice $commerceInvoice
+     *
      * @return $this
      */
     public function addCommerceInvoice(CommerceInvoice $commerceInvoice): self
@@ -675,6 +681,7 @@ class CoreUser implements UserInterface
      * Remove commmerce invoice
      *
      * @param CommerceInvoice $commerceInvoice
+     *
      * @return $this
      */
     public function removeCommerceInvoice(CommerceInvoice $commerceInvoice): self
@@ -703,6 +710,7 @@ class CoreUser implements UserInterface
      * Add commerce purchase
      *
      * @param CommercePurchase $commercePurchase
+     *
      * @return $this
      */
     public function addCommercePurchase(CommercePurchase $commercePurchase): self
@@ -719,6 +727,7 @@ class CoreUser implements UserInterface
      * Remove commerce purchase
      *
      * @param CommercePurchase $commercePurchase
+     *
      * @return $this
      */
     public function removeCommercePurchase(CommercePurchase $commercePurchase): self
@@ -747,6 +756,7 @@ class CoreUser implements UserInterface
      * Add commerce transaction
      *
      * @param CommerceTransaction $commerceTransaction
+     *
      * @return $this
      */
     public function addCommerceTransaction(CommerceTransaction $commerceTransaction): self
@@ -762,7 +772,9 @@ class CoreUser implements UserInterface
     /**
      *
      * Remove commerce transaction
+     *
      * @param CommerceTransaction $commerceTransaction
+     *
      * @return $this
      */
     public function removeCommerceTransaction(CommerceTransaction $commerceTransaction): self
@@ -791,6 +803,7 @@ class CoreUser implements UserInterface
      * Set api key
      *
      * @param string|null $apiKey
+     *
      * @return $this
      */
     public function setApiKey(?string $apiKey): self
@@ -814,6 +827,7 @@ class CoreUser implements UserInterface
      * Set api key expiry
      *
      * @param DateTimeInterface|null $apiKeyExpiry
+     *
      * @return $this
      */
     public function setApiKeyExpiry(?DateTimeInterface $apiKeyExpiry): self
@@ -837,6 +851,7 @@ class CoreUser implements UserInterface
      * Set api aes key
      *
      * @param string|null $apiAesKey
+     *
      * @return $this
      */
     public function setApiAesKey(?string $apiAesKey): self
@@ -860,11 +875,28 @@ class CoreUser implements UserInterface
      * Set api aes iv
      *
      * @param string|null $apiAesIV
+     *
      * @return $this
      */
     public function setApiAesIV(?string $apiAesIV): self
     {
         $this->apiAesIV = $apiAesIV;
+
+        return $this;
+    }
+
+    /**
+     * Add infraction points
+     *
+     * @param int $infractionPoints
+     *
+     * @return $this
+     */
+    public function addInfractionPoints(int $infractionPoints): self
+    {
+        // if prev < 500 < new
+        if ($this->getInfractionPoints() < 500 && ($this->getInfractionPoints() + $infractionPoints) >= 500) $this->doBanUser();
+        $this->infractionPoints = ($this->infractionPoints ?? 0) + $infractionPoints;
 
         return $this;
     }
@@ -883,6 +915,7 @@ class CoreUser implements UserInterface
      * Set infraction points
      *
      * @param int $infractionPoints
+     *
      * @return $this
      */
     public function setInfractionPoints(int $infractionPoints): self
@@ -893,18 +926,13 @@ class CoreUser implements UserInterface
     }
 
     /**
-     * Add infraction points
-     *
-     * @param int $infractionPoints
-     * @return $this
+     * Ban this user
      */
-    public function addInfractionPoints(int $infractionPoints): self
+    public function doBanUser()
     {
-        // if prev < 500 < new
-        if ($this->getInfractionPoints() < 500 && ($this->getInfractionPoints() + $infractionPoints) >= 500) $this->doBanUser();
-        $this->infractionPoints = ($this->infractionPoints ?? 0) + $infractionPoints;
-
-        return $this;
+        if (!in_array("ROLE_BANNED", $this->getRoles())) {
+            $this->setRoles(array_merge($this->getRoles(), ["ROLE_BANNED"]));
+        }
     }
 
     /**
@@ -921,6 +949,7 @@ class CoreUser implements UserInterface
      * Set infraction types
      *
      * @param array|null $infractionTypes
+     *
      * @return $this
      */
     public function setInfractionTypes(?array $infractionTypes): self
@@ -934,6 +963,7 @@ class CoreUser implements UserInterface
      * Add infraction type
      *
      * @param int $value
+     *
      * @return $this
      */
     public function addInfractionType(int $value): self
@@ -958,6 +988,7 @@ class CoreUser implements UserInterface
      * Set last site ip
      *
      * @param string|null $lastSiteIP
+     *
      * @return $this
      */
     public function setLastSiteIP(?string $lastSiteIP): self
@@ -981,6 +1012,7 @@ class CoreUser implements UserInterface
      * Set last loader ip
      *
      * @param string|null $lastLoaderIP
+     *
      * @return $this
      */
     public function setLastLoaderIP(?string $lastLoaderIP): self
@@ -1004,6 +1036,7 @@ class CoreUser implements UserInterface
      * Set site ip collection
      *
      * @param array|null $siteIPCollection
+     *
      * @return $this
      */
     public function setSiteIPCollection(?array $siteIPCollection): self
@@ -1017,6 +1050,7 @@ class CoreUser implements UserInterface
      * Register a new site IP
      *
      * @param string $ip
+     *
      * @return $this
      */
     public function registerSiteIP(string $ip): self
@@ -1041,6 +1075,7 @@ class CoreUser implements UserInterface
      * Set loader ip collection
      *
      * @param array|null $loaderIPCollection
+     *
      * @return $this
      */
     public function setLoaderIPCollection(?array $loaderIPCollection): self
@@ -1054,6 +1089,7 @@ class CoreUser implements UserInterface
      * Register a new loader IP
      *
      * @param string $ip
+     *
      * @return $this
      */
     public function registerLoaderIP(string $ip): self

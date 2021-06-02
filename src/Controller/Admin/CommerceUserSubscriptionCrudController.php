@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -52,6 +53,9 @@ class CommerceUserSubscriptionCrudController extends AbstractCrudController
         yield AssociationField::new('user')->setRequired(true);
         yield AssociationField::new('commercePackageAssoc', 'Package')->setRequired(true);
         yield DateTimeField::new('expiryDateTime', 'Expiration Date')->setRequired(true);
+        yield BooleanField::new('active')
+            ->hideOnForm()
+            ->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
         yield TextField::new('staffMessage');
     }
 }

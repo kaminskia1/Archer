@@ -18,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ArcherInfractUserCommand extends AbstractArcherCommand
 {
 
+
     /**
      * @var string Command name
      */
@@ -72,6 +73,7 @@ class ArcherInfractUserCommand extends AbstractArcherCommand
         $uuid = $input->getArgument('uuid');
         $type = $input->getArgument('type');
         $points = $input->getArgument('points');
+        $debug = $input->getArgument('debug') ?? null;
 
         $user = $this->entityManager->getRepository(CoreUser::class)->findOneBy(['uuid' => $uuid]);
 
@@ -79,6 +81,7 @@ class ArcherInfractUserCommand extends AbstractArcherCommand
         if (!$user)
         {
             // Invalid user provided
+            if (!is_null($debug)) $output->writeln(Command::FAILURE);
             return Command::FAILURE;
         }
 
@@ -106,8 +109,10 @@ class ArcherInfractUserCommand extends AbstractArcherCommand
         // Return success
         if ($user->getInfractionPoints() >= 500)
         {
+            if (!is_null($debug)) $output->writeln(Command::FAILURE);
             return Command::FAILURE;
         }
+        if (!is_null($debug)) $output->writeln(Command::SUCCESS);
         return Command::SUCCESS;
     }
 

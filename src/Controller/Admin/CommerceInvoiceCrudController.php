@@ -110,27 +110,7 @@ class CommerceInvoiceCrudController extends AbstractCrudController
          */
         $invoice = $context->getEntity()->getInstance();
 
-        // Check that invoice is open
-        if ($invoice->isOpen() || $invoice->isPending())
-        {
-            // Update invoice to show as paid
-            $invoice->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
-            $invoice->setPaidOn(new DateTime('now'));
-
-            // Grab PST
-            list($purchase, $transaction, $subscription) = GatewayType::createPST($invoice);
-
-            // Add time to subscription
-            $subscription->addTime($purchase->getDuration());
-
-            // Persist entities if not previously exist
-            $this->getDoctrine()->getManager()->persist($purchase);
-            $this->getDoctrine()->getManager()->persist($transaction);
-            $this->getDoctrine()->getManager()->persist($subscription);
-
-            // Save everything to database
-            $this->getDoctrine()->getManager()->flush();
-        }
+        $invoice->approve();
 
         return new RedirectResponse($this->generateUrl("app_dashboard_admin"));
     }

@@ -100,7 +100,7 @@ class ArcherAuthenticateUserCommand extends AbstractArcherCommand
             ->addArgument('uuid', InputArgument::REQUIRED, 'User\'s UUID')
             ->addArgument('password', InputArgument::REQUIRED, 'User\'s password')
             ->addArgument('hwid', InputArgument::REQUIRED, 'User\'s HWID')
-            ->addArgument('ip', InputArgument::REQUIRED, 'User\'s IP')
+            ->addArgument('ip', InputArgument::OPTIONAL, 'User\'s IP')
             ->addArgument('package', InputArgument::OPTIONAL, 'Package ID to check')
             ->addArgument("debug", InputArgument::OPTIONAL, 'Whether to print debug text or not');
     }
@@ -117,7 +117,7 @@ class ArcherAuthenticateUserCommand extends AbstractArcherCommand
         // Grab uuid, password, and hardware identifier from input arguments
         $uuid = $input->getArgument('uuid');               // REQUIRED
         $password = $input->getArgument('password');       // REQUIRED
-        $ip = $input->getArgument('ip');                   // REQUIRED
+        $ip = $input->getArgument('ip') ?? "-1";           // REQUIRED
         $hwid = $input->getArgument('hwid');               // REQUIRED
         $package = $input->getArgument('package') ?? null; // OPTIONAL
         $debug = $input->getArgument('debug') ?? null;     // OPTIONAL

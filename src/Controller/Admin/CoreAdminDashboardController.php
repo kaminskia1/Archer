@@ -12,18 +12,21 @@ use App\Entity\Commerce\CommercePurchase;
 use App\Entity\Commerce\CommerceTransaction;
 use App\Entity\Commerce\CommerceUserSubscription;
 use App\Entity\Core\CoreModule;
-use App\Entity\Core\CoreUser;
 use App\Entity\Core\CoreRegistrationCode;
-
+use App\Entity\Core\CoreUser;
+use App\Entity\Logger\LoggerCommand;
+use App\Entity\Logger\LoggerCommandAuth;
+use App\Entity\Logger\LoggerCommandUserInfraction;
+use App\Entity\Logger\LoggerCommandUserSubscription;
+use App\Entity\Logger\LoggerSiteAuthLogin;
+use App\Entity\Logger\LoggerSiteRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use EasyCorp\Bundle\EasyAdminBundle\Router\CrudUrlGenerator;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  *
@@ -82,8 +85,7 @@ class CoreAdminDashboardController extends AbstractDashboardController
          * Begin Commerce section
          * Validate that commerce is installed and enabled
          */
-        if ($this->entityManager->getRepository(CoreModule::class)->isModuleLoaded('Commerce'))
-        {
+        if ($this->entityManager->getRepository(CoreModule::class)->isModuleLoaded('Commerce')) {
             yield MenuItem::section('Commerce');
             yield MenuItem::linkToCrud('Package Groups', 'fas fa-list', CommercePackageGroup::class);
             yield MenuItem::linkToCrud('Packages', 'fas fa-list', CommercePackage::class);
@@ -93,10 +95,23 @@ class CoreAdminDashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Purchases', 'fas fa-list', CommercePurchase::class);
             yield MenuItem::linkToCrud('User Subscriptions', 'fas fa-list', CommerceUserSubscription::class);
             yield MenuItem::linkToCrud('Transactions', 'fas fa-list', CommerceTransaction::class);
-            if ($_ENV['APP_ENV'] == "dev")
-            {
+            if ($_ENV['APP_ENV'] == "dev") {
                 yield MenuItem::linkToCrud('DEV: Gateway Types', 'fas fa-list', CommerceGatewayType::class);
             }
+        }
+
+        /**
+         * Begin Logger section
+         * Validate that logger is installed and enabled
+         */
+        if ($this->entityManager->getRepository(CoreModule::class)->isModuleLoaded('Logger')) {
+            yield MenuItem::section('Logger');
+            yield MenuItem::linkToCrud('Commands', 'fas fa-list', LoggerCommand::class);
+            yield MenuItem::linkToCrud('Loader Auth', 'fas fa-list', LoggerCommandAuth::class);
+            yield MenuItem::linkToCrud('User Infractions', 'fas fa-list', LoggerCommandUserInfraction::class);
+            yield MenuItem::linkToCrud('User Subscriptions', 'fas fa-list', LoggerCommandUserSubscription::class);
+            yield MenuItem::linkToCrud('Site Auth', 'fas fa-list', LoggerSiteAuthLogin::class);
+            yield MenuItem::linkToCrud('Site Requests', 'fas fa-list', LoggerSiteRequest::class);
         }
 
     }

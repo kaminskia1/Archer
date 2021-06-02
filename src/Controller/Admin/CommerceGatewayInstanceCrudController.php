@@ -54,6 +54,6 @@ class CommerceGatewayInstanceCrudController extends AbstractCrudController
         yield AssociationField::new('commerceGatewayType', 'Type')->setRequired(true);
         yield TextEditorField::new('description', 'Description');
         yield ArrayField::new('commerceGatewayTypeSettings', 'Gateway Settings');
-        yield BooleanField::new('isActive', 'Active');
+        yield BooleanField::new('isActive', 'Active')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
     }
 }

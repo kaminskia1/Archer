@@ -44,7 +44,7 @@ class CheckoutCallbackController extends AbstractCommerceApiController
             ->getRepository(CommerceInvoice::class)
             ->find($request->get('id'));
 
-        if ($invoice == null)
+        if (!$invoice)
         {
             // return pay state error
             return $this->handleView( $this->view([
@@ -54,7 +54,7 @@ class CheckoutCallbackController extends AbstractCommerceApiController
             )->setFormat('json'));
         }
 
-        if ($invoice->getPaymentState() != CommerceInvoicePaymentStateEnum::INVOICE_OPEN)
+        if (!($invoice->isOpen() || $invoice->isPending()))
         {
             // return pay state error
             return $this->handleView( $this->view([
@@ -64,10 +64,26 @@ class CheckoutCallbackController extends AbstractCommerceApiController
             )->setFormat('json'));
         }
 
+        // Check if manual approval required
+        if ($invoice
+            ->getCommerceGatewayInstance()
+            ->getCommerceGatewayType()
+            ->getClassInstance()
+            ->getManualOnly())
+        {
+            // return pay state error
+            return $this->handleView( $this->view([
+                'success' => false,
+                'message' => 'This invoice must be approved manually'
+            ], Response::HTTP_FORBIDDEN,
+            )->setFormat('json'));
+        }
+
+
         $handle = $invoice
             ->getCommerceGatewayInstance()
             ->getCommerceGatewayType()
-            ->getClass()
+            ->getClassInstance()
             ->handleCallback( $invoice, $entityManager );
 
         return $this->handleView( $this->view([

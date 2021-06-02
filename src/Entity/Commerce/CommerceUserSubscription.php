@@ -60,52 +60,19 @@ class CommerceUserSubscription
      */
     public function __construct(?CommerceInvoice $invoice)
     {
-        $exp = new DateTime();
 
         // Check if invoice provided
         if ($invoice instanceof CommerceInvoice) {
             // Move over data
             $this->setUser($invoice->getUser());
             $this->setCommercePackageAssoc($invoice->getCommercePackage());
-            $exp->add($invoice->getDurationDateInterval());
         }
-        $this->setExpiryDateTime($exp);
+        $this->setExpiryDateTime(new DateTime());
     }
 
-    /**
-     * Add time to the subscription
-     *
-     * @param DateInterval $interval
-     */
-    public function addTime(DateInterval $interval)
+    public function __toString()
     {
-
-        $exp = clone $this->getExpiryDateTime();
-        if ($exp < new DateTime()) {
-            $exp = new DateTime();
-        }
-        $exp->add($interval);
-        $this->setExpiryDateTime($exp);
-    }
-
-    /**
-     * Get if the subscription is active
-     *
-     * @return bool
-     */
-    public function isActive()
-    {
-        return $this->getExpiryDateTime() > new DateTime('now');
-    }
-
-    /**
-     * Get if the subscription is expired
-     *
-     * @return bool
-     */
-    public function isExpired()
-    {
-        return !$this->isActive();
+        return "Subscription #" . $this->getId() . " (" . ($this->getCommercePackageAssoc()->getName() ?? "unknown") . ")";
     }
 
     /**
@@ -116,29 +83,6 @@ class CommerceUserSubscription
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * Get user
-     *
-     * @return CoreUser|null
-     */
-    public function getUser(): ?CoreUser
-    {
-        return $this->user;
-    }
-
-    /**
-     * Set user
-     *
-     * @param CoreUser|null $user
-     * @return $this
-     */
-    public function setUser(?CoreUser $user): self
-    {
-        $this->user = $user;
-
-        return $this;
     }
 
     /**
@@ -165,6 +109,22 @@ class CommerceUserSubscription
     }
 
     /**
+     * Add time to the subscription
+     *
+     * @param DateInterval $interval
+     */
+    public function addTime(DateInterval $interval)
+    {
+
+        $exp = clone $this->getExpiryDateTime();
+        if ($exp < new DateTime()) {
+            $exp = new DateTime();
+        }
+        $exp->add($interval);
+        $this->setExpiryDateTime($exp);
+    }
+
+    /**
      * Get expiry datetime
      *
      * @return DateTimeInterface|null
@@ -183,6 +143,49 @@ class CommerceUserSubscription
     public function setExpiryDateTime(DateTimeInterface $expiryDateTime): self
     {
         $this->expiryDateTime = $expiryDateTime;
+
+        return $this;
+    }
+
+    /**
+     * Get if the subscription is expired
+     *
+     * @return bool
+     */
+    public function isExpired()
+    {
+        return !$this->isActive();
+    }
+
+    /**
+     * Get if the subscription is active
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->getExpiryDateTime() > new DateTime('now');
+    }
+
+    /**
+     * Get user
+     *
+     * @return CoreUser|null
+     */
+    public function getUser(): ?CoreUser
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user
+     *
+     * @param CoreUser|null $user
+     * @return $this
+     */
+    public function setUser(?CoreUser $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

@@ -48,6 +48,11 @@ class CoreRegistrationCode
      */
     private $usedBy;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $staffMessage;
+
 
     /**
      * Convert this entity to a string
@@ -169,6 +174,18 @@ class CoreRegistrationCode
     public function setUsedBy(?CoreUser $usedBy): self
     {
         $this->usedBy = $usedBy;
+
+        return $this;
+    }
+
+    public function getStaffMessage(): ?string
+    {
+        return $this->staffMessage;
+    }
+
+    public function setStaffMessage(?string $staffMessage): self
+    {
+        $this->staffMessage = $staffMessage;
 
         return $this;
     }

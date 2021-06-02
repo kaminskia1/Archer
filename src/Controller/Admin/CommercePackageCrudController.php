@@ -58,8 +58,8 @@ class CommercePackageCrudController extends AbstractCrudController
         yield AssociationField::new('CommercePackageGroup');
         yield CollectionField::new('durationToPrice')->setHelp("Elements should be entered as \"Duration:Price\", one element per line")->hideOnIndex();
         yield CollectionField::new('customJSON', 'Custom JSON')->hideOnIndex();
-        yield BooleanField::new('isEnabled', 'Enabled?');
-        yield BooleanField::new('isVisible', 'Visible?');
+        yield BooleanField::new('isEnabled', 'Enabled?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
+        yield BooleanField::new('isVisible', 'Visible?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
         yield TextEditorField::new('storeDescription');
         yield TextField::new('staffMessage');
     }

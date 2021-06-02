@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
+use App\Entity\Core\CoreModule;
 use App\Entity\Core\CoreUser;
+use App\Entity\Logger\LoggerSiteAuthLogin;
 use App\Module\Core\CorePasswordHasher;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
@@ -41,13 +44,13 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
         $this->passwordEncoder = $passwordEncoder;
     }
 
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         return self::LOGIN_ROUTE === $request->attributes->get('_route')
             && $request->isMethod('POST');
     }
 
-    public function getCredentials(Request $request)
+    public function getCredentials(Request $request): array
     {
         $credentials = [
             'uuid' => $request->request->get('uuid'),
@@ -79,21 +82,31 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
         return $user;
     }
 
-    public function checkCredentials($credentials, UserInterface $user)
+    public function checkCredentials($credentials, UserInterface $user): bool
     {
-
         return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
     }
 
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
+     *
+     * @param $credentials
+     * @return string|null
      */
     public function getPassword($credentials): ?string
     {
         return $credentials['password'];
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
+    /**
+     * Override to change what happens after a good username/password is submitted.
+     *
+     * @param Request $request
+     * @param TokenInterface $token
+     * @param string $providerKey
+     * @return RedirectResponse
+     */
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): RedirectResponse
     {
         /**
          * @var CoreUser $user
@@ -102,6 +115,10 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
         $user->registerSiteIP($request->getClientIp());
         $user->setLastSiteLoginDate(new DateTime('now'));
 
+        if ($this->entityManager->getRepository(CoreModule::class)->isModuleLoaded('Logger')) {
+            $log = new LoggerSiteAuthLogin($request, $token);
+            $this->entityManager->persist($log);
+        }
         $this->entityManager->flush();
 
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
@@ -111,7 +128,31 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
         return new RedirectResponse($this->urlGenerator->generate('app_dashboard_client'));
     }
 
-    protected function getLoginUrl()
+    /**
+     * Override to change what happens after a bad username/password is submitted.
+     *
+     * @param Request $request
+     * @param AuthenticationException $exception
+     * @return RedirectResponse
+     */
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): RedirectResponse
+    {
+        if ($this->entityManager->getRepository(CoreModule::class)->isModuleLoaded('Logger')) {
+            $log = new LoggerSiteAuthLogin($request, $exception);
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+        }
+
+        if ($request->hasSession()) {
+            $request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
+        }
+
+        $url = $this->getLoginUrl();
+
+        return new RedirectResponse($url);
+    }
+
+    protected function getLoginUrl(): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }

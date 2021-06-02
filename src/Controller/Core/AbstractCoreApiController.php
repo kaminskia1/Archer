@@ -20,7 +20,7 @@ abstract class AbstractCoreApiController extends AbstractApiController
 
     public function __construct()
     {
-
+        parent::__construct();
     }
 
 }

@@ -5,8 +5,10 @@ namespace App\Entity\Commerce;
 use App\Entity\Core\CoreUser;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Model\CommerceTraitModel;
+use App\Module\Commerce\GatewayType;
 use App\Repository\Commerce\CommerceInvoiceRepository;
 use DateInterval;
+use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -122,6 +124,54 @@ class CommerceInvoice
     public function __toString(): string
     {
         return "Invoice " . $this->getId() ?? -1 . " (CoreUser ID: " . $this->getUser()->getId() . ")" . (!is_null($this->getPaidOn()) ? "(Paid on: " . $this->getPaidOn()->format("m/d/y h:I:s") . ")" : "");
+    }
+
+
+    /**
+     * Approve the invoice
+     *
+     * @return bool
+     */
+    public function approve(): bool
+    {
+
+        if ($this->isOpen() || $this->isPending())
+        {
+            // Create purchase, transaction, and subscription
+            list($purchase, $transaction, $subscription) = GatewayType::createPST($this);
+
+            // Add duration onto subscription
+            $subscription->addTime($this->getDurationDateInterval());
+
+            // Grab EntityManager from global namespace
+            $entityManager = $GLOBALS['kernel']
+                ->getContainer()
+                ->get('doctrine.orm.entity_manager');
+
+            $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
+            $this->setPaidOn(new DateTime());
+
+            // Persist all
+            $entityManager->persist($purchase);
+            $entityManager->persist($transaction);
+            $entityManager->persist($subscription);
+            $entityManager->flush();
+
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Cancel the invoice
+     *
+     * @return void
+     */
+    public function cancel(): void
+    {
+        $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED);
     }
 
     /**
