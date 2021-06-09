@@ -7,7 +7,6 @@ use App\Entity\Commerce\CommerceGatewayInstance;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePackage;
 use App\Entity\Commerce\CommercePackageGroup;
-use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Form\Commerce\CommerceCheckoutFormType;
 use App\Model\CommerceTraitModel;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -17,7 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class CommerceController
- * @TODO Seperate into multiple files
+ *
+ * @TODO    Seperate into multiple files
  * @IsGranted("ROLE_USER")
  * @package App\Controller
  */
@@ -51,6 +51,7 @@ class CommerceController extends AbstractCommerceController
      * @Route("/store/group/{gid}", name="app_commerce_store_group")
      *
      * @param int $gid
+     *
      * @return Response
      */
     public function storeRenderGroupProducts(int $gid): Response
@@ -83,6 +84,7 @@ class CommerceController extends AbstractCommerceController
      * @Route("/store/package/{pid}", name="app_commerce_package")
      *
      * @param int $pid
+     *
      * @return Response
      */
     public function storePackage(int $pid): Response
@@ -112,13 +114,16 @@ class CommerceController extends AbstractCommerceController
     /**
      * @Route("/store/checkout", name="app_commerce_checkout")
      *
+     * @TODO Update with proper multi-stage forms, and move to own class
+     *
      * @param Request $r
+     *
      * @return Response
      */
     public function storeCheckout(Request $r): Response
     {
         /**
-         * @TODO Ensure package, packageDTP value exist are valid and are active (isActive). If not, throw error (XSS?)
+         * @TODO Ensure package, packageDTP value exist are valid and are active (isActive). If not, throw error (XSS/Request Forging?)
          * @TODO Overhaul to properly utilize cross-page form data
          * (this is a dumpster fire)
          */
@@ -147,14 +152,17 @@ class CommerceController extends AbstractCommerceController
         $dtp = $form->getData()->getCommercePackageDurationToPriceID();
 
         // Verify that valid package and duration to price id provided
-        if (!$package || is_null($dtp))
-        {
+        if (!$package || is_null($dtp)) {
             return $this->render('module/core/error/400.html.twig');
         }
 
         // Verify that package is enabled and duration to price exists
-        if (!$package->getIsEnabled() && isset($package->getDurationToPrice()[$dtp]))
-        {
+        if (!$package->getIsEnabled() && isset($package->getDurationToPrice()[$dtp])) {
+            return $this->render('module/core/error/400.html.twig');
+        }
+
+        // Verify that package has available stock
+        if (!$package->hasStock()) {
             return $this->render('module/core/error/400.html.twig');
         }
 
@@ -170,10 +178,11 @@ class CommerceController extends AbstractCommerceController
          * Begin secondary stage of checkout (Process as if page is "submitted"
          */
         // Build invoice and run gateway redirect
-        if ($form->isSubmitted() && $form->isValid() && $form->offsetExists('confirm') && $form->get('confirm') == true) {
+        if ($form->isSubmitted() && $form->isValid() && $form->offsetExists('confirm') &&
+            $form->get('confirm') == true) {
 
 
-            // @TODO: Implement discount codes
+            // @TODO: Implement discount codes (Logic is done, just needs form field)
             //$invoice->setDiscountCode();
 
             $invoice->setCommerceGatewayType($invoice->getCommerceGatewayInstance()->getCommerceGatewayType());
@@ -213,7 +222,7 @@ class CommerceController extends AbstractCommerceController
                 ->getClassInstance()
                 ->handleRedirect(
 
-                    // Invoice object
+                // Invoice object
                     $invoice,
 
                     // User payment-complete callback url
@@ -245,6 +254,7 @@ class CommerceController extends AbstractCommerceController
      * @Route("/checkout/complete/{id}", name="app_commerce_checkout_complete")
      *
      * @param int $id
+     *
      * @return Response
      */
     public function checkoutComplete(int $id)
@@ -270,6 +280,7 @@ class CommerceController extends AbstractCommerceController
      * @Route("/invoice/{id}", name="app_commerce_invoice_view")
      *
      * @param int $id
+     *
      * @return Response
      */
     public function viewInvoice(int $id)

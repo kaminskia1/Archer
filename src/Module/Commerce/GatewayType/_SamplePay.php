@@ -2,19 +2,20 @@
 
 namespace App\Module\Commerce\GatewayType;
 
-use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
-use App\Module\Commerce\GatewayType;
 use App\Entity\Commerce\CommerceInvoice;
 use App\Enum\Commerce\CommerceGatewayCallbackResponseEnum;
+use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
+use App\Module\Commerce\GatewayType;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class _SamplePay extends GatewayType
 {
 
     /**
-     * Whether this gateway supports payment by the user at a later time
+     * Whether this gateway requires manual approval
      *
      * @var bool
      */
@@ -41,9 +42,9 @@ class _SamplePay extends GatewayType
         // Returns custom checkout form fields
         return [
             (object)[
-                'title'=> 'Sample',
-                'type'=> TextType::class,
-                'options'=>[]
+                'title' => 'Sample',
+                'type' => TextType::class,
+                'options' => []
             ]
         ];
     }
@@ -61,12 +62,15 @@ class _SamplePay extends GatewayType
 
     /**
      * Handle a callback from a third-party source (purchasing afterwork, secret validation, etc)
+     * Invoice arrives as open or pending.
+     * Note that if it arrives open, stock must be decremented (Automatic through pending/approve)
      *
      * @param CommerceInvoice $invoice
-     * @param EntityManager $entityManager
+     * @param EntityManager   $entityManager
+     *
      * @return array
      */
-    public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager ): array
+    public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager, Request $request): array
     {
         // Handles callback from payment processor
         return [CommerceGatewayCallbackResponseEnum::TYPE_FAILURE, []];
@@ -76,15 +80,17 @@ class _SamplePay extends GatewayType
      * Where to redirect the user to after the checkout flow is completed
      *
      * @param CommerceInvoice $invoice
-     * @param string $finalUrl
-     * @param array $gatewayFormData
+     * @param string          $finalUrl
+     * @param array           $gatewayFormData
+     *
      * @return RedirectResponse
      */
-    public function handleRedirect(CommerceInvoice &$invoice, string $finalUrl, array $gatewayFormData ): RedirectResponse
+    public function handleRedirect(CommerceInvoice &$invoice, string $finalUrl, array $gatewayFormData): RedirectResponse
     {
         // Redirects user to payment processor
         $invoice->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
         $invoice->setPaymentUrl($finalUrl);
         return new RedirectResponse($finalUrl);
     }
+
 }

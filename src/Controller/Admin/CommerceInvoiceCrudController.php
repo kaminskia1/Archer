@@ -4,11 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Admin\Field\DateIntervalField;
 use App\Entity\Commerce\CommerceInvoice;
-use App\Entity\Commerce\CommercePackage;
-use App\Entity\Commerce\CommerceGatewayInstance;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
-use App\Module\Commerce\GatewayType;
-use DateTime;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -21,14 +17,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 
 /**
  * Class CommerceInvoiceCrudController
+ *
  * @package App\Controller\Admin
  * @IsGranted("ROLE_ADMIN")
  */
@@ -42,23 +37,23 @@ class CommerceInvoiceCrudController extends AbstractCrudController
         $this->adminUrlGenerator = $adminUrlGenerator;
     }
 
+    public static function getEntityFqcn(): string
+    {
+        return CommerceInvoice::class;
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setPageTitle('index', 'Invoices')
             ->setEntityLabelInPlural('Invoices')
             ->setEntityLabelInSingular(
-                fn (?CommerceInvoice $invoice, string $pageName = "0") => $invoice ? ("Invoice: " . $invoice->getId() ): 'Invoice'
+                fn(?CommerceInvoice $invoice, string $pageName = "0") => $invoice ? ("Invoice: " .
+                    $invoice->getId()) : 'Invoice'
 
             )
             ->setEntityPermission('ROLE_ADMIN')
-            ->showEntityActionsAsDropdown()
-            ;
-    }
-
-    public static function getEntityFqcn(): string
-    {
-        return CommerceInvoice::class;
+            ->showEntityActionsAsDropdown();
     }
 
     public function configureActions(Actions $actions): Actions
@@ -68,7 +63,7 @@ class CommerceInvoiceCrudController extends AbstractCrudController
             Crud::PAGE_INDEX,
             Action::new('approveAction', 'Approve')
                 ->linkToCrudAction('approveAction')
-                ->displayIf(static function (CommerceInvoice $inv){
+                ->displayIf(static function (CommerceInvoice $inv) {
                     return $inv->isOpen() || $inv->isPending();
                 }));
         return $actions;
@@ -77,7 +72,7 @@ class CommerceInvoiceCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', "ID")->hideOnForm();
-        yield AssociationField::new('user', 'CoreUser');
+        yield AssociationField::new('user', 'User');
         yield ChoiceField::new('paymentState', 'Invoice State')->setChoices(
             [
                 'Open' => CommerceInvoicePaymentStateEnum::INVOICE_OPEN,

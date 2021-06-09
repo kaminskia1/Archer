@@ -2,21 +2,12 @@
 
 namespace App\Controller\Commerce\Api;
 
-use App\Controller\AbstractApiController;
 use App\Controller\Commerce\AbstractCommerceApiController;
 use App\Entity\Commerce\CommerceInvoice;
-use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Model\CommerceTraitModel;
-use App\Module\Commerce\GatewayType;
-use App\Repository\Commerce\CommerceInvoiceRepository;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\Request\ParamFetcherInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class CheckoutCallbackController extends AbstractCommerceApiController
 {
@@ -31,33 +22,37 @@ class CheckoutCallbackController extends AbstractCommerceApiController
      * @Rest\Post("/api/commerce/callback", name="api_commerce_checkout_callback")
      * @Rest\Get("/api/commerce/callback", name="api_commerce_checkout_callback")
      * @Rest\RequestParam(name="id")
+     *
      * @param Request $request
+     *
      * @return Response
      */
-    public function index( Request $request ): Response
+    public function index(Request $request): Response
     {
+        // Grab EntityManager
         $entityManager = $this
             ->getDoctrine()
             ->getManager();
 
+        // Grab invoice
         $invoice = $entityManager
             ->getRepository(CommerceInvoice::class)
             ->find($request->get('id'));
 
-        if (!$invoice)
-        {
+        // Check that invoice exists
+        if (!$invoice) {
             // return pay state error
-            return $this->handleView( $this->view([
+            return $this->handleView($this->view([
                 'success' => false,
                 'message' => 'Invalid Invoice'
             ], Response::HTTP_NOT_FOUND
             )->setFormat('json'));
         }
 
-        if (!($invoice->isOpen() || $invoice->isPending()))
-        {
+        // Ensure that it is open
+        if (!($invoice->isOpen() || $invoice->isPending())) {
             // return pay state error
-            return $this->handleView( $this->view([
+            return $this->handleView($this->view([
                 'success' => false,
                 'message' => 'Invalid Invoice'
             ], Response::HTTP_NOT_FOUND,
@@ -69,10 +64,9 @@ class CheckoutCallbackController extends AbstractCommerceApiController
             ->getCommerceGatewayInstance()
             ->getCommerceGatewayType()
             ->getClassInstance()
-            ->getManualOnly())
-        {
+            ->getManualOnly()) {
             // return pay state error
-            return $this->handleView( $this->view([
+            return $this->handleView($this->view([
                 'success' => false,
                 'message' => 'This invoice must be approved manually'
             ], Response::HTTP_FORBIDDEN,
@@ -84,9 +78,9 @@ class CheckoutCallbackController extends AbstractCommerceApiController
             ->getCommerceGatewayInstance()
             ->getCommerceGatewayType()
             ->getClassInstance()
-            ->handleCallback( $invoice, $entityManager );
+            ->handleCallback($invoice, $entityManager, $request);
 
-        return $this->handleView( $this->view([
+        return $this->handleView($this->view([
             'success' => $handle[0],
             'message' => $handle[1],
             'data' => $handle[2] ?? null

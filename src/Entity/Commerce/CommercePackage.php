@@ -109,54 +109,6 @@ class CommercePackage
     }
 
     /**
-     * Get lowest price
-     *
-     * @return string
-     */
-    public function getLowestPriceString(): string
-    {
-        // please create custom object field and change this in the future so it isn't shitty like it is now (0 => 12:23.99) to (12 => 23.99)
-
-        $tmp = (array)$this->getDurationToPrice();
-        if (count($tmp) == 1)
-        {
-            return (string)( explode(":", reset($tmp) )[1] ?? "Error" ) . " " . $_ENV['COMMERCE_CURRENCY'];
-        }
-
-        for ($i=0;$i<count($tmp);$i++)
-            $tmp[$i] = explode(":", $tmp[$i])[1] ?? "Error";
-
-        return "From: " . ( @min($tmp) ?? "Error") . " " . $_ENV['COMMERCE_CURRENCY'];
-    }
-
-    /**
-     * Get formatted duration to price
-     *
-     * @return array
-     */
-    public function getFormattedDurationToPrice()
-    {
-        $tmp = $this->getDurationToPrice();
-        for ($i=0;$i<count($tmp);$i++)
-        {
-            $l = explode(":", $tmp[$i]);
-            $tmp[$i] = " $l[0] Days ($l[1] " . $_ENV['COMMERCE_CURRENCY'] . ")";
-        }
-        return array_flip($tmp);
-    }
-
-
-    /**
-     * Get id
-     *
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    /**
      * Set id
      *
      * @return int|null
@@ -170,6 +122,7 @@ class CommercePackage
      * Set name
      *
      * @param string $name
+     *
      * @return $this
      */
     public function setName(string $name): self
@@ -177,6 +130,26 @@ class CommercePackage
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * Get lowest price
+     *
+     * @return string
+     */
+    public function getLowestPriceString(): string
+    {
+        // please create custom object field and change this in the future so it isn't shitty like it is now (0 => 12:23.99) to (12 => 23.99)
+
+        $tmp = (array)$this->getDurationToPrice();
+        if (count($tmp) == 1) {
+            return (string)(explode(":", reset($tmp))[1] ?? "Error") . " " . $_ENV['COMMERCE_CURRENCY'];
+        }
+
+        for ($i = 0; $i < count($tmp); $i++)
+            $tmp[$i] = explode(":", $tmp[$i])[1] ?? "Error";
+
+        return "From: " . (@min($tmp) ?? "Error") . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
     /**
@@ -193,6 +166,7 @@ class CommercePackage
      * Set duration to price
      *
      * @param array $durationToPrice
+     *
      * @return $this
      */
     public function setDurationToPrice(array $durationToPrice): self
@@ -200,6 +174,31 @@ class CommercePackage
         $this->durationToPrice = $durationToPrice;
 
         return $this;
+    }
+
+    /**
+     * Get formatted duration to price
+     *
+     * @return array
+     */
+    public function getFormattedDurationToPrice()
+    {
+        $tmp = $this->getDurationToPrice();
+        for ($i = 0; $i < count($tmp); $i++) {
+            $l = explode(":", $tmp[$i]);
+            $tmp[$i] = " $l[0] Days ($l[1] " . $_ENV['COMMERCE_CURRENCY'] . ")";
+        }
+        return array_flip($tmp);
+    }
+
+    /**
+     * Get id
+     *
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
     /**
@@ -216,6 +215,7 @@ class CommercePackage
      * Set stock
      *
      * @param int|null $stock
+     *
      * @return $this
      */
     public function setStock(?int $stock): self
@@ -223,6 +223,42 @@ class CommercePackage
         $this->stock = $stock;
 
         return $this;
+    }
+
+    /**
+     * Decrement the package's stock
+     *
+     * @return $this
+     */
+    public function decrementStock(): self
+    {
+        if ($this->stock != null) {
+            $this->stock > 0 ? $this->stock -= 1 : $this->stock = 0;
+        }
+        return $this;
+    }
+
+    /**
+     * Increment the package's stock
+     *
+     * @return $this
+     */
+    public function incrementStock(): self
+    {
+        if ($this->stock != null) {
+            $this->stock += 1;
+        }
+        return $this;
+    }
+
+    /**
+     * Check if package has available stock
+     *
+     * @return bool
+     */
+    public function hasStock(): bool
+    {
+        return $this->stock > 0 || $this->stock == null;
     }
 
     /**
@@ -239,6 +275,7 @@ class CommercePackage
      * Set enabled state
      *
      * @param bool $isEnabled
+     *
      * @return $this
      */
     public function setIsEnabled(bool $isEnabled): self
@@ -262,6 +299,7 @@ class CommercePackage
      * Set visible state
      *
      * @param bool $isVisible
+     *
      * @return $this
      */
     public function setIsVisible(bool $isVisible): self
@@ -285,6 +323,7 @@ class CommercePackage
      * Set package user roles
      *
      * @param string|null $packageUserRole
+     *
      * @return $this
      */
     public function setPackageUserRole(?string $packageUserRole): self
@@ -308,6 +347,7 @@ class CommercePackage
      * Set image uri
      *
      * @param string|null $imageURI
+     *
      * @return $this
      */
     public function setImageURI(?string $imageURI): self
@@ -331,6 +371,7 @@ class CommercePackage
      * Set staff message
      *
      * @param string|null $staffMessage
+     *
      * @return $this
      */
     public function setStaffMessage(?string $staffMessage): self
@@ -354,6 +395,7 @@ class CommercePackage
      * Set custom json
      *
      * @param array|null $customJSON
+     *
      * @return $this
      */
     public function setCustomJSON(?array $customJSON): self
@@ -377,6 +419,7 @@ class CommercePackage
      * Add commerce user subscription
      *
      * @param CommerceUserSubscription $commerceUserSubscription
+     *
      * @return $this
      */
     public function addCommerceUserSubscription(CommerceUserSubscription $commerceUserSubscription): self
@@ -393,6 +436,7 @@ class CommercePackage
      * Remove commerce user subscription
      *
      * @param CommerceUserSubscription $commerceUserSubscription
+     *
      * @return $this
      */
     public function removeCommerceUserSubscription(CommerceUserSubscription $commerceUserSubscription): self
@@ -421,6 +465,7 @@ class CommercePackage
      * Set commerce package group
      *
      * @param CommercePackageGroup $CommercePackageGroup
+     *
      * @return $this
      */
     public function setCommercePackageGroup(CommercePackageGroup $CommercePackageGroup): self
@@ -444,6 +489,7 @@ class CommercePackage
      * Set store description
      *
      * @param string|null $storeDescription
+     *
      * @return $this
      */
     public function setStoreDescription(?string $storeDescription): self

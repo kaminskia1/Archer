@@ -84,6 +84,8 @@ class CommerceDiscountCode
     /**
      * Populate empty fields
      *
+     * @TODO DEPRECATE THIS!!!
+     *
      * @return $this
      * @throws Exception
      */
@@ -91,14 +93,34 @@ class CommerceDiscountCode
     {
         $this->code = $this->code ?? Uuid::v4();
         $this->currentUsage = $this->currentUsage ?? 0;
-        $this->maxUsage = $this->maxUsage ?? -1;
+        $this->maxUsage = $this->maxUsage ?? null;
         $this->staffMessage = $this->staffMessage ?? "";
         $this->isEnabled = $this->isEnabled ?? false;
-        $this->expiryDate = $this->expiryDate ?? new DateTime(2038 - 1 - 1);
+        $this->expiryDate = $this->expiryDate ?? null;
 
         return $this;
     }
 
+
+    /**
+     * Check for validity
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        if ($this->getExpiryDate() == null || $this->getExpiryDate() > new DateTime('now'))
+        {
+            if ($this->isEnabled)
+            {
+                if ($this->getCurrentUsage() < $this->getMaxUsage() || $this->getMaxUsage() == null)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * Get id
@@ -221,6 +243,21 @@ class CommerceDiscountCode
     public function setCurrentUsage(int $currentUsage): self
     {
         $this->currentUsage = $currentUsage;
+
+        return $this;
+    }
+
+    /**
+     * Increment the current usage, if all tests pass
+     *
+     * @return $this
+     */
+    public function incrementUsage(): self
+    {
+        if ($this->getMaxUsage() != null)
+        {
+            $this->setCurrentUsage( $this->getCurrentUsage() + 1);
+        }
 
         return $this;
     }

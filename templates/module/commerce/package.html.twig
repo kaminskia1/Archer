@@ -20,6 +20,7 @@
                     <div style="width:360px">
                         <div class="text-center">
                             <img
+                                    alt="Package"
                                 class="mx-auto img-thumbnail"
                                 width="280px"
                                 height=280px"
@@ -28,23 +29,36 @@
                         </div>
                     </div>
                     <div class="col-sm">
-                        <div class="row pb-3">
+                        <div class="row">
                             <div class="package-title">{{ package.name }}</div>
                         </div>
-                        <div class="row">
-                            {{ form_start(form, {'method': 'POST', 'attr': {'style': 'width: 100%;'}}) }}
-                                <div class="form-row">
-                                    {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field p1'}}) }}
-                                </div>
-                                {{ form_rest(form) }}
-                                {# convert submit to form field #}
+                        <div class="row pl-1 pb-3">
+                            <div class="text-muted font-">{{ package.stock }} in stock</div>
+                        </div>
+                        {% if package.stock > 0 %}
+                            <div class="row">
+                                {{ form_start(form, {'method': 'POST', 'attr': {'style': 'width: 100%;'}}) }}
+                                    <div class="form-row">
+                                        {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field p1'}}) }}
+                                    </div>
+                                    {{ form_rest(form) }}
+                                    {# convert submit to form field #}
+                                    <div class="form-row">
+                                        <div>
+                                            <button class="btn btn-primary btn-lg btn-block">Purchase</button>
+                                        </div>
+                                    </div>
+                                {{ form_end(form) }}
+                            </div>
+                        {% else %}
+                            <div class="row">
                                 <div class="form-row">
                                     <div>
-                                        <button class="btn btn-primary btn-lg btn-block">Purchase</button>
+                                        <button class="btn btn-dark btn-lg btn-block" disabled>Out of Stock</button>
                                     </div>
                                 </div>
-                            {{ form_end(form) }}
-                        </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

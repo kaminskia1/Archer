@@ -6,9 +6,9 @@ use App\Entity\Commerce\CommerceInvoice;
 use App\Enum\Commerce\CommerceGatewayCallbackResponseEnum;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Module\Commerce\GatewayType;
-use DateTime;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class AdminPay extends GatewayType
 {
@@ -40,14 +40,13 @@ class AdminPay extends GatewayType
         return [];
     }
 
-    public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager): array
+    public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager, Request $request): array
     {
-        if (in_array("ROLE_ADMIN", $invoice->getUser()->getRoles()))
-        {
+        if (in_array("ROLE_ADMIN", $invoice->getUser()->getRoles())) {
             $invoice->approve();
             return [CommerceGatewayCallbackResponseEnum::TYPE_SUCCESS, "The invoice has been approved"];
         }
-        $invoice->deny();
+        $invoice->cancel();
         return [CommerceGatewayCallbackResponseEnum::TYPE_FAILURE, "The invoice has been denied"];
     }
 

@@ -2,15 +2,14 @@
 
 namespace App\Entity\Logger;
 
-use App\Entity\Core\CoreModule;
 use App\Entity\Core\CoreUser;
 use App\Repository\Logger\LoggerSiteAuthLoginRepository;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=LoggerSiteAuthLoginRepository::class)
@@ -67,7 +66,7 @@ class LoggerSiteAuthLogin
     /**
      * LoggerSiteAuthLogin constructor.
      *
-     * @param Request $request
+     * @param Request                                $request
      * @param AuthenticationException|TokenInterface $type
      */
     public function __construct(Request $request, /* AuthenticationException|TokenInterface */ $type)
@@ -78,22 +77,40 @@ class LoggerSiteAuthLogin
         $this->language = $request->getDefaultLocale();
         $this->execution = new DateTime('now');
 
-        if ($type instanceof TokenInterface)
-        {
+        if ($type instanceof TokenInterface) {
             $this->uuid = $type->getUsername();
             $this->isAuthSuccessful = true;
             $this->isUserReal = true;
 
-        } elseif ($type instanceof AuthenticationException)
-        {
+        } elseif ($type instanceof AuthenticationException) {
             $this->uuid = $type->getToken()->getCredentials()['uuid'];
             $this->isAuthSuccessful = false;
             $this->isUserReal = $GLOBALS['kernel']
+                    ->getContainer()
+                    ->get('doctrine.orm.entity_manager')
+                    ->getRepository(CoreUser::class)
+                    ->findOneBy(['uuid' => $this->uuid]) instanceof CoreUser;
+        }
+    }
+
+    /**
+     * Get nickname of provided uuid, if it exists as a user
+     *
+     * @return string
+     */
+    public function getNickname(): string
+    {
+        $user = $GLOBALS['kernel']
                 ->getContainer()
                 ->get('doctrine.orm.entity_manager')
                 ->getRepository(CoreUser::class)
-                ->findOneBy(['uuid' => $this->uuid]) instanceof CoreUser;
+                ->findOneBy(['uuid' => $this->uuid]);
+
+        if ($user instanceof CoreUser)
+        {
+            return $user->getNickname();
         }
+        return '';
     }
 
 
@@ -186,12 +203,12 @@ class LoggerSiteAuthLogin
         return $this;
     }
 
-    public function getExecution(): ?\DateTimeInterface
+    public function getExecution(): ?DateTimeInterface
     {
         return $this->execution;
     }
 
-    public function setExecution(\DateTimeInterface $execution): self
+    public function setExecution(DateTimeInterface $execution): self
     {
         $this->execution = $execution;
 

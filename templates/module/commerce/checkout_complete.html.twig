@@ -73,7 +73,6 @@
             <div class="row">
 
 
-
                 {% if invoice.commerceGatewayType.getClassInstance().manualOnly == false
                     and (invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
                     or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING")) %}
@@ -148,11 +147,14 @@
 
                         {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PAID") %}
                             <li class="list-group-item">
-                                <div><span class="font-weight-bold">Amount Paid:</span> {{ invoice.prettyPrice }}</div>
+                                <div><span class="font-weight-bold">Amount Paid:</span> {{ invoice.prettyPricePaid }}
+                                </div>
                             </li>
                         {% else %}
                             <li class="list-group-item">
-                                <div><span class="font-weight-bold">Amount Due:</span> {{ invoice.prettyPrice }}</div>
+                                <div>
+                                    <span class="font-weight-bold">Amount Due:</span> {{ invoice.prettyDiscountedPrice }}
+                                </div>
                             </li>
                         {% endif %}
 

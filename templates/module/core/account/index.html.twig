@@ -16,26 +16,48 @@
         {% if user.commerceUserSubscriptions.count > 0 and user.commerceUserSubscriptions.current.entityModuleEnabled %}
         <section class="content-body">
             <p class="text-dark title">Subscriptions</p>
-            <div class="row p-2 pl-4 pr-4">
+
+            <div class="row pl-4 pr-4">
                 {% for subscription in user.commerceUserSubscriptions %}
-                    <div class="card" style="width: 18rem;">
+                    <div class="card m-2" style="width: 18rem;">
                         <div class="card-body">
                             <h5 class="card-title">{{ subscription.commercePackageAssoc.name }}</h5>
                             {% if subscription.active %}
                                 <p class="card-text pt-2">Expires: {{ subscription.expiryDateTime.format('m/d/y') }}</p>
-                                <a href="{{ url( 'app_commerce_package', {'pid': subscription.commercePackageAssoc.id} ) }}" class="btn btn-primary">Add Time</a>
                             {% else %}
                                 <p class="card-text pt-2 text-danger">Expired</p>
-                                <a href="{{ url( 'app_commerce_package', {'pid': subscription.commercePackageAssoc.id} ) }}" class="btn btn-primary">Renew</a>
                             {% endif %}
+                            <a href="{{ url( 'app_commerce_package', {'pid': subscription.commercePackageAssoc.id} ) }}" class="btn btn-primary">View Package</a>
                         </div>
                     </div>
-
                 {% endfor %}
             </div>
+
         </section>
         {% endif %}
 
+
+        {# Check that invoices exist and that commerce is enabled #}
+        {% if user.commerceInvoices.count > 0 and user.commerceUserSubscriptions.current.entityModuleEnabled %}
+        <section class="content-body">
+            <p class="text-dark title">Invoices</p>
+
+            <div class="row pl-4 pr-4">
+                {% for invoice in user.commerceInvoices %}
+                    <div class="card m-2" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Invoice #{{ invoice.id }} ({{ invoice.commercePackage.name }})</h5>
+                            <p class="card-text">Status: {{ invoice.prettyPaymentState }}</p>
+                            <a href="{{ url('app_commerce_invoice_view', {id: invoice.id}) }}">
+                                <button class="btn btn-primary">View</button>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </section>
+        {% endif %}
     </div>
 
 {% endblock %}

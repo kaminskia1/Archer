@@ -4,10 +4,10 @@ namespace App\Module\Commerce\GatewayType;
 
 use App\Entity\Commerce\CommerceInvoice;
 use App\Enum\Commerce\CommerceGatewayCallbackResponseEnum;
-use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Module\Commerce\GatewayType;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class ManualPay extends GatewayType
 {
@@ -40,7 +40,7 @@ class ManualPay extends GatewayType
         return [];
     }
 
-    public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager): array
+    public function handleCallback(CommerceInvoice &$invoice, EntityManager $entityManager, Request $request): array
     {
         return [CommerceGatewayCallbackResponseEnum::TYPE_FAILURE, []];
     }
@@ -48,7 +48,6 @@ class ManualPay extends GatewayType
     public function handleRedirect(CommerceInvoice &$invoice, string $finalUrl, array $gatewayFormData): RedirectResponse
     {
         $invoice->setPaymentUrl($finalUrl);
-        $invoice->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
         return new RedirectResponse($finalUrl);
     }
 

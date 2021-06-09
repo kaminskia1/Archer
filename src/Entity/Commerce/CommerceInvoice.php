@@ -3,6 +3,7 @@
 namespace App\Entity\Commerce;
 
 use App\Entity\Core\CoreUser;
+use App\Enum\Commerce\CommerceDiscountCodeTypeEnum;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Model\CommerceTraitModel;
 use App\Module\Commerce\GatewayType;
@@ -106,6 +107,11 @@ class CommerceInvoice
      */
     private $isRenewable;
 
+    /**
+     * @ORM\Column(type="decimal", precision=17, scale=2, nullable=true)
+     */
+    private $pricePaid;
+
 
     /**
      * CommerceInvoice constructor.
@@ -135,8 +141,70 @@ class CommerceInvoice
     public function approve(): bool
     {
 
-        if ($this->isOpen() || $this->isPending())
+        if (($this->isOpen() || $this->isPending()) && $this->commercePackage instanceof CommercePackage)
         {
+
+            // Begin approval flow, by issuing a pending state. Manual approval so will still approve if stock is 0
+            if ($this->isOpen())
+            {
+                // Force the pending state
+                $this->setPending(true);
+            }
+
+            // Set as paid and run all "paid" approval stuff
+            $this->setPaid();
+
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Begin processing the invoice (Waiting on payment, approval, etc)
+     *
+     * @TODO Move to the repository
+     * @param bool $force
+     * @return bool If all pending requirements pass, and it is successfully updated.
+     */
+    public function setPending($force = false): bool
+    {
+        if ($this->commercePackage->getStock() == 0 && !$force)
+        {
+            return false;
+        }
+
+        $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
+
+        $package = $this->commercePackage;
+        $package->decrementStock();
+
+        $discount = $this->getDiscountCode();
+        if ($discount != null) $discount->incrementUsage();
+
+        // FLush to ensure package has saved, need to test whether this actually does anything
+        $GLOBALS['kernel']
+            ->getContainer()
+            ->get('doctrine.orm.entity_manager')
+            ->flush();
+
+        return true;
+    }
+
+    /**
+     * Set the invoice as paid
+     *
+     * @return bool
+     */
+    public function setPaid(): bool
+    {
+        if ($this->isPending())
+        {
+            $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
+            $this->setPaidOn(new DateTime());
+            $this->setPricePaid($this->getDiscountedPrice());
+
             // Create purchase, transaction, and subscription
             list($purchase, $transaction, $subscription) = GatewayType::createPST($this);
 
@@ -148,9 +216,6 @@ class CommerceInvoice
                 ->getContainer()
                 ->get('doctrine.orm.entity_manager');
 
-            $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
-            $this->setPaidOn(new DateTime());
-
             // Persist all
             $entityManager->persist($purchase);
             $entityManager->persist($transaction);
@@ -159,9 +224,41 @@ class CommerceInvoice
 
             return true;
         }
-
         return false;
+    }
 
+
+    /**
+     * Get price with discount code applied
+     *
+     * @return float|null
+     */
+    public function getDiscountedPrice(): ?float
+    {
+        // Check that isset and valid
+        if ($this->getDiscountCode() != null && $this->getDiscountCode()->isValid())
+        {
+            // Return based on type
+            if ($this->getDiscountCode()->getType() == CommerceDiscountCodeTypeEnum::TYPE_PERCENTAGE)
+            {
+                return $this->price * (1 - $this->getDiscountCode()->getAmount());
+            }
+            elseif ($this->getDiscountCode()->getType() == CommerceDiscountCodeTypeEnum::TYPE_AMOUNT)
+            {
+                return $this->price - $this->getDiscountCode()->getAmount() >= 0 ? $this->price - $this->getDiscountCode()->getAmount() : 0;
+            }
+        }
+        return $this->price;
+    }
+
+    /**
+     * Get the discounted price in string form
+     *
+     * @return string|null
+     */
+    public function getPrettyDiscountedPrice(): ?string
+    {
+        return $this->getDiscountedPrice()  . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
     /**
@@ -234,6 +331,31 @@ class CommerceInvoice
         return $this->price . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
+
+    /**
+     * Return the inverse of the commerce invoice payment state enum
+     *
+     * @return string
+     */
+    public function getPrettyPaymentState(): string
+    {
+        switch ($this->paymentState)
+        {
+            case 1:
+                return 'Open';
+            case 2:
+                return 'Paid';
+            case 3:
+                return 'Cancelled';
+            case 4:
+                return 'Expired';
+            case 5:
+                return 'Pending';
+            default:
+                return 'Error';
+        }
+
+    }
 
     /**
      * Get id
@@ -338,6 +460,34 @@ class CommerceInvoice
     }
 
     /**
+     * Get price paid
+     *
+     * @return float|null
+     */
+    public function getPricePaid(): ?float
+    {
+        return $this->pricePaid;
+    }
+
+    public function getPrettyPricePaid(): ?string
+    {
+        return $this->pricePaid  . " " . $_ENV['COMMERCE_CURRENCY'];
+    }
+
+    /**
+     * Set price paid
+     *
+     * @param float $pricePaid
+     * @return $this
+     */
+    public function setPricePaid(float $pricePaid): self
+    {
+        $this->pricePaid = $pricePaid;
+
+        return $this;
+    }
+
+    /**
      * Get payment state
      *
      * @return int|null
@@ -350,6 +500,7 @@ class CommerceInvoice
     /**
      * Set payment state
      *
+     * @internal This should not be used outside scope, but instead by calling approve, setPending, setPaid, etc
      * @param int $paymentState
      * @return $this
      */
@@ -476,7 +627,7 @@ class CommerceInvoice
     }
 
     /**
-     * Get commerce package duraiton to price
+     * Get commerce package duration to price
      *
      * @return int|null
      */

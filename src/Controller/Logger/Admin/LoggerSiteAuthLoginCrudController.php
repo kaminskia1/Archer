@@ -25,7 +25,8 @@ class LoggerSiteAuthLoginCrudController extends AbstractCrudController
             ->setPageTitle('index', 'Site Auth Logs')
             ->setEntityLabelInPlural('Logins')
             ->setEntityLabelInSingular(
-                fn(?LoggerSiteAuthLogin $command, string $pageName = "0") => $command ? ("Login: " . $command->getId()) : 'Login'
+                fn(?LoggerSiteAuthLogin $command, string $pageName = "0") => $command ? ("Login: " .
+                    $command->getId()) : 'Login'
 
             )
             ->setEntityPermission('ROLE_ADMIN');
@@ -46,6 +47,7 @@ class LoggerSiteAuthLoginCrudController extends AbstractCrudController
     {
         yield IdField::new('id', "Internal ID")->onlyOnDetail();
         yield TextField::new('uuid', 'UUID')->hideOnForm();
+        yield TextField::new('nickname')->hideOnForm();
         yield TextField::new('ip', 'IP')->hideOnForm();
         yield TextField::new('basePath', 'Path')->onlyOnDetail();
         yield TextField::new('userAgent')->onlyOnDetail();

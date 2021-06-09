@@ -31,9 +31,12 @@ class CoreSiteRequestLoggerSubscriber implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event)
     {
         if ($this->entityManager->getRepository(CoreModule::class)->isModuleLoaded('Logger')) {
-            $log = new LoggerSiteRequest($event->getRequest());
-            $this->entityManager->persist($log);
-            $this->entityManager->flush();
+            if ($this->entityManager->isOpen())
+            {
+                $log = new LoggerSiteRequest($event->getRequest());
+                $this->entityManager->persist($log);
+                $this->entityManager->flush();
+            }
         }
     }
 
