@@ -39,9 +39,8 @@ class CoreUserCrudSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $entity->setGroups($entity->getGroups());
         $this->_encodePassword( $entity );
-        $entity->setStaffNote( $entity->getStaffNote() ?? "" );
-        $entity->setNickname( $entity->getNickname() ?? "" );
 
         return;
     }
@@ -63,6 +62,7 @@ class CoreUserCrudSubscriber implements EventSubscriberInterface
         $code->setUsageDate(new DateTime());
         $code->setUsedBy( $entity );
 
+        $entity->setGroups($entity->getGroups());
         $entity->setStaffNote( $entity->getStaffNote() ?? "" );
         $entity->setNickname( $entity->getNickname() ?? "" );
     }

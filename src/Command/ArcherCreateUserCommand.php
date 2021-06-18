@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\Core\CoreGroup;
 use App\Entity\Core\CoreRegistrationCode;
 use App\Entity\Core\CoreUser;
 use App\Module\Core\CorePasswordHasher;
@@ -10,12 +11,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class ArcherCreateUserCommand
@@ -46,7 +44,8 @@ class ArcherCreateUserCommand extends AbstractArcherCommand
 
     /**
      * Command constructor.
-     * @param EntityManagerInterface $entityManager
+     *
+     * @param EntityManagerInterface       $entityManager
      * @param UserPasswordEncoderInterface $passwordEncoder
      */
     public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $passwordEncoder)
@@ -68,15 +67,15 @@ class ArcherCreateUserCommand extends AbstractArcherCommand
             ->setDescription('Create a new user')
             ->addArgument('password', InputArgument::OPTIONAL, 'The password to encode')
             ->addArgument('nickname', InputArgument::OPTIONAL, 'A Nickname to append')
-            ->addArgument('customRole', InputArgument::OPTIONAL, 'A custom role to accompany ROLE_USER')
-        ;
+            ->addArgument('customRole', InputArgument::OPTIONAL, 'A custom role to accompany ROLE_USER');
     }
 
     /**
      * Command execution
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -87,7 +86,7 @@ class ArcherCreateUserCommand extends AbstractArcherCommand
         // Prompt for password, nickname if applicable, and custom role to bind if applicable
         $password = $input->getArgument('password') ?? $io->ask("Enter a password", "password");
         $nickname = $input->getArgument('nickname') ?? $io->ask("Enter a nickname (optional)");
-        $customRole = $input->getArgument('customRole') ?? $io->ask("Add a custom role (optional)");
+        $customRole = $input->getArgument('customRole') ?? $io->ask("Add a custom group by internal name (optional)");
 
         // Create registration code
         $code = new CoreRegistrationCode();
@@ -103,7 +102,8 @@ class ArcherCreateUserCommand extends AbstractArcherCommand
         // Bind new user to previous registration code, set nickname and roles
         $user->setRegistrationCode($code);
         $user->setNickname($nickname);
-        $user->setRoles(array_merge($user->getRoles(), [$customRole]));
+        $user->addGroup($this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName' => $customRole]));
+        $user->addGroup($this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName' => 'ROLE_USER']));
 
         // Encode password with CorePasswordHasher, and then encode again with the server's standard encoding
         $user->setPassword(
@@ -127,7 +127,8 @@ class ArcherCreateUserCommand extends AbstractArcherCommand
         $this->entityManager->flush();
 
         // Output success with the user's data, as creation is complete
-        $io->success("CoreUser [" . $user->getUuid() . "] " . (strlen($user->getNickname()) > 0 ? "(" . $user->getNickname() . ") " : "") . "has been created!");
+        $io->success("User [" . $user->getUuid() . "] " .
+            (strlen($user->getNickname()) > 0 ? "(" . $user->getNickname() . ") " : "") . "has been created!");
 
         // Return successful execution
         return Command::SUCCESS;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Core\Dashboard\Admin;
 
 use App\Entity\Core\CoreModule;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -15,7 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * Class CoreModuleCrudController
- * @package App\Controller\Admin
+ * @package App\Controller\Core\Admin
  * @IsGranted("ROLE_ADMIN")
  *
  *

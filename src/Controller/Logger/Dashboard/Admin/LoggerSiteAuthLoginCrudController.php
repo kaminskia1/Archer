@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Logger\Admin;
+namespace App\Controller\Logger\Dashboard\Admin;
 
 use App\Entity\Logger\LoggerSiteAuthLogin;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -12,6 +12,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
+/**
+ * Class LoggerSiteAuthLoginCrudController
+ *
+ * @package App\Controller\Logger\Dashboard\Admin
+ */
 class LoggerSiteAuthLoginCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string

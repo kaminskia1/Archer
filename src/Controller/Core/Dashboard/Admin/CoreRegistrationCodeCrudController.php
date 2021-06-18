@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Core\Dashboard\Admin;
 
 use App\Entity\Core\CoreUser;
 use App\Entity\Core\CoreRegistrationCode;
@@ -18,7 +18,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * Class CoreRegistrationCodeCrudController
- * @package App\Controller\Admin
+ * @package App\Controller\Core\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CoreRegistrationCodeCrudController extends AbstractCrudController

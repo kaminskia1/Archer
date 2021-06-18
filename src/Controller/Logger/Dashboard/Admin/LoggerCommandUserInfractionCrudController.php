@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Logger\Admin;
+namespace App\Controller\Logger\Dashboard\Admin;
 
 use App\Entity\Logger\LoggerCommandUserInfraction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -14,6 +14,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
+/**
+ * Class LoggerCommandUserInfractionCrudController
+ *
+ * @package App\Controller\Logger\Admin
+ */
 class LoggerCommandUserInfractionCrudController extends AbstractCrudController
 {
     public function configureCrud(Crud $crud): Crud

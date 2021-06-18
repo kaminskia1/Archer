@@ -1,32 +1,35 @@
 <?php
 
-namespace App\Controller\Logger\Admin;
+namespace App\Controller\Logger\Dashboard\Admin;
 
-use App\Entity\Logger\LoggerCommandUserSubscription;
+use App\Entity\Logger\LoggerCommand;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class LoggerCommandUserSubscriptionCrudController extends AbstractCrudController
+/**
+ * Class LoggerCommandCrudController
+ *
+ * @package App\Controller\Logger\Admin
+ */
+class LoggerCommandCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return LoggerCommandUserSubscription::class;
+        return LoggerCommand::class;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setPageTitle('index', 'Subscription Command Logs')
+            ->setPageTitle('index', 'Command Logs')
             ->setEntityLabelInPlural('Commands')
             ->setEntityLabelInSingular(
-                fn(?LoggerCommandUserSubscription $command, string $pageName = "0") => $command ? ("Subscription: " . $command->getId()) : 'Subscription'
+                fn(?LoggerCommand $command, string $pageName = "0") => $command ? ("Command: " . $command->getName()) : 'Command'
 
             )
             ->setEntityPermission('ROLE_ADMIN');
@@ -46,11 +49,7 @@ class LoggerCommandUserSubscriptionCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', "Internal ID")->onlyOnDetail();
-        yield AssociationField::new('user')->hideOnForm();
-        yield AssociationField::new('package')->hideOnForm();
-        yield AssociationField::new('subscription')->hideOnForm();
-        yield NumberField::new('response', 'Minutes Till Exp')->hideOnForm();
-        yield BooleanField::new('flagged')->hideOnForm()->setFormTypeOption('disabled', true)->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
-        yield TextField::new('flagType', 'Issued Ban')->onlyOnDetail();
+        yield TextField::new('name')->hideOnForm();
+        yield DateTimeField::new('execution', 'Time')->hideOnForm();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Core\Content\Dashboard;
 
 use App\Entity\Commerce\CommerceDiscountCode;
 use App\Entity\Commerce\CommerceGatewayInstance;
@@ -11,6 +11,7 @@ use App\Entity\Commerce\CommercePackageGroup;
 use App\Entity\Commerce\CommercePurchase;
 use App\Entity\Commerce\CommerceTransaction;
 use App\Entity\Commerce\CommerceUserSubscription;
+use App\Entity\Core\CoreGroup;
 use App\Entity\Core\CoreModule;
 use App\Entity\Core\CoreRegistrationCode;
 use App\Entity\Core\CoreUser;
@@ -31,7 +32,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  *
  * Class CoreAdminDashboardController
- * @package App\Controller\Admin
+ * @package App\Controller\Core\Content\Dashboard
  * @IsGranted("ROLE_ADMIN")
  */
 class CoreAdminDashboardController extends AbstractDashboardController
@@ -58,7 +59,7 @@ class CoreAdminDashboardController extends AbstractDashboardController
      */
     public function index(): Response
     {
-        return $this->render('admin/dashboard_landing.html.twig');
+        return $this->render('dashboard/dashboard_landing.html.twig');
     }
 
     public function configureDashboard(): Dashboard
@@ -77,6 +78,7 @@ class CoreAdminDashboardController extends AbstractDashboardController
          */
         yield MenuItem::section('Core');
         yield MenuItem::linkToCrud('Users', 'fas fa-list', CoreUser::class);
+        yield MenuItem::linkToCrud('Groups', 'fas fa-list', CoreGroup::class);
         yield MenuItem::linkToCrud('Registration Codes', 'fas fa-list', CoreRegistrationCode::class);
         yield MenuItem::linkToCrud('Site Modules', 'fas fa-list', CoreModule::class);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Commerce\Dashboard\Admin;
 
 use App\Entity\Commerce\CommerceGatewayType;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -14,7 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * Class CommerceGatewayTypeCrudController
- * @package App\Controller\Admin
+ *
+ * @package App\Controller\Commerce\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CommerceGatewayTypeCrudController extends AbstractCrudController

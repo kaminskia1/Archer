@@ -78,7 +78,7 @@ class CommerceTransaction
      * @param CommerceInvoice|null $invoice
      * @param CommercePurchase|null $purchase
      */
-    public function __construct(?CommerceInvoice $invoice, ?CommercePurchase $purchase)
+    public function __construct(?CommerceInvoice $invoice = null, ?CommercePurchase $purchase = null)
     {
         if ($invoice instanceof CommerceInvoice) {
             $this->setCommerceInvoice($invoice);

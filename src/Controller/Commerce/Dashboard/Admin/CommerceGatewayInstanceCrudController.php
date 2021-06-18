@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Commerce\Dashboard\Admin;
 
 use App\Entity\Commerce\CommerceGatewayType;
 use App\Entity\Commerce\CommerceGatewayInstance;
@@ -19,7 +19,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * Class CommerceGatewayInstanceCrudController
- * @package App\Controller\Admin
+ *
+ * @package App\Controller\Commerce\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CommerceGatewayInstanceCrudController extends AbstractCrudController

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Commerce\Dashboard\Admin;
 
 use App\Entity\Commerce\CommerceTransaction;
 use App\Entity\Commerce\CommerceUserSubscription;
@@ -18,7 +18,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * Class CommerceTransactionCrudController
- * @package App\Controller\Admin
+ * @package App\Controller\Commerce\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CommerceTransactionCrudController extends AbstractCrudController

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Commerce\Dashboard\Admin;
 
 use App\Admin\Field\DateIntervalField;
 use App\Entity\Commerce\CommerceInvoice;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Class CommerceInvoiceCrudController
  *
- * @package App\Controller\Admin
+ * @package App\Controller\Commerce\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CommerceInvoiceCrudController extends AbstractCrudController

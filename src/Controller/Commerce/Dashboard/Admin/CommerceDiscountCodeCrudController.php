@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Commerce\Dashboard\Admin;
 
 use App\Entity\Commerce\CommerceDiscountCode;
 use App\Enum\Commerce\CommerceDiscountCodeTypeEnum;
@@ -19,7 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 /**
  * Class CommerceDiscountCodeCrudController
  *
- * @package App\Controller\Admin
+ * @package App\Controller\Commerce\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CommerceDiscountCodeCrudController extends AbstractCrudController

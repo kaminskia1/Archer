@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Core\Dashboard\Admin;
 
 use App\Entity\Core\CoreUser;
 use Doctrine\DBAL\Types\ArrayType;
@@ -22,7 +22,8 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 /**
  * Class CoreUserCrudController
- * @package App\Controller\Admin
+ *
+ * @package App\Controller\Core\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CoreUserCrudController extends AbstractCrudController
@@ -62,13 +63,9 @@ class CoreUserCrudController extends AbstractCrudController
         });
         yield TextField::new('nickname');
         yield DateTimeField::new('registrationDate')->hideOnForm();
-        yield  TextField::new('plainPassword', "New Password")->onlyOnForms()->setRequired( $pageName == "new" );
-        yield ChoiceField::new('roles')->allowMultipleChoices(true)->setChoices([
-            "User" => "ROLE_USER",
-            "Banned" => "ROLE_BANNED",
-            "Subscriber" => "ROLE_SUBSCRIBER",
-            "Admin" => "ROLE_ADMIN"
-        ]);
+        yield TextField::new('plainPassword', "New Password")->onlyOnForms()->setRequired( $pageName == "new" );
+        yield AssociationField::new('groups')
+            ->setRequired(true);
         yield AssociationField::new('registrationCode')
             ->onlyWhenCreating()
             ->setRequired(true);

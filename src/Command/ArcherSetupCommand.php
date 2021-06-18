@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Commerce\CommerceGatewayType;
+use App\Entity\Core\CoreGroup;
 use App\Entity\Core\CoreModule;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -86,6 +87,47 @@ class ArcherSetupCommand extends AbstractArcherCommand
             'Logger',
             'API'
         ];
+
+        // All initial groups to register. Groups with inheritance MUST come after their inherit-ees
+        $groups = [
+            'ROLE_BANNED' => ['Banned', '#000000', [] ],                     // 0
+            'ROLE_USER' => ['User', '#000000', [] ],                         // 1
+            'ROLE_SUBSCRIBER' => ['Subscriber', '#000000', ['ROLE_USER'] ],  // 2
+            'ROLE_SELLER' => ['Seller', '#000000', ['ROLE_SUBSCRIBER'] ],    // 3
+            'ROLE_MODERATOR' => ['Moderator', '#000000', ['ROLE_SELLER'] ],  // 4
+            'ROLE_ADMIN' => ['Admin', '#000000', ['ROLE_MODERATOR'] ],       // 5
+        ];
+
+
+
+        foreach ($groups as $internal => $val)
+        {
+            if ($this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName'=>$internal]) == null)
+            {
+                $group = new CoreGroup();
+                $group->setName($val[0]);
+                $group->setColor($val[1]);
+                $group->setInternalName($internal);
+                $this->entityManager->persist($group);
+                $output->writeln("> Added group: $internal");
+            }
+
+
+        }
+
+        foreach ($groups as $internal => $val)
+        {
+            $group = $this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName'=>$internal]);
+            foreach ($val[2] as $v)
+            {
+                if ($this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName'=>$v]) != null)
+                {
+                    $group->addInherit($this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName'=>$v]));
+                } else {
+                    $output->writeln("# Failed to add inheritance [$v] to group [$internal] ");
+                }
+            }
+        }
 
         foreach ($modules as $name)
         {

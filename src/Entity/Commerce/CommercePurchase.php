@@ -78,7 +78,7 @@ class CommercePurchase
      *
      * @param CommerceInvoice|null $invoice
      */
-    public function __construct(?CommerceInvoice $invoice)
+    public function __construct(?CommerceInvoice $invoice = null)
     {
         // Check if invoice provided
         if ($invoice instanceof CommerceInvoice) {

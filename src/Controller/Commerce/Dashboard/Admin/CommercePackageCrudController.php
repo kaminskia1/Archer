@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Commerce\Dashboard\Admin;
 
 use App\Entity\Commerce\CommercePackage;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -19,7 +19,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * Class CommercePackageCrudController
- * @package App\Controller\Admin
+ *
+ * @package App\Controller\Commerce\Dashboard\Admin
  * @IsGranted("ROLE_ADMIN")
  */
 class CommercePackageCrudController extends AbstractCrudController

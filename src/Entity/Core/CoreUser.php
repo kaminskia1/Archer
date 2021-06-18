@@ -15,6 +15,7 @@ use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -48,6 +49,7 @@ class CoreUser implements UserInterface
     private $uuid;
 
     /**
+     * @TODO Deprecate this
      * @ORM\Column(type="json")
      */
     private $roles = [];
@@ -66,7 +68,7 @@ class CoreUser implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $staffNote;
+    private $staffNote = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -79,7 +81,7 @@ class CoreUser implements UserInterface
     private $plainPassword;
 
     /**
-     * @ORM\OneToOne(targetEntity=\App\Entity\Core\CoreRegistrationCode::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=CoreRegistrationCode::class, cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $registrationCode;
@@ -111,23 +113,23 @@ class CoreUser implements UserInterface
     private $hwid;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceUserSubscription::class, mappedBy="user",
+     * @ORM\OneToMany(targetEntity=CommerceUserSubscription::class, mappedBy="user",
      *                                                                                   orphanRemoval=true)
      */
     private $CommerceUserSubscriptions;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceInvoice::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=CommerceInvoice::class, mappedBy="user")
      */
     private $CommerceInvoices;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommercePurchase::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=CommercePurchase::class, mappedBy="user")
      */
     private $CommercePurchases;
 
     /**
-     * @ORM\OneToMany(targetEntity=\App\Entity\Commerce\CommerceTransaction::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=CommerceTransaction::class, mappedBy="user")
      */
     private $commerceTransactions;
 
@@ -196,6 +198,10 @@ class CoreUser implements UserInterface
      */
     private $loggerCommandUserSubscriptions;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=CoreGroup::class, inversedBy="users")
+     */
+    private $groups;
 
     /**
      * CoreUser constructor.
@@ -211,6 +217,7 @@ class CoreUser implements UserInterface
         $this->loaderIPCollection = $this->loaderIPCollection ?? [];
         $this->loggerCommandUserInfractions = new ArrayCollection();
         $this->loggerCommandUserSubscriptions = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function isBanned(): bool
@@ -226,7 +233,13 @@ class CoreUser implements UserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
+
+        $roles = [];
+
+        foreach ($this->getGroups() as $group) {
+            $this->_rec($roles, $group);
+        }
+
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
@@ -234,17 +247,55 @@ class CoreUser implements UserInterface
     }
 
     /**
-     * Set roles
+     * Get the user's highest-priority corresponding group color. Only iterates over directly owned groups
      *
-     * @param array $roles
-     *
-     * @return $this
+     * @return string
      */
-    public function setRoles(array $roles): self
+    public function getColor(): string
     {
-        $this->roles = $roles;
+        $color = "";
+        $priority = 0;
+        foreach ($this->getGroups() as $group)
+        {
+            if ($group->getPriority() > $priority)
+            {
+                $color = $group->getColor();
+                $priority = $group->getPriority();
+            }
+        }
+        return $color;
+    }
 
+
+    /**
+     * @return Collection|CoreGroup[]
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+
+    public function setGroups($groups): self
+    {
+        $this->groups = $groups;
         return $this;
+    }
+
+    /**
+     * Recursive call for getRoles
+     *
+     * @param           $array
+     * @param CoreGroup $group
+     */
+    private function _rec(&$array, CoreGroup $group)
+    {
+        $array[] = $group->getInternalName();
+        foreach ($group->getInherits() as $i) {
+            if (!in_array($i->getInternalName(), $array)) {
+                $this->_rec($array, $i);
+            }
+        }
     }
 
     /**
@@ -895,7 +946,9 @@ class CoreUser implements UserInterface
     public function addInfractionPoints(int $infractionPoints): self
     {
         // if prev < 500 < new
-        if ($this->getInfractionPoints() < 500 && ($this->getInfractionPoints() + $infractionPoints) >= 500) $this->doBanUser();
+        if ($this->getInfractionPoints() < 500 && ($this->getInfractionPoints() + $infractionPoints) >= 500) {
+            $this->doBanUser();
+        }
         $this->infractionPoints = ($this->infractionPoints ?? 0) + $infractionPoints;
 
         return $this;
@@ -930,9 +983,28 @@ class CoreUser implements UserInterface
      */
     public function doBanUser()
     {
+        /**
+         * @var EntityManagerInterface $em
+         */
+        $em = $GLOBALS['kernel']
+            ->getContainer()
+            ->get('doctrine.orm.entity_manager');
+
         if (!in_array("ROLE_BANNED", $this->getRoles())) {
-            $this->setRoles(array_merge($this->getRoles(), ["ROLE_BANNED"]));
+            $this->addGroup($em->getRepository(CoreGroup::class)->findOneBy(['internalName' => 'ROLE_BANNED']));
+            $em->flush();
         }
+
+    }
+
+    public function addGroup(CoreGroup $group): self
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups[] = $group;
+            $group->addUser($this);
+        }
+
+        return $this;
     }
 
     /**
@@ -968,7 +1040,9 @@ class CoreUser implements UserInterface
      */
     public function addInfractionType(int $value): self
     {
-        if (!is_array($this->infractionTypes)) $this->infractionTypes = [];
+        if (!is_array($this->infractionTypes)) {
+            $this->infractionTypes = [];
+        }
         $this->infractionTypes = array_merge($this->infractionTypes, [$value]);
 
         return $this;
@@ -1056,8 +1130,12 @@ class CoreUser implements UserInterface
     public function registerSiteIP(string $ip): self
     {
         $this->lastSiteIP = $ip;
-        if (!is_array($this->siteIPCollection)) $this->siteIPCollection = [];
-        if (!in_array($ip, $this->siteIPCollection)) array_push($this->siteIPCollection, $ip);
+        if (!is_array($this->siteIPCollection)) {
+            $this->siteIPCollection = [];
+        }
+        if (!in_array($ip, $this->siteIPCollection)) {
+            array_push($this->siteIPCollection, $ip);
+        }
         return $this;
     }
 
@@ -1095,8 +1173,12 @@ class CoreUser implements UserInterface
     public function registerLoaderIP(string $ip): self
     {
         $this->lastLoaderIP = $ip;
-        if (!is_array($this->loaderIPCollection)) $this->loaderIPCollection = [];
-        if (!in_array($ip, $this->loaderIPCollection)) array_push($this->loaderIPCollection, $ip);
+        if (!is_array($this->loaderIPCollection)) {
+            $this->loaderIPCollection = [];
+        }
+        if (!in_array($ip, $this->loaderIPCollection)) {
+            array_push($this->loaderIPCollection, $ip);
+        }
         return $this;
     }
 
@@ -1185,6 +1267,15 @@ class CoreUser implements UserInterface
             if ($loggerCommandUserSubscription->getUser() === $this) {
                 $loggerCommandUserSubscription->setUser(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(CoreGroup $group): self
+    {
+        if ($this->groups->removeElement($group)) {
+            $group->removeUser($this);
         }
 
         return $this;
