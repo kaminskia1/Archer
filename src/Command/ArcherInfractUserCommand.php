@@ -57,7 +57,8 @@ class ArcherInfractUserCommand extends AbstractArcherCommand
             ->setDescription('Check a user\'s Credentials')
             ->addArgument('uuid', InputArgument::REQUIRED, 'User\'s UUID')
             ->addArgument('type', InputArgument::REQUIRED, 'Infraction type')
-            ->addArgument('points', InputArgument::REQUIRED, 'Points to add');
+            ->addArgument('points', InputArgument::REQUIRED, 'Points to add')
+            ->addArgument('debug', InputArgument::OPTIONAL, 'Points to add');
     }
 
     /**

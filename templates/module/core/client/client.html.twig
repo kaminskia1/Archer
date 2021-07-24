@@ -6,8 +6,48 @@
 
 {% block body %}
 
-    <h4 class="title text-center">This dashboard is still a work in progress. Check out the <a href="{{ url("app_commerce_store") }}">Store</a> instead!</h4>
-    <hr>
+    <div class="container content-container p-0">
 
+        <section class="content-header">
+            Client Panel
+        </section>
+
+
+        <section class="content-body">
+
+            {% if app.user.nickname is not null or app.user.nickname|length > 0 %}
+                <p class="text-dark title">Welcome, {{ app.user.nickname }}</p>
+            {% else %}
+                <p class="text-dark title">Welcome, [<code>{{ app.user.username() }}</code>]</p>
+            {% endif %}
+
+
+
+
+        </section>
+
+        <section class="content-body">
+            <p class="text-dark title">Basic Information</p>
+            <h6 class="pl-3">Group:
+                <span style="color: {{ app.user.highestGroup.color }}">
+                    {{ app.user.highestGroup.name }}
+                </span>
+            </h6>
+            <h6 class="pl-3">UUID: <code>{{ app.user.username }}</code></h6>
+        </section>
+
+        <section class="content-body">
+            <p class="text-dark title">Quick Links</p>
+            <ul>
+                <li>
+                    <a href="{{ url('app_commerce_store') }}">Store</a>
+                </li>
+                <li>
+                    <a href="{{ url('app_dashboard_account') }}">My Account</a>
+                </li>
+            </ul>
+        </section>
+
+    </div>
 
 {% endblock %}

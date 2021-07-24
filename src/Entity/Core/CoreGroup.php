@@ -191,5 +191,33 @@ class CoreGroup
         return $this;
     }
 
+    /**
+     * Recursively grab every inherited group
+     *
+     * @return array
+     */
+    public function getAllInherits(): array
+    {
+        $array = [];
+        foreach ($this->getInherits() as $group) {
+            $this->_rec($array, $group);
+        }
+        return array_unique($array);
+    }
 
+    /**
+     * Recursive call for getAllInherits
+     *
+     * @param           $array
+     * @param CoreGroup $group
+     */
+    private function _rec(&$array, CoreGroup $group)
+    {
+        $array[] = $group;
+        foreach ($group->getInherits() as $i) {
+            if (!in_array($i, $array)) {
+                $this->_rec($array, $i);
+            }
+        }
+    }
 }

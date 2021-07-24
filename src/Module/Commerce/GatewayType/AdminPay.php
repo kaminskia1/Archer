@@ -7,6 +7,7 @@ use App\Enum\Commerce\CommerceGatewayCallbackResponseEnum;
 use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
 use App\Module\Commerce\GatewayType;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -32,7 +33,18 @@ class AdminPay extends GatewayType
 
     public function getFormFields(): array
     {
-        return [];
+        return [
+            (object)[
+                'title' => 'acceptTermsOfService',
+                'type' => CheckboxType::class,
+                'options' => [
+                    'required' => true,
+                    'value' => false,
+                    'attr' => ['class' => 'ml-2'],
+                    'label' => 'Accept Terms of Service'
+                ]
+            ]
+        ];
     }
 
     public function getInstanceOptions(): array

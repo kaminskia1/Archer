@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}{% endblock %}
+
+{% block title %} - Registration{% endblock %}
+
+{% block body %}
+
+    <div class="content">
+        <h2 class="title text-center">Welcome to Archer</h2>
+        <h6 class="title text-center pb-4">Your registration has been successful.</h6>
+        <div class="container content-container p-5">
+            <h6 class="title text-center">Your UUID is <code>{{ user.username() }}</code></h6>
+            <h6 class="title text-center pb-3">Please write this down to ensure that you do not lose it!</h6>
+            <div class="text-center full-width p-lg-6">
+                <a href="{{ url('app_dashboard_client') }}">
+                    <button class="btn btn-primary align-content-center">Continue</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

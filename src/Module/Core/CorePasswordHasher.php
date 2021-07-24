@@ -2,13 +2,6 @@
 
 namespace App\Module\Core;
 
-use App\Entity\Commerce\CommerceInvoice;
-use App\Entity\Commerce\CommercePurchase;
-use App\Entity\Commerce\CommerceTransaction;
-use App\Entity\Commerce\CommerceUserSubscription;
-use App\Enum\Commerce\CommerceInvoicePaymentStateEnum;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 abstract class CorePasswordHasher
 {

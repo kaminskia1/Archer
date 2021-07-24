@@ -112,4 +112,5 @@ class RegistrationController extends AbstractCoreController
         }
         return new Response("Not yet implemented.");
     }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entity\Commerce;
 
+use App\Entity\Core\CoreGroup;
 use App\Model\CommerceTraitModel;
 use App\Repository\Commerce\CommercePackageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,6 +21,11 @@ class CommercePackage
      */
     use CommerceTraitModel;
 
+    /**
+     * @TODO: Transfer to proper enum
+     */
+    public const INVOICE_LICENSE_DISCRIM = 'l';
+    public const INVOICE_SUBSCRIPTION_DISCRIM = 's';
 
     /**
      * @ORM\Id
@@ -56,11 +62,6 @@ class CommercePackage
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $packageUserRole;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
     private $imageURI;
 
     /**
@@ -87,6 +88,22 @@ class CommercePackage
      * @ORM\Column(type="string", length=8000, nullable=true)
      */
     private $storeDescription;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=CoreGroup::class)
+     */
+    private $packageUserGroup;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isKeyEnabled;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $keyDurationToPrice = [];
+
 
 
     /**
@@ -177,18 +194,37 @@ class CommercePackage
     }
 
     /**
-     * Get formatted duration to price
+     * Get formatted duration to price for subscriptions
+     *  - [Duration:Price]
      *
      * @return array
      */
-    public function getFormattedDurationToPrice()
+    public function getFormattedSubscriptionPrices(): array
     {
         $tmp = $this->getDurationToPrice();
+        $new = [];
         for ($i = 0; $i < count($tmp); $i++) {
             $l = explode(":", $tmp[$i]);
-            $tmp[$i] = " $l[0] Days ($l[1] " . $_ENV['COMMERCE_CURRENCY'] . ")";
+            $new[self::INVOICE_SUBSCRIPTION_DISCRIM . '-' . $i] = " $l[0] Days ($l[1] " . $_ENV['COMMERCE_CURRENCY'] . ")";
         }
-        return array_flip($tmp);
+        return array_flip($new);
+    }
+
+    /**
+     * Get formatted duration to price for keys
+     *  - [Amount:Duration:Price]
+     *
+     * @return array
+     */
+    public function getFormattedLicensePrices(): array
+    {
+        $tmp = $this->getKeyDurationToPrice();
+        $new = [];
+        for ($i = 0; $i < count($tmp); $i++) {
+            $l = explode(":", $tmp[$i]);
+            $new[self::INVOICE_LICENSE_DISCRIM . '-' . $i] = "$l[0] License" . ( $l[0] > 1 ? "s": null) . " - $l[1] Day" . ( $l[1] > 1 ? "s": null) . " ($l[2] " . $_ENV['COMMERCE_CURRENCY'] . ")";
+        }
+        return array_flip($new);
     }
 
     /**
@@ -228,12 +264,14 @@ class CommercePackage
     /**
      * Decrement the package's stock
      *
+     * @param int $amt
+     *
      * @return $this
      */
-    public function decrementStock(): self
+    public function decrementStock($amt = 1): self
     {
         if ($this->stock != null) {
-            $this->stock > 0 ? $this->stock -= 1 : $this->stock = 0;
+            $this->stock > 0 ? $this->stock -= $amt : $this->stock = 0;
         }
         return $this;
     }
@@ -241,12 +279,14 @@ class CommercePackage
     /**
      * Increment the package's stock
      *
+     * @param int $amt
+     *
      * @return $this
      */
-    public function incrementStock(): self
+    public function incrementStock($amt = 1): self
     {
         if ($this->stock != null) {
-            $this->stock += 1;
+            $this->stock += $amt;
         }
         return $this;
     }
@@ -254,11 +294,13 @@ class CommercePackage
     /**
      * Check if package has available stock
      *
+     * @param int $amt
+     *
      * @return bool
      */
-    public function hasStock(): bool
+    public function hasStock($amt = 1): bool
     {
-        return $this->stock > 0 || $this->stock == null;
+        return $this->stock >= $amt || $this->stock == null;
     }
 
     /**
@@ -305,30 +347,6 @@ class CommercePackage
     public function setIsVisible(bool $isVisible): self
     {
         $this->isVisible = $isVisible;
-
-        return $this;
-    }
-
-    /**
-     * Get package user roles
-     *
-     * @return string|null
-     */
-    public function getPackageUserRole(): ?string
-    {
-        return $this->packageUserRole;
-    }
-
-    /**
-     * Set package user roles
-     *
-     * @param string|null $packageUserRole
-     *
-     * @return $this
-     */
-    public function setPackageUserRole(?string $packageUserRole): self
-    {
-        $this->packageUserRole = $packageUserRole;
 
         return $this;
     }
@@ -498,5 +516,42 @@ class CommercePackage
 
         return $this;
     }
+
+    public function getPackageUserGroup(): ?CoreGroup
+    {
+        return $this->packageUserGroup;
+    }
+
+    public function setPackageUserGroup(?CoreGroup $packageUserGroup): self
+    {
+        $this->packageUserGroup = $packageUserGroup;
+
+        return $this;
+    }
+
+    public function getIsKeyEnabled(): ?bool
+    {
+        return $this->isKeyEnabled;
+    }
+
+    public function setIsKeyEnabled(bool $isKeyEnabled): self
+    {
+        $this->isKeyEnabled = $isKeyEnabled;
+
+        return $this;
+    }
+
+    public function getKeyDurationToPrice(): ?array
+    {
+        return $this->keyDurationToPrice;
+    }
+
+    public function setKeyDurationToPrice(?array $keyDurationToPrice): self
+    {
+        $this->keyDurationToPrice = $keyDurationToPrice;
+
+        return $this;
+    }
+
 
 }

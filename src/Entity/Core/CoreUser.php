@@ -4,7 +4,6 @@ namespace App\Entity\Core;
 
 use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePurchase;
-use App\Entity\Commerce\CommerceTransaction;
 use App\Entity\Commerce\CommerceUserSubscription;
 use App\Entity\Logger\LoggerCommandAuth;
 use App\Entity\Logger\LoggerCommandUserInfraction;
@@ -129,11 +128,6 @@ class CoreUser implements UserInterface
     private $CommercePurchases;
 
     /**
-     * @ORM\OneToMany(targetEntity=CommerceTransaction::class, mappedBy="user")
-     */
-    private $commerceTransactions;
-
-    /**
      * @ORM\Column(type="string", length=65, nullable=true)
      */
     private $apiKey;
@@ -211,7 +205,6 @@ class CoreUser implements UserInterface
         $this->CommerceUserSubscriptions = new ArrayCollection();
         $this->CommerceInvoices = new ArrayCollection();
         $this->CommercePurchases = new ArrayCollection();
-        $this->commerceTransactions = new ArrayCollection();
         $this->loggerCommandAuths = new ArrayCollection();
         $this->siteIPCollection = $this->siteIPCollection ?? [];
         $this->loaderIPCollection = $this->loaderIPCollection ?? [];
@@ -793,52 +786,6 @@ class CoreUser implements UserInterface
         return $this;
     }
 
-    /**
-     * Get commerce transactions
-     *
-     * @return Collection|CommerceTransaction[]
-     */
-    public function getCommerceTransactions(): Collection
-    {
-        return $this->commerceTransactions;
-    }
-
-    /**
-     * Add commerce transaction
-     *
-     * @param CommerceTransaction $commerceTransaction
-     *
-     * @return $this
-     */
-    public function addCommerceTransaction(CommerceTransaction $commerceTransaction): self
-    {
-        if (!$this->commerceTransactions->contains($commerceTransaction)) {
-            $this->commerceTransactions[] = $commerceTransaction;
-            $commerceTransaction->setUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     *
-     * Remove commerce transaction
-     *
-     * @param CommerceTransaction $commerceTransaction
-     *
-     * @return $this
-     */
-    public function removeCommerceTransaction(CommerceTransaction $commerceTransaction): self
-    {
-        if ($this->commerceTransactions->removeElement($commerceTransaction)) {
-            // set the owning side to null (unless already changed)
-            if ($commerceTransaction->getUser() === $this) {
-                $commerceTransaction->setUser(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Get api key
@@ -1279,6 +1226,20 @@ class CoreUser implements UserInterface
         }
 
         return $this;
+    }
+
+    public function getHighestGroup(): CoreGroup
+    {
+        $highest = PHP_INT_MIN;
+        $currentGroup = $this->groups->first();
+        foreach ($this->groups as $g)
+        {
+            if ($g->getPriority() > $highest)
+            {
+                $currentGroup = $g;
+            }
+        }
+        return $currentGroup;
     }
 
 }

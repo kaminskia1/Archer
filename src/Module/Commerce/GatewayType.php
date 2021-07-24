@@ -4,7 +4,6 @@ namespace App\Module\Commerce;
 
 use App\Entity\Commerce\CommerceInvoice;
 use App\Entity\Commerce\CommercePurchase;
-use App\Entity\Commerce\CommerceTransaction;
 use App\Entity\Commerce\CommerceUserSubscription;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,12 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class GatewayType extends AbstractController
 {
 
-    public static function createPST(CommerceInvoice $invoice): array
+    public static function createPS(CommerceInvoice $invoice): array
     {
 
         $entityManager = $GLOBALS['kernel']->getContainer()->get('doctrine.orm.entity_manager');
         $purchase = new CommercePurchase($invoice);
-        $transaction = new CommerceTransaction($invoice, $purchase);
 
         if ($entityManager->getRepository(CommerceUserSubscription::class)->checkIfPreexisting($purchase)) {
             $subscription = $entityManager->getRepository(CommerceUserSubscription::class)->getByPurchase($purchase);
@@ -27,7 +25,7 @@ abstract class GatewayType extends AbstractController
             $subscription = new CommerceUserSubscription($invoice);
         }
 
-        return [$purchase, $transaction, $subscription];
+        return [$purchase, $subscription];
 
     }
 

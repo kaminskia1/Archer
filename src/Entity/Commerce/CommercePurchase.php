@@ -72,6 +72,11 @@ class CommercePurchase
      */
     private $createdOn;
 
+    /**
+     * @ORM\Column(type="string", length=1)
+     */
+    private $type = 'd';
+
 
     /**
      * CommercePurchase constructor.
@@ -89,6 +94,7 @@ class CommercePurchase
             $this->setAmountPaid($invoice->getPrice());
             $this->setCommercePackage($invoice->getCommercePackage());
             $this->setDuration($invoice->getDurationDateInterval());
+            $this->setType($invoice->getType());
         }
 
         // Set creation date to current
@@ -296,6 +302,18 @@ class CommercePurchase
     public function setCreatedOn(DateTimeInterface $createdOn): self
     {
         $this->createdOn = $createdOn;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

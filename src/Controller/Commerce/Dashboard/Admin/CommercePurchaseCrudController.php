@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -53,13 +54,19 @@ class CommercePurchaseCrudController extends AbstractCrudController
         yield AssociationField::new('user')->setRequired(true);
         yield AssociationField::new('commercePackage')->setRequired(true);
         yield AssociationField::new('commerceInvoice');
+        yield ChoiceField::new('type')->setChoices([
+            'Default' => 'd',
+            'Subscription' => 's',
+            'License' => 'l'
+        ]);
         yield AssociationField::new('commerceGatewayInstance', 'Gateway')->hideOnIndex();
         yield NumberField::new('amountPaid')
             ->setNumDecimals(2)
             ->setStoredAsString(false)
             ->formatValue(function ($value) {
                 return $_ENV['COMMERCE_CURRENCY_SYMBOL'] . $value;
-            })->setTextAlign('right');yield DateIntervalField::new('duration', 'Duration')->hideOnIndex();
+            })->setTextAlign('right');
+        yield DateIntervalField::new('duration', 'Duration')->hideOnIndex();
         yield TextField::new('staffMessage');
     }
 }

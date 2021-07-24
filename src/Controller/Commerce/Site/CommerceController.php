@@ -128,126 +128,188 @@ class CommerceController extends AbstractCommerceController
          * (this is a dumpster fire)
          */
 
-        $invoice = new CommerceInvoice();
-        $entityManager = $this->getDoctrine()->getManager();
-        $ikey = $r->get('commerce_checkout_form')['commerceGatewayInstance'] ?? null;
-        if (!is_null($ikey)) {
-            $stage = 2;
-            $instance = $entityManager
-                ->getRepository(CommerceGatewayInstance::class)
-                ->find((int)$ikey);
+        {
+            $invoice = new CommerceInvoice();
+            $entityManager = $this->getDoctrine()->getManager();
+            $ikey = $r->get('commerce_checkout_form')['commerceGatewayInstance'] ?? null;
+            if (!is_null($ikey)) {
+                $stage = 2;
+                $instance = $entityManager
+                    ->getRepository(CommerceGatewayInstance::class)
+                    ->find((int)$ikey);
 
-            $invoice->setCommerceGatewayInstance($instance);
+                $invoice->setCommerceGatewayInstance($instance);
+            }
+
+
+            $form = $this->createForm(CommerceCheckoutFormType::class, $invoice, ['form_stage' => $stage ?? 1]);
+            $form->handleRequest($r);
+
+            /**
+             * @var CommercePackage $package
+             */
+            $package = $form->getData()->getCommercePackage();
+            $dtp = explode('-', $form->getData()->getCommercePackageDurationToPriceID());
+
+
+            // Begin validations
+            {
+                // Verify that valid package and duration to price id provided
+                if (!$package || is_null($dtp)) {
+                    return $this->render('module/core/error/400.html.twig');
+                }
+
+                // Verify that only two positions exist, to prevent fuzzing
+                if (count($dtp) != 2) {
+                    return $this->render('module/core/error/400.html.twig');
+                }
+
+                // Verify that type is valid
+                if (!($dtp[0] == CommercePackage::INVOICE_LICENSE_DISCRIM ||
+                    $dtp[0] == CommercePackage::INVOICE_SUBSCRIPTION_DISCRIM)) {
+                    return $this->render('module/core/error/400.html.twig');
+                }
+
+                // Verify that package is enabled
+                if (!$package->getIsEnabled()) {
+                    return $this->render('module/core/error/400.html.twig');
+                }
+
+                // Verify that package has available stock
+                if (!$package->hasStock()) {
+                    return $this->render('module/core/error/400.html.twig');
+                }
+
+
+                switch ($dtp[0]) {
+                    case CommercePackage::INVOICE_SUBSCRIPTION_DISCRIM:
+                        // Ensure array offset exists
+                        if (!(isset($package->getDurationToPrice()[$dtp[1]]))) {
+                            return $this->render('module/core/error/400.html.twig');
+                        }
+                        break;
+
+                    /**
+                     * @TODO: Move hardcoded role to customizable set, store in admin settings
+                     */
+                    case CommercePackage::INVOICE_LICENSE_DISCRIM:
+                        // Ensure array offset exists
+                        if (!(isset($package->getKeyDurationToPrice()[$dtp[1]]))) {
+                            return $this->render('module/core/error/400.html.twig');
+                        }
+                        // Ensure user has permission to buy this
+                        if (!in_array('ROLE_SELLER', $this->getUser()->getRoles())) {
+                            return $this->render('module/core/error/400.html.twig');
+                        }
+                        break;
+
+                    default:
+                        return $this->render('module/core/error/400.html.twig');
+
+                }
+            }
+
+
+            // Set invoice based off of type. Type is already validated.
+            switch ($dtp[0]) {
+                // Type subscription
+                case CommercePackage::INVOICE_SUBSCRIPTION_DISCRIM:
+                    // Get corresponding duration and price
+                    list($duration, $price) = explode(":", $package->getDurationToPrice()[$dtp[1]]);
+                    $invoice->setType(CommercePackage::INVOICE_SUBSCRIPTION_DISCRIM);
+                    $invoice->setAmount(1);
+                    $invoice->setPrice($price);
+                    $invoice->setDurationDateInterval(date_interval_create_from_date_string($duration . " days"));
+                    break;
+
+                // Type License
+                case CommercePackage::INVOICE_LICENSE_DISCRIM:
+                    // Get corresponding duration and price
+                    list($amount, $duration, $price) = explode(":", $package->getKeyDurationToPrice()[$dtp[1]]);
+                    $invoice->setType(CommercePackage::INVOICE_LICENSE_DISCRIM);
+                    $invoice->setAmount($amount);
+                    $invoice->setPrice($price);
+                    $invoice->setDurationDateInterval(date_interval_create_from_date_string($duration . " days"));
+                    break;
+            }
         }
-
-
-        $form = $this->createForm(CommerceCheckoutFormType::class, $invoice, ['form_stage' => $stage ?? 1]);
-
-        $form->handleRequest($r);
-
-        /**
-         * @var CommercePackage $package
-         */
-        $package = $form->getData()->getCommercePackage();
-        $dtp = $form->getData()->getCommercePackageDurationToPriceID();
-
-        // Verify that valid package and duration to price id provided
-        if (!$package || is_null($dtp)) {
-            return $this->render('module/core/error/400.html.twig');
-        }
-
-        // Verify that package is enabled and duration to price exists
-        if (!$package->getIsEnabled() && isset($package->getDurationToPrice()[$dtp])) {
-            return $this->render('module/core/error/400.html.twig');
-        }
-
-        // Verify that package has available stock
-        if (!$package->hasStock()) {
-            return $this->render('module/core/error/400.html.twig');
-        }
-
-        // Get corresponding duration and price
-        list($duration, $price) = explode(":", $package->getDurationToPrice()[$dtp]);
-
-        // Bind price and duration to invoice
-        $invoice->setPrice($price);
-        $invoice->setDurationDateInterval(date_interval_create_from_date_string($duration . " days"));
 
 
         /**
          * Begin secondary stage of checkout (Process as if page is "submitted"
          */
-        // Build invoice and run gateway redirect
-        if ($form->isSubmitted() && $form->isValid() && $form->offsetExists('confirm') &&
-            $form->get('confirm') == true) {
+        {
+            // Build invoice and run gateway redirect
+            if ($form->isSubmitted() && $form->isValid() && $form->offsetExists('confirm') &&
+                $form->get('confirm') == true) {
 
+                // @TODO: Implement discount codes (Logic is done, just needs form field and cycleback acceptance (extra stage?)
+                //$invoice->setDiscountCode();
 
-            // @TODO: Implement discount codes (Logic is done, just needs form field)
-            //$invoice->setDiscountCode();
+                $invoice->setCommerceGatewayType($invoice->getCommerceGatewayInstance()->getCommerceGatewayType());
+                $invoice->setUser($this->getUser());
 
-            $invoice->setCommerceGatewayType($invoice->getCommerceGatewayInstance()->getCommerceGatewayType());
-            $invoice->setUser($this->getUser());
+                $gatewayData = [];
+                $fields = $invoice
+                    ->getCommerceGatewayType()
+                    ->getClassInstance()
+                    ->getFormFields();
 
-            $gatewayData = [];
-            $fields = $invoice
-                ->getCommerceGatewayType()
-                ->getClassInstance()
-                ->getFormFields();
-
-            foreach ($fields as $element) {
-                if (
-                    $form->offsetExists('gateway__' . $element->title)
-                    && $data = $form->get('gateway__' . $element->title)->getData()
-                ) {
-                    $gatewayData[$element->title] = $data;
-                } else {
-                    return $this->render('module/commerce/checkout.html.twig', [
-                        'title' => 'Checkout',
-                        'name' => 'checkout',
-                        'invoice' => $invoice,
-                        'currency' => $_ENV['COMMERCE_CURRENCY'],
-                        'form' => $form->createView()
-                    ]);
+                foreach ($fields as $element) {
+                    if (
+                        $form->offsetExists('gateway__' . $element->title)
+                        && $data = $form->get('gateway__' . $element->title)->getData()
+                    ) {
+                        $gatewayData[$element->title] = $data;
+                    } else {
+                        return $this->render('module/commerce/checkout.html.twig', [
+                            'title' => 'Checkout',
+                            'name' => 'checkout',
+                            'invoice' => $invoice,
+                            'currency' => $_ENV['COMMERCE_CURRENCY'],
+                            'form' => $form->createView()
+                        ]);
+                    }
                 }
+
+                // Save the invoice
+                $entityManager->persist($invoice);
+                $entityManager->flush();
+
+                // Handle the redirect
+                $response = $invoice
+                    ->getCommerceGatewayInstance()
+                    ->getCommerceGatewayType()
+                    ->getClassInstance()
+                    ->handleRedirect(
+
+                    // Invoice object
+                        $invoice,
+
+                        // User payment-complete callback url
+                        $this->generateUrl('app_commerce_checkout_complete', [
+                            'id' => $invoice->getId()
+                        ]),
+
+                        // Custom gateway data
+                        $gatewayData
+                    );
+
+                // Save any pass-by-ref changes to the invoice
+                $entityManager->flush();
+
+                // Return the handled redirect
+                return $response;
             }
 
-            // Save the invoice
-            $entityManager->persist($invoice);
-            $entityManager->flush();
-
-            // Handle the redirect
-            $response = $invoice
-                ->getCommerceGatewayInstance()
-                ->getCommerceGatewayType()
-                ->getClassInstance()
-                ->handleRedirect(
-
-                // Invoice object
-                    $invoice,
-
-                    // User payment-complete callback url
-                    $this->generateUrl('app_commerce_checkout_complete', [
-                        'id' => $invoice->getId()
-                    ]),
-
-                    // Custom gateway data
-                    $gatewayData
-                );
-
-            // Save any pass-by-ref changes to the invoice
-            $entityManager->flush();
-
-            // Return the handled redirect
-            return $response;
+            return $this->render('module/commerce/checkout.html.twig', [
+                'title' => 'Checkout',
+                'name' => 'checkout',
+                'invoice' => $invoice,
+                'currency' => $_ENV['COMMERCE_CURRENCY'],
+                'form' => $form->createView()
+            ]);
         }
-
-        return $this->render('module/commerce/checkout.html.twig', [
-            'title' => 'Checkout',
-            'name' => 'checkout',
-            'invoice' => $invoice,
-            'currency' => $_ENV['COMMERCE_CURRENCY'],
-            'form' => $form->createView()
-        ]);
     }
 
     /**

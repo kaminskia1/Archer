@@ -8,7 +8,7 @@
 
 {% block body %}
 
-    <div class="store container content-container p-0">
+    <div class="container content-container p-0">
 
         <section class="content-header">
             Checkout
@@ -18,18 +18,45 @@
             <div class="panel-body">
                 <div class="container">
                     <div class="row border">
-                        <div class="col-sm list-group-item border-0"><img width="200px" height="200px" src="{{ asset( "build/images/__commerce#{invoice.commercePackage.getImageURI()}" ) }}" /></div>
-                        <div class="col-lg-6 list-group-item border-0 align-middle" style="line-height: 200px">{{ invoice.commercePackage.name }} - {{ invoice.durationDateInterval.d }} Days</div>
-                        <div class="col-sm list-group-item border-0" style="line-height: 200px">{{ invoice.price }} {{ currency }}</div>
+                        <div class="col-sm list-group-item border-0">
+                            <img width="200px"
+                                 height="200px"
+                                 src="{{ asset( "build/images/__commerce#{invoice.commercePackage.getImageURI()}" ) }}"/>
+                        </div>
+                        {% if invoice.type == 'l' %}
+                            <div class="col-lg-6 list-group-item border-0 align-middle"
+                                 style="line-height: 200px">{{ invoice.commercePackage.name }}
+                                - {{ invoice.durationDateInterval.d }} Days ({{ invoice.amount }}
+                                key{% if invoice.amount > 1 %}s{% endif %})
+                            </div>
+                        {% else %}
+                            <div class="col-lg-6 list-group-item border-0 align-middle"
+                                 style="line-height: 200px">{{ invoice.commercePackage.name }}
+                                - {{ invoice.durationDateInterval.d }} Days
+                            </div>
+                        {% endif %}
+                        <div class="col-sm list-group-item border-0"
+                             style="line-height: 200px">{{ invoice.price }} {{ currency }}</div>
                     </div>
                 </div>
 
 
                 <div class="container p-4">
                     {{ form_start(form) }}
-
-                        {{ form_widget(form.commerceGatewayInstance) }}
-
+                    <div class="row">
+                        <div class="col-6">
+                            <h6><b>Payment</b></h6>
+                            {{ form_widget(form.commerceGatewayInstance, {'attr': {'class': 'task_field p1'}}) }}
+                        </div>
+                        {% if form.offsetExists('submit') %}
+                            <div class="col-6" style="border-left: 1px solid rgba(0,0,0,.4)">
+                                <h6><b>Billing Details</b></h6>
+                                <div class="pl-1 pr-1">
+                                    {{ form_rest(form) }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
                     {{ form_end(form) }}
                 </div>
             </div>

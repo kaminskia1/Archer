@@ -88,7 +88,7 @@ class CommerceInvoice
     private $commerceGatewayType;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
     private $commercePackageDurationToPriceID;
 
@@ -111,6 +111,16 @@ class CommerceInvoice
      * @ORM\Column(type="decimal", precision=17, scale=2, nullable=true)
      */
     private $pricePaid;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $amount = 1;
+
+    /**
+     * @ORM\Column(type="string", length=1)
+     */
+    private $type;
 
 
     /**
@@ -170,7 +180,7 @@ class CommerceInvoice
      */
     public function setPending($force = false): bool
     {
-        if ($this->commercePackage->getStock() == 0 && !$force)
+        if ($this->commercePackage->hasStock($this->amount) && !$force)
         {
             return false;
         }
@@ -178,7 +188,7 @@ class CommerceInvoice
         $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
 
         $package = $this->commercePackage;
-        $package->decrementStock();
+        $package->decrementStock($this->amount);
 
         $discount = $this->getDiscountCode();
         if ($discount != null) $discount->incrementUsage();
@@ -205,8 +215,8 @@ class CommerceInvoice
             $this->setPaidOn(new DateTime());
             $this->setPricePaid($this->getDiscountedPrice());
 
-            // Create purchase, transaction, and subscription
-            list($purchase, $transaction, $subscription) = GatewayType::createPST($this);
+            // Create purchase and subscription
+            list($purchase, $subscription) = GatewayType::createPS($this);
 
             // Add duration onto subscription
             $subscription->addTime($this->getDurationDateInterval());
@@ -218,7 +228,6 @@ class CommerceInvoice
 
             // Persist all
             $entityManager->persist($purchase);
-            $entityManager->persist($transaction);
             $entityManager->persist($subscription);
             $entityManager->flush();
 
@@ -631,7 +640,7 @@ class CommerceInvoice
      *
      * @return int|null
      */
-    public function getCommercePackageDurationToPriceID(): ?int
+    public function getCommercePackageDurationToPriceID(): ?string
     {
         return $this->commercePackageDurationToPriceID;
     }
@@ -639,10 +648,10 @@ class CommerceInvoice
     /**
      * Set commerce packge duration to price
      *
-     * @param int $commercePackageDurationToPriceID
+     * @param string $commercePackageDurationToPriceID
      * @return $this
      */
-    public function setCommercePackageDurationToPriceID(int $commercePackageDurationToPriceID): self
+    public function setCommercePackageDurationToPriceID(string $commercePackageDurationToPriceID): self
     {
         $this->commercePackageDurationToPriceID = $commercePackageDurationToPriceID;
 
@@ -692,6 +701,30 @@ class CommerceInvoice
     public function setIsRenewable(bool $isRenewable): self
     {
         $this->isRenewable = $isRenewable;
+
+        return $this;
+    }
+
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(int $amount): self
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

@@ -9,6 +9,7 @@ use App\Form\Type\EntityHiddenType;
 use App\Model\CommerceTraitModel;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -37,7 +38,10 @@ class CommerceCheckoutFormType extends AbstractType
                             'data'=>$data->getCommercePackage()
                         ])
                         ->add('commercePackageDurationToPriceID', ChoiceType::class, [
-                            'choices' => $data->getCommercePackage()->getFormattedDurationToPrice(),
+                            'choices' => array_merge(
+                                $data->getCommercePackage()->getFormattedSubscriptionPrices(),
+                                $data->getCommercePackage()->getFormattedLicensePrices()
+                            ),
                             'expanded'=>true,
                             'choice_attr' => function($s){
                                 return ['class'=>'col-1'];
@@ -61,7 +65,11 @@ class CommerceCheckoutFormType extends AbstractType
                         ->add('commercePackageDurationToPriceID', HiddenType::class)
                         ->add('commerceGatewayInstance', EntityType::class, [
                             'class' => CommerceGatewayInstance::class,
-                            'placeholder' => "Payment Method"
+                            'placeholder' => "Payment Method",
+                            'expanded'=>true,
+                            'choice_attr' => function($s) {
+                                return ['class' => 'col-1'];
+                            }
                         ]);
                 });
 
@@ -80,7 +88,11 @@ class CommerceCheckoutFormType extends AbstractType
                         ->add('commercePackageDurationToPriceID', HiddenType::class)
                         ->add('commerceGatewayInstance', EntityType::class, [
                             'class' => CommerceGatewayInstance::class,
-                            'placeholder' => "Payment Method"
+                            'placeholder' => "Payment Method",
+                            'expanded'=>true,
+                            'choice_attr' => function($s) {
+                                return ['class' => 'col-1'];
+                            }
                         ]);
 
                     $fields = $data
@@ -92,7 +104,8 @@ class CommerceCheckoutFormType extends AbstractType
                     foreach ($fields as $element)
                     {
                        $form->add("gateway__" . $element->title, $element->type, array_merge($element->options, [
-                           'mapped'=>false
+                           'mapped'=>false,
+                           'row_attr' => ['class' => 'gateway_field_row' ]
                        ]));
                     }
                     $form
@@ -100,7 +113,11 @@ class CommerceCheckoutFormType extends AbstractType
                             'data'=>true,
                             'mapped' => false
                         ])
-                        ->add('submit', SubmitType::class);
+                        ->add('submit', SubmitType::class, [
+                            'label' => 'Continue',
+                            'validate' => true,
+                            'attr' => ['class' => 'btn btn-primary']
+                        ]);
                 });
         }
     }

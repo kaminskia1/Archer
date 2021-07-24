@@ -74,8 +74,11 @@
 
 
                 {% if invoice.commerceGatewayType.getClassInstance().manualOnly == false
-                    and (invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
-                    or invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING")) %}
+                    and (
+                    invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_OPEN")
+                    or
+                    invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PENDING")
+                    ) %}
 
                     <div class="col-9">
                         <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">Invoice
@@ -98,16 +101,37 @@
 
                 {% else %}
 
-                    <div class="col-10">
-                        <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">Invoice
-                            #{{ invoice.id }}</h2>
-                    </div>
 
-                    <div class="col-2 align-content-end">
-                        <a href="{{ url('app_commerce_invoice_view', {id: invoice.id}) }}">
-                            <button class="btn bg-light text-secondary">View Invoice</button>
-                        </a>
-                    </div>
+                    {% if invoice.getPaymentState == constant("App\\Enum\\Commerce\\CommerceInvoicePaymentStateEnum::INVOICE_PAID") and invoice.type == 'l' %}
+                        <div class="col-9">
+                            <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">Invoice
+                                #{{ invoice.id }}</h2>
+                        </div>
+                        <div class="col-3 align-content-end">
+                            <div class="btn-group" role="group">
+
+                                <a href="{{ url("app_commerce_license_manage", {id: invoice.id}) }}">
+                                    <button class="btn bg-light text-secondary">Get Keys</button>
+                                </a>
+
+                                <a href="{{ url('app_commerce_invoice_view', {id: invoice.id}) }}">
+                                    <button class="btn bg-light text-secondary">View Invoice</button>
+                                </a>
+
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-10">
+                            <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">Invoice
+                                #{{ invoice.id }}</h2>
+                        </div>
+                        <div class="col-2 align-content-end">
+                            <a href="{{ url('app_commerce_invoice_view', {id: invoice.id}) }}">
+                                <button class="btn bg-light text-secondary">View Invoice</button>
+                            </a>
+                        </div>
+                    {% endif %}
+
 
                 {% endif %}
 
@@ -180,8 +204,17 @@
                         </div>
 
                         <div class="col-9">
-                            <p class="text-secondary">1 x {{ invoice.commercePackage.name }}
-                                ({{ invoice.durationDateInterval.d }} days)</p>
+                            <p class="text-secondary">{{ invoice.amount }} x {{ invoice.commercePackage.name }}
+                                {% if invoice.type == 'l' %}
+                                    ({{ invoice.durationDateInterval.d }}-day keys)
+                                {% else %}
+                                    {% if invoice.durationDateInterval.d == 1 %}
+                                        ({{ invoice.durationDateInterval.d }} day
+                                    {% else %}
+                                        ({{ invoice.durationDateInterval.d }} days
+                                    {% endif %}
+                                {% endif %}
+                            </p>
                         </div>
 
                     </div>

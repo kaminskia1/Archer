@@ -69,7 +69,7 @@ class ArcherSetupCommand extends AbstractArcherCommand
         $io = new SymfonyStyle($input, $output);
 
         // Grab username & new password
-        if ($io->ask("Are you sure you want to run this? <error>THIS SHOULD ONLY BE RUN AT INSTALLATION</error> [Y/n]") != 'Y')
+        if ($io->ask("Are you sure you want to run this? [Y/n]") != 'Y')
         {
             return Command::FAILURE;
         }
@@ -90,12 +90,12 @@ class ArcherSetupCommand extends AbstractArcherCommand
 
         // All initial groups to register. Groups with inheritance MUST come after their inherit-ees
         $groups = [
-            'ROLE_BANNED' => ['Banned', '#000000', [] ],                     // 0
-            'ROLE_USER' => ['User', '#000000', [] ],                         // 1
-            'ROLE_SUBSCRIBER' => ['Subscriber', '#000000', ['ROLE_USER'] ],  // 2
-            'ROLE_SELLER' => ['Seller', '#000000', ['ROLE_SUBSCRIBER'] ],    // 3
-            'ROLE_MODERATOR' => ['Moderator', '#000000', ['ROLE_SELLER'] ],  // 4
-            'ROLE_ADMIN' => ['Admin', '#000000', ['ROLE_MODERATOR'] ],       // 5
+            'ROLE_USER' =>        ['User',       '#000000', 0, []                   ],  // 0
+            'ROLE_SUBSCRIBER' =>  ['Subscriber', '#000000', 1, ['ROLE_USER']        ],  // 1
+            'ROLE_SELLER' =>      ['Seller',     '#000000', 2, ['ROLE_SUBSCRIBER']  ],  // 2
+            'ROLE_MODERATOR' =>   ['Moderator',  '#000000', 3, ['ROLE_SELLER']      ],  // 3
+            'ROLE_ADMIN' =>       ['Admin',      '#000000', 4, ['ROLE_MODERATOR']   ],  // 4
+            'ROLE_BANNED' =>      ['Banned',     '#000000', 5, []                   ],  // 5
         ];
 
 
@@ -108,6 +108,7 @@ class ArcherSetupCommand extends AbstractArcherCommand
                 $group->setName($val[0]);
                 $group->setColor($val[1]);
                 $group->setInternalName($internal);
+                $group->setPriority($val[2]);
                 $this->entityManager->persist($group);
                 $output->writeln("> Added group: $internal");
             }
@@ -118,7 +119,7 @@ class ArcherSetupCommand extends AbstractArcherCommand
         foreach ($groups as $internal => $val)
         {
             $group = $this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName'=>$internal]);
-            foreach ($val[2] as $v)
+            foreach ($val[3] as $v)
             {
                 if ($this->entityManager->getRepository(CoreGroup::class)->findOneBy(['internalName'=>$v]) != null)
                 {

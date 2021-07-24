@@ -82,6 +82,11 @@ class CommerceInvoiceCrudController extends AbstractCrudController
                 'Expired' => CommerceInvoicePaymentStateEnum::INVOICE_EXPIRED
             ]
         );
+        yield ChoiceField::new('type')->setChoices([
+            'Default' => 'd',
+            'Subscription' => 's',
+            'License' => 'l'
+        ]);
         yield AssociationField::new('commercePackage', 'Package');
         yield AssociationField::new('commerceGatewayType', 'Gateway Type')->onlyOnDetail();
         yield AssociationField::new('commerceGatewayInstance', 'Gateway Instance')->hideOnIndex();
@@ -92,6 +97,7 @@ class CommerceInvoiceCrudController extends AbstractCrudController
             ->formatValue(function ($value) {
                 return $_ENV['COMMERCE_CURRENCY_SYMBOL'] . $value;
             })->setTextAlign('right');
+        yield NumberField::new('amount')->hideOnIndex();
         yield DateTimeField::new('paidOn', 'Date Paid');
         yield DateIntervalField::new('durationDateInterval', 'Package Duration')->hideOnIndex();
         yield TextField::new('staffMessage');

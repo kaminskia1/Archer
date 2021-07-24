@@ -6,6 +6,8 @@ use App\Entity\Commerce\CommerceInvoice;
 use App\Enum\Commerce\CommerceGatewayCallbackResponseEnum;
 use App\Module\Commerce\GatewayType;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -32,7 +34,18 @@ class ManualPay extends GatewayType
 
     public function getFormFields(): array
     {
-        return [];
+        return [
+            (object)[
+                'title' => 'acceptTermsOfService',
+                'type' => CheckboxType::class,
+                'options' => [
+                    'required' => true,
+                    'value' => false,
+                    'attr' => ['class' => 'ml-2'],
+                    'label' => 'Accept Terms of Service'
+                ]
+            ]
+        ];
     }
 
     public function getInstanceOptions(): array

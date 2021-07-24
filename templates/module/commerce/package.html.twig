@@ -21,10 +21,10 @@
                         <div class="text-center">
                             <img
                                     alt="Package"
-                                class="mx-auto img-thumbnail"
-                                width="280px"
-                                height=280px"
-                                src="{{ asset( "build/images/__commerce#{package.getImageURI()}" ) }}"
+                                    class="mx-auto img-thumbnail"
+                                    width="280px"
+                                    height=280px"
+                                    src="{{ asset( "build/images/__commerce#{package.getImageURI()}" ) }}"
                             />
                         </div>
                     </div>
@@ -38,16 +38,16 @@
                         {% if package.stock > 0 %}
                             <div class="row">
                                 {{ form_start(form, {'method': 'POST', 'attr': {'style': 'width: 100%;'}}) }}
-                                    <div class="form-row">
-                                        {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field p1'}}) }}
+                                <div class="form-row">
+                                    {{ form_widget(form.commercePackageDurationToPriceID, {'attr': {'class': 'task_field p1'}}) }}
+                                </div>
+                                {{ form_rest(form) }}
+                                {# convert submit to form field #}
+                                <div class="form-row">
+                                    <div>
+                                        <button class="btn btn-primary btn-lg btn-block">Purchase</button>
                                     </div>
-                                    {{ form_rest(form) }}
-                                    {# convert submit to form field #}
-                                    <div class="form-row">
-                                        <div>
-                                            <button class="btn btn-primary btn-lg btn-block">Purchase</button>
-                                        </div>
-                                    </div>
+                                </div>
                                 {{ form_end(form) }}
                             </div>
                         {% else %}
