@@ -30,6 +30,16 @@ class LandingController extends AbstractCoreController
             return $this->redirectToRoute('app_dashboard_admin');
         }
 
+        if ($this->security->isGranted("ROLE_MODERATOR"))
+        {
+            return $this->redirectToRoute('app_dashboard_moderator');
+        }
+
+        if ($this->security->isGranted("ROLE_SELLER"))
+        {
+            return $this->redirectToRoute('app_dashboard_seller');
+        }
+
         if ($this->security->isGranted("ROLE_USER"))
         {
             return $this->redirectToRoute('app_dashboard_client');

@@ -34,13 +34,13 @@ class CommerceInvoice
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=\App\Entity\Commerce\CommercePackage::class)
+     * @ORM\ManyToOne(targetEntity=CommercePackage::class)
      * @ORM\JoinColumn(nullable=false)
      */
     private $commercePackage;
 
     /**
-     * @ORM\ManyToOne(targetEntity=\App\Entity\Core\CoreUser::class, inversedBy="CommerceInvoices")
+     * @ORM\ManyToOne(targetEntity=CoreUser::class, inversedBy="CommerceInvoices")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
@@ -139,9 +139,67 @@ class CommerceInvoice
      */
     public function __toString(): string
     {
-        return "Invoice " . $this->getId() ?? -1 . " (CoreUser ID: " . $this->getUser()->getId() . ")" . (!is_null($this->getPaidOn()) ? "(Paid on: " . $this->getPaidOn()->format("m/d/y h:I:s") . ")" : "");
+        return "Invoice " . $this->getId() ?? -1 . " (CoreUser ID: " . $this->getUser()->getId() . ")" .
+            (!is_null($this->getPaidOn()) ? "(Paid on: " . $this->getPaidOn()->format("m/d/y h:I:s") . ")" : "");
     }
 
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get user
+     *
+     * @return CoreUser|null
+     */
+    public function getUser(): ?CoreUser
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set user
+     *
+     * @param CoreUser|null $user
+     *
+     * @return $this
+     */
+    public function setUser(?CoreUser $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get paid on
+     *
+     * @return DateTimeInterface|null
+     */
+    public function getPaidOn(): ?DateTimeInterface
+    {
+        return $this->paidOn;
+    }
+
+    /**
+     * Set paid on
+     *
+     * @param DateTimeInterface|null $paidOn
+     *
+     * @return $this
+     */
+    public function setPaidOn(?DateTimeInterface $paidOn): self
+    {
+        $this->paidOn = $paidOn;
+
+        return $this;
+    }
 
     /**
      * Approve the invoice
@@ -151,12 +209,10 @@ class CommerceInvoice
     public function approve(): bool
     {
 
-        if (($this->isOpen() || $this->isPending()) && $this->commercePackage instanceof CommercePackage)
-        {
+        if (($this->isOpen() || $this->isPending()) && $this->commercePackage instanceof CommercePackage) {
 
             // Begin approval flow, by issuing a pending state. Manual approval so will still approve if stock is 0
-            if ($this->isOpen())
-            {
+            if ($this->isOpen()) {
                 // Force the pending state
                 $this->setPending(true);
             }
@@ -169,115 +225,6 @@ class CommerceInvoice
 
         return false;
 
-    }
-
-    /**
-     * Begin processing the invoice (Waiting on payment, approval, etc)
-     *
-     * @TODO Move to the repository
-     * @param bool $force
-     * @return bool If all pending requirements pass, and it is successfully updated.
-     */
-    public function setPending($force = false): bool
-    {
-        if ($this->commercePackage->hasStock($this->amount) && !$force)
-        {
-            return false;
-        }
-
-        $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
-
-        $package = $this->commercePackage;
-        $package->decrementStock($this->amount);
-
-        $discount = $this->getDiscountCode();
-        if ($discount != null) $discount->incrementUsage();
-
-        // FLush to ensure package has saved, need to test whether this actually does anything
-        $GLOBALS['kernel']
-            ->getContainer()
-            ->get('doctrine.orm.entity_manager')
-            ->flush();
-
-        return true;
-    }
-
-    /**
-     * Set the invoice as paid
-     *
-     * @return bool
-     */
-    public function setPaid(): bool
-    {
-        if ($this->isPending())
-        {
-            $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
-            $this->setPaidOn(new DateTime());
-            $this->setPricePaid($this->getDiscountedPrice());
-
-            // Create purchase and subscription
-            list($purchase, $subscription) = GatewayType::createPS($this);
-
-            // Add duration onto subscription
-            $subscription->addTime($this->getDurationDateInterval());
-
-            // Grab EntityManager from global namespace
-            $entityManager = $GLOBALS['kernel']
-                ->getContainer()
-                ->get('doctrine.orm.entity_manager');
-
-            // Persist all
-            $entityManager->persist($purchase);
-            $entityManager->persist($subscription);
-            $entityManager->flush();
-
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * Get price with discount code applied
-     *
-     * @return float|null
-     */
-    public function getDiscountedPrice(): ?float
-    {
-        // Check that isset and valid
-        if ($this->getDiscountCode() != null && $this->getDiscountCode()->isValid())
-        {
-            // Return based on type
-            if ($this->getDiscountCode()->getType() == CommerceDiscountCodeTypeEnum::TYPE_PERCENTAGE)
-            {
-                return $this->price * (1 - $this->getDiscountCode()->getAmount());
-            }
-            elseif ($this->getDiscountCode()->getType() == CommerceDiscountCodeTypeEnum::TYPE_AMOUNT)
-            {
-                return $this->price - $this->getDiscountCode()->getAmount() >= 0 ? $this->price - $this->getDiscountCode()->getAmount() : 0;
-            }
-        }
-        return $this->price;
-    }
-
-    /**
-     * Get the discounted price in string form
-     *
-     * @return string|null
-     */
-    public function getPrettyDiscountedPrice(): ?string
-    {
-        return $this->getDiscountedPrice()  . " " . $_ENV['COMMERCE_CURRENCY'];
-    }
-
-    /**
-     * Cancel the invoice
-     *
-     * @return void
-     */
-    public function cancel(): void
-    {
-        $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED);
     }
 
     /**
@@ -298,6 +245,260 @@ class CommerceInvoice
     public function isPending(): bool
     {
         return $this->paymentState == CommerceInvoicePaymentStateEnum::INVOICE_PENDING;
+    }
+
+    /**
+     * Begin processing the invoice (Waiting on payment, approval, etc)
+     *
+     * @TODO Move to the repository
+     *
+     * @param bool $force
+     *
+     * @return bool If all pending requirements pass, and it is successfully updated.
+     */
+    public function setPending($force = false): bool
+    {
+        if ($this->commercePackage->hasStock($this->amount) && !$force) {
+            return false;
+        }
+
+        $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PENDING);
+
+        $package = $this->commercePackage;
+
+        // Check if license, as license does stock via dtp and not stock
+        if ($this->getType() == CommercePackage::INVOICE_LICENSE_DISCRIM) {
+            $package->decrementStock($this->getNumberOfLicenses());
+        } else {
+            $package->decrementStock($this->amount);
+        }
+
+        $discount = $this->getDiscountCode();
+        if ($discount != null) {
+            $discount->incrementUsage();
+        }
+
+        // FLush to ensure package has saved, need to test whether this actually does anything
+        $GLOBALS['kernel']
+            ->getContainer()
+            ->get('doctrine.orm.entity_manager')
+            ->flush();
+
+        return true;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get commerce package duration to price
+     *
+     * @return int|null
+     */
+    public function getCommercePackageDurationToPriceID(): ?string
+    {
+        return $this->commercePackageDurationToPriceID;
+    }
+
+    /**
+     * Set commerce packge duration to price
+     *
+     * @param string $commercePackageDurationToPriceID
+     *
+     * @return $this
+     */
+    public function setCommercePackageDurationToPriceID(string $commercePackageDurationToPriceID): self
+    {
+        $this->commercePackageDurationToPriceID = $commercePackageDurationToPriceID;
+
+        return $this;
+    }
+
+    /**
+     * Get commerce package
+     *
+     * @return CommercePackage|null
+     */
+    public function getCommercePackage(): ?CommercePackage
+    {
+        return $this->commercePackage;
+    }
+
+    /**
+     * Set commerce package
+     *
+     * @param CommercePackage|null $commercePackage
+     *
+     * @return $this
+     */
+    public function setCommercePackage(?CommercePackage $commercePackage): self
+    {
+        $this->commercePackage = $commercePackage;
+
+        return $this;
+    }
+
+    /**
+     * Get discount code
+     *
+     * @return CommerceDiscountCode|null
+     */
+    public function getDiscountCode(): ?CommerceDiscountCode
+    {
+        return $this->discountCode;
+    }
+
+    /**
+     * Set discount code
+     *
+     * @param CommerceDiscountCode|null $discountCode
+     *
+     * @return $this
+     */
+    public function setDiscountCode(?CommerceDiscountCode $discountCode): self
+    {
+        $this->discountCode = $discountCode;
+
+        return $this;
+    }
+
+    public function getNumberOfLicenses()
+    {
+        if ($this->type == CommercePackage::INVOICE_LICENSE_DISCRIM)
+        {
+            return explode(":", $this->getCommercePackage()->getKeyDurationToPrice()[explode('-', $this->getCommercePackageDurationToPriceID())[1]])[0];
+        }
+        return $this->amount;
+    }
+
+    /**
+     * Set the invoice as paid
+     *
+     * @return bool
+     */
+    public function setPaid(): bool
+    {
+        if ($this->isPending()) {
+            $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_PAID);
+            $this->setPaidOn(new DateTime());
+            $this->setPricePaid($this->getDiscountedPrice());
+
+            if ($this->getType() == CommercePackage::INVOICE_LICENSE_DISCRIM &&
+                $this->getCommercePackage()->getIsKeyEnabled()) {
+
+                // Check that is key type and is enabled. If not enabled do nothing as user shouldn't be at this point.
+                list($purchase, $keys) = GatewayType::createPK($this);
+
+                // Grab EntityManager from global namespace
+                $entityManager = $GLOBALS['kernel']
+                    ->getContainer()
+                    ->get('doctrine.orm.entity_manager');
+
+                // Persist all
+                $entityManager->persist($purchase);
+                foreach ($keys as $key) {
+                    $entityManager->persist($key);
+                }
+
+                // Flush
+                $entityManager->flush();
+
+
+            } elseif ($this->getType() == CommercePackage::INVOICE_SUBSCRIPTION_DISCRIM) {
+
+                // Create purchase and subscription
+                list($purchase, $subscription) = GatewayType::createPS($this);
+                // Add duration onto subscription
+                $subscription->addTime($this->getDurationDateInterval());
+
+                // Grab EntityManager from global namespace
+                $entityManager = $GLOBALS['kernel']
+                    ->getContainer()
+                    ->get('doctrine.orm.entity_manager');
+
+                // Persist all
+                $entityManager->persist($purchase);
+                $entityManager->persist($subscription);
+                $entityManager->flush();
+            }
+
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get price with discount code applied
+     *
+     * @return float|null
+     */
+    public function getDiscountedPrice(): ?float
+    {
+        // Check that isset and valid
+        if ($this->getDiscountCode() != null && $this->getDiscountCode()->isValid()) {
+            // Return based on type
+            if ($this->getDiscountCode()->getType() == CommerceDiscountCodeTypeEnum::TYPE_PERCENTAGE) {
+                return $this->price * (1 - $this->getDiscountCode()->getAmount());
+            } elseif ($this->getDiscountCode()->getType() == CommerceDiscountCodeTypeEnum::TYPE_AMOUNT) {
+                return $this->price - $this->getDiscountCode()->getAmount() >= 0 ? $this->price -
+                    $this->getDiscountCode()->getAmount() : 0;
+            }
+        }
+        return $this->price;
+    }
+
+    /**
+     * Get duration date interval
+     *
+     * @return DateInterval|null
+     */
+    public function getDurationDateInterval(): ?DateInterval
+    {
+        return $this->durationDateInterval;
+    }
+
+    /**
+     * Set duration date interval
+     *
+     * @param DateInterval $durationDateInterval
+     *
+     * @return $this
+     */
+    public function setDurationDateInterval(DateInterval $durationDateInterval): self
+    {
+        $this->durationDateInterval = $durationDateInterval;
+
+        return $this;
+    }
+
+    /**
+     * Get the discounted price in string form
+     *
+     * @return string|null
+     */
+    public function getPrettyDiscountedPrice(): ?string
+    {
+        return $this->getDiscountedPrice() . " " . $_ENV['COMMERCE_CURRENCY'];
+    }
+
+    /**
+     * Cancel the invoice
+     *
+     * @return void
+     */
+    public function cancel(): void
+    {
+        $this->setPaymentState(CommerceInvoicePaymentStateEnum::INVOICE_CANCELLED);
     }
 
     /**
@@ -340,7 +541,6 @@ class CommerceInvoice
         return $this->price . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
-
     /**
      * Return the inverse of the commerce invoice payment state enum
      *
@@ -348,8 +548,7 @@ class CommerceInvoice
      */
     public function getPrettyPaymentState(): string
     {
-        switch ($this->paymentState)
-        {
+        switch ($this->paymentState) {
             case 1:
                 return 'Open';
             case 2:
@@ -367,85 +566,6 @@ class CommerceInvoice
     }
 
     /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    /**
-     * Get user
-     *
-     * @return CoreUser|null
-     */
-    public function getUser(): ?CoreUser
-    {
-        return $this->user;
-    }
-
-    /**
-     * Set user
-     *
-     * @param CoreUser|null $user
-     * @return $this
-     */
-    public function setUser(?CoreUser $user): self
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * Get paid on
-     *
-     * @return DateTimeInterface|null
-     */
-    public function getPaidOn(): ?DateTimeInterface
-    {
-        return $this->paidOn;
-    }
-
-    /**
-     * Set paid on
-     *
-     * @param DateTimeInterface|null $paidOn
-     * @return $this
-     */
-    public function setPaidOn(?DateTimeInterface $paidOn): self
-    {
-        $this->paidOn = $paidOn;
-
-        return $this;
-    }
-
-    /**
-     * Get commerce package
-     *
-     * @return CommercePackage|null
-     */
-    public function getCommercePackage(): ?CommercePackage
-    {
-        return $this->commercePackage;
-    }
-
-    /**
-     * Set commerce package
-     *
-     * @param CommercePackage|null $commercePackage
-     * @return $this
-     */
-    public function setCommercePackage(?CommercePackage $commercePackage): self
-    {
-        $this->commercePackage = $commercePackage;
-
-        return $this;
-    }
-
-    /**
      * Get price
      *
      * @return float|null
@@ -459,6 +579,7 @@ class CommerceInvoice
      * Set price
      *
      * @param float $price
+     *
      * @return $this
      */
     public function setPrice(float $price): self
@@ -478,15 +599,11 @@ class CommerceInvoice
         return $this->pricePaid;
     }
 
-    public function getPrettyPricePaid(): ?string
-    {
-        return $this->pricePaid  . " " . $_ENV['COMMERCE_CURRENCY'];
-    }
-
     /**
      * Set price paid
      *
      * @param float $pricePaid
+     *
      * @return $this
      */
     public function setPricePaid(float $pricePaid): self
@@ -494,6 +611,11 @@ class CommerceInvoice
         $this->pricePaid = $pricePaid;
 
         return $this;
+    }
+
+    public function getPrettyPricePaid(): ?string
+    {
+        return $this->pricePaid . " " . $_ENV['COMMERCE_CURRENCY'];
     }
 
     /**
@@ -509,9 +631,10 @@ class CommerceInvoice
     /**
      * Set payment state
      *
-     * @internal This should not be used outside scope, but instead by calling approve, setPending, setPaid, etc
      * @param int $paymentState
+     *
      * @return $this
+     * @internal This should not be used outside scope, but instead by calling approve, setPending, setPaid, etc
      */
     public function setPaymentState(int $paymentState): self
     {
@@ -534,57 +657,12 @@ class CommerceInvoice
      * Set staff message
      *
      * @param string|null $staffMessage
+     *
      * @return $this
      */
     public function setStaffMessage(?string $staffMessage): self
     {
         $this->staffMessage = $staffMessage;
-
-        return $this;
-    }
-
-    /**
-     * Get duration date interval
-     *
-     * @return DateInterval|null
-     */
-    public function getDurationDateInterval(): ?DateInterval
-    {
-        return $this->durationDateInterval;
-    }
-
-    /**
-     * Set duration date interval
-     *
-     * @param DateInterval $durationDateInterval
-     * @return $this
-     */
-    public function setDurationDateInterval(DateInterval $durationDateInterval): self
-    {
-        $this->durationDateInterval = $durationDateInterval;
-
-        return $this;
-    }
-
-    /**
-     * Get discount code
-     *
-     * @return CommerceDiscountCode|null
-     */
-    public function getDiscountCode(): ?CommerceDiscountCode
-    {
-        return $this->discountCode;
-    }
-
-    /**
-     * Set discount code
-     *
-     * @param CommerceDiscountCode|null $discountCode
-     * @return $this
-     */
-    public function setDiscountCode(?CommerceDiscountCode $discountCode): self
-    {
-        $this->discountCode = $discountCode;
 
         return $this;
     }
@@ -603,6 +681,7 @@ class CommerceInvoice
      * Set commerce gateway instance
      *
      * @param CommerceGatewayInstance|null $commerceGatewayInstance
+     *
      * @return $this
      */
     public function setCommerceGatewayInstance(?CommerceGatewayInstance $commerceGatewayInstance): self
@@ -626,34 +705,12 @@ class CommerceInvoice
      * Set commerce gateway type
      *
      * @param CommerceGatewayType|null $commerceGatewayType
+     *
      * @return $this
      */
     public function setCommerceGatewayType(?CommerceGatewayType $commerceGatewayType): self
     {
         $this->commerceGatewayType = $commerceGatewayType;
-
-        return $this;
-    }
-
-    /**
-     * Get commerce package duration to price
-     *
-     * @return int|null
-     */
-    public function getCommercePackageDurationToPriceID(): ?string
-    {
-        return $this->commercePackageDurationToPriceID;
-    }
-
-    /**
-     * Set commerce packge duration to price
-     *
-     * @param string $commercePackageDurationToPriceID
-     * @return $this
-     */
-    public function setCommercePackageDurationToPriceID(string $commercePackageDurationToPriceID): self
-    {
-        $this->commercePackageDurationToPriceID = $commercePackageDurationToPriceID;
 
         return $this;
     }
@@ -672,6 +729,7 @@ class CommerceInvoice
      * Set gateway data
      *
      * @param $gatewayData
+     *
      * @return $this
      */
     public function setGatewayData($gatewayData): self
@@ -713,18 +771,6 @@ class CommerceInvoice
     public function setAmount(int $amount): self
     {
         $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): self
-    {
-        $this->type = $type;
 
         return $this;
     }

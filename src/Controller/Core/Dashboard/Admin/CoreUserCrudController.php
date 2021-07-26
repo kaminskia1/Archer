@@ -53,72 +53,54 @@ class CoreUserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
+
+        // Basic Info
         yield IdField::new('id', "Internal ID")->onlyOnDetail();
-        yield TextField::new('uuid', "User ID")->hideOnForm()->formatValue(function ($v){
+        yield TextField::new('uuid', "UUID")->hideOnForm()->formatValue(function ($v){
             if ($this->getDoctrine()->getRepository(CoreUser::class)->findOneBy(['uuid' => $v])->getInfractionPoints() >= 500)
             {
                 return "[INFRACTED] $v";
             }
             return $v;
         });
-        yield TextField::new('nickname');
-        yield DateTimeField::new('registrationDate')->hideOnForm();
+        yield TextField::new('nickname', "Nickname");
+        yield AssociationField::new('groups', "Groups")->hideOnIndex()->setRequired(true);;
         yield TextField::new('plainPassword', "New Password")->onlyOnForms()->setRequired( $pageName == "new" );
-        yield AssociationField::new('groups')
-            ->setRequired(true);
-        yield AssociationField::new('registrationCode')
+        yield TextField::new('hwid', "Hardware ID")->hideOnIndex();
+        yield DateTimeField::new('registrationDate', "Registration Date")->onlyOnDetail();
+
+        // Infractions
+        yield NumberField::new('infractionPoints', "Infraction Points")->hideOnIndex();
+        yield ArrayField::new('infractionTypes', "Infraction Types")->hideOnIndex();
+
+        // Other Relations
+        yield AssociationField::new('registrationCode', "Registration Code")
             ->onlyWhenCreating()
-            ->setRequired(true);
-        yield TextField::new('hwid', 'Hardware ID')->hideOnIndex();
-        yield NumberField::new('infractionPoints', 'Infraction Points')->hideOnIndex();
-        yield ArrayField::new('infractionTypes', 'Infraction Types')->hideOnIndex();
-        yield DateTimeField::new('lastWebsiteLoginDate', "Last Site Login")->hideOnForm();
+            ->setRequired(true);;
+        yield AssociationField::new('CommerceUserSubscriptions', "# of Subscriptions")->onlyOnDetail();
+        yield AssociationField::new('CommercePurchases', "# of Purchases")->onlyOnDetail();
+        yield AssociationField::new('CommerceInvoices', "# of Invoices")->onlyOnDetail();
+
+
+        // Logs
+        yield AssociationField::new('loggerCommandUserSubscriptions', "# of Loader Logins")->onlyOnDetail();
+        yield DateTimeField::new('lastSiteLoginDate', "Last Site Login")->hideOnForm();
         yield DateTimeField::new('lastLoaderLoginDate', "Last Loader Login")->hideOnForm();
-        yield TextareaField::new('staffNote');
+        yield TextField::new('lastSiteIP', "Last Site IP")->onlyOnDetail();
+        yield ArrayField::new('siteIPCollection', "Site IP Collection")->onlyOnDetail();
+        yield TextField::new('lastLoaderIP', "Last Loader IP")->onlyOnDetail();
+        yield ArrayField::new('loaderIPCollection', "Loader IP Collection")->onlyOnDetail();
+        yield TextField::new('staffNote', "Staff Note");
 
-
-
-
-
-
-
-
-
-
-/*
-
-        yield IdField::new('loggerCommandUserInfractions', "Internal ID")->onlyOnDetail();
-        yield IdField::new('apiKey', "Internal ID")->onlyOnDetail();
-        yield IdField::new('apiAesKey', "Internal ID")->onlyOnDetail();
-        yield IdField::new('roles', "Internal ID")->onlyOnDetail();
-        yield IdField::new('lastLoginDate', "Internal ID")->onlyOnDetail();
-        yield IdField::new('lastLoaderIP', "Internal ID")->onlyOnDetail();
-        yield IdField::new('uuid', "Internal ID")->onlyOnDetail();
-        yield IdField::new('plainPassword', "Internal ID")->onlyOnDetail();
-        yield IdField::new('password', "Internal ID")->onlyOnDetail();
-        yield IdField::new('loaderIPCollection', "Internal ID")->onlyOnDetail();
-        yield IdField::new('registrationDate', "Internal ID")->onlyOnDetail();
-        yield IdField::new('nickname', "Internal ID")->onlyOnDetail();
-        yield IdField::new('loggerCommandUserSubscriptions', "Internal ID")->onlyOnDetail();
-        yield IdField::new('registrationCode', "Internal ID")->onlyOnDetail();
-        yield IdField::new('hwid', "Internal ID")->onlyOnDetail();
-        yield IdField::new('lastSiteLoginDate', "Internal ID")->onlyOnDetail();
-        yield IdField::new('id', "Internal ID")->onlyOnDetail();
-        yield IdField::new('staffNote', "Internal ID")->onlyOnDetail();
-        yield IdField::new('CommerceUserSubscriptions', "Internal ID")->onlyOnDetail();
-        yield IdField::new('CommercePurchase', "Internal ID")->onlyOnDetail();
-        yield IdField::new('lastSiteIP', "Internal ID")->onlyOnDetail();
-        yield IdField::new('infractionPoints', "Internal ID")->onlyOnDetail();
-        yield IdField::new('CommerceInvoices', "Internal ID")->onlyOnDetail();
-        yield IdField::new('lastLoaderLoginDate', "Internal ID")->onlyOnDetail();
-        yield IdField::new('siteIPCollection', "Internal ID")->onlyOnDetail();
-        yield IdField::new('loggerCommandAuths', "Internal ID")->onlyOnDetail();
-        yield IdField::new('commerceTransactions', "Internal ID")->onlyOnDetail();
-        yield IdField::new('backupCodes', "Internal ID")->onlyOnDetail();
-        yield IdField::new('apiKeyExpiry', "Internal ID")->onlyOnDetail();
-        yield IdField::new('infractionTypes', "Internal ID")->onlyOnDetail();
-        yield IdField::new('apiAesIV', "Internal ID")->onlyOnDetail();
-*/
+        /*
+        // Unused / Unimplemented
+        yield IdField::new('lastLoginDate', "Last Login")->hideOnForm();
+        yield IdField::new('apiKeyExpiry', "API Key Expiry")->onlyOnDetail();
+        yield IdField::new('apiKey', "API Key")->onlyOnDetail();
+        yield IdField::new('apiAesKey', "API AES Key")->onlyOnDetail();
+        yield IdField::new('apiAesIV', "API AES IV")->onlyOnDetail();
+        yield IdField::new('backupCodes', "Account Backup Codes")->onlyOnDetail();
+        */
     }
 
 

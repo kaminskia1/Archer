@@ -227,7 +227,8 @@ class CommerceController extends AbstractCommerceController
                     // Get corresponding duration and price
                     list($amount, $duration, $price) = explode(":", $package->getKeyDurationToPrice()[$dtp[1]]);
                     $invoice->setType(CommercePackage::INVOICE_LICENSE_DISCRIM);
-                    $invoice->setAmount($amount);
+                    // Amount is total number, will be used in future when cart is expanded to buy more than one product
+                    $invoice->setAmount(1);
                     $invoice->setPrice($price);
                     $invoice->setDurationDateInterval(date_interval_create_from_date_string($duration . " days"));
                     break;

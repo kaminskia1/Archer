@@ -3,6 +3,7 @@
 namespace App\Entity\Core;
 
 use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommerceLicenseKey;
 use App\Entity\Commerce\CommercePurchase;
 use App\Entity\Commerce\CommerceUserSubscription;
 use App\Entity\Logger\LoggerCommandAuth;
@@ -198,6 +199,11 @@ class CoreUser implements UserInterface
     private $groups;
 
     /**
+     * @ORM\OneToMany(targetEntity=CommerceLicenseKey::class, mappedBy="usedBy")
+     */
+    private $commerceLicenseKeys;
+
+    /**
      * CoreUser constructor.
      */
     public function __construct()
@@ -211,6 +217,7 @@ class CoreUser implements UserInterface
         $this->loggerCommandUserInfractions = new ArrayCollection();
         $this->loggerCommandUserSubscriptions = new ArrayCollection();
         $this->groups = new ArrayCollection();
+        $this->commerceLicenseKeys = new ArrayCollection();
     }
 
     public function isBanned(): bool
@@ -240,34 +247,12 @@ class CoreUser implements UserInterface
     }
 
     /**
-     * Get the user's highest-priority corresponding group color. Only iterates over directly owned groups
-     *
-     * @return string
-     */
-    public function getColor(): string
-    {
-        $color = "";
-        $priority = 0;
-        foreach ($this->getGroups() as $group)
-        {
-            if ($group->getPriority() > $priority)
-            {
-                $color = $group->getColor();
-                $priority = $group->getPriority();
-            }
-        }
-        return $color;
-    }
-
-
-    /**
      * @return Collection|CoreGroup[]
      */
     public function getGroups(): Collection
     {
         return $this->groups;
     }
-
 
     public function setGroups($groups): self
     {
@@ -289,6 +274,24 @@ class CoreUser implements UserInterface
                 $this->_rec($array, $i);
             }
         }
+    }
+
+    /**
+     * Get the user's highest-priority corresponding group color. Only iterates over directly owned groups
+     *
+     * @return string
+     */
+    public function getColor(): string
+    {
+        $color = "";
+        $priority = 0;
+        foreach ($this->getGroups() as $group) {
+            if ($group->getPriority() > $priority) {
+                $color = $group->getColor();
+                $priority = $group->getPriority();
+            }
+        }
+        return $color;
     }
 
     /**
@@ -364,6 +367,11 @@ class CoreUser implements UserInterface
         $this->staffNote = $this->staffNote ?? "";
         $this->nickname = $this->nickname ?? "";
         $this->registrationDate = $this->registrationDate ?? new DateTime();
+    }
+
+    public function hasRole(string $role)
+    {
+        return in_array($role, $this->getRoles());
     }
 
     /**
@@ -1232,14 +1240,42 @@ class CoreUser implements UserInterface
     {
         $highest = PHP_INT_MIN;
         $currentGroup = $this->groups->first();
-        foreach ($this->groups as $g)
-        {
-            if ($g->getPriority() > $highest)
-            {
+        foreach ($this->groups as $g) {
+            if ($g->getPriority() > $highest) {
                 $currentGroup = $g;
             }
         }
         return $currentGroup;
+    }
+
+    /**
+     * @return Collection|CommerceLicenseKey[]
+     */
+    public function getCommerceLicenseKeys(): Collection
+    {
+        return $this->commerceLicenseKeys;
+    }
+
+    public function addCommerceLicenseKey(CommerceLicenseKey $commerceLicenseKey): self
+    {
+        if (!$this->commerceLicenseKeys->contains($commerceLicenseKey)) {
+            $this->commerceLicenseKeys[] = $commerceLicenseKey;
+            $commerceLicenseKey->setUsedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommerceLicenseKey(CommerceLicenseKey $commerceLicenseKey): self
+    {
+        if ($this->commerceLicenseKeys->removeElement($commerceLicenseKey)) {
+            // set the owning side to null (unless already changed)
+            if ($commerceLicenseKey->getUsedBy() === $this) {
+                $commerceLicenseKey->setUsedBy(null);
+            }
+        }
+
+        return $this;
     }
 
 }

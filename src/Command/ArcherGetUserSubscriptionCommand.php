@@ -73,7 +73,7 @@ class ArcherGetUserSubscriptionCommand extends AbstractArcherCommand
     protected function configure()
     {
         $this
-            ->setDescription('Check a user\'s Credentials')
+            ->setDescription('Check if a user\'s subscription is valid for a certain product')
             ->addArgument('uuid', InputArgument::REQUIRED, 'User\'s UUID')
             ->addArgument('package', InputArgument::REQUIRED, 'Package to check')
             ->addArgument('debug', InputArgument::OPTIONAL, 'Show debug output');

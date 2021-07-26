@@ -61,15 +61,13 @@ class CommercePackageCrudController extends AbstractCrudController
         yield AssociationField::new('packageUserGroup', 'Subscription User Group')->hideOnIndex();
         yield NumberField::new('stock');
         yield TextEditorField::new('storeDescription');
-        yield BooleanField::new('isEnabled', 'Enabled?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
-        yield BooleanField::new('isVisible', 'Visible?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
+        yield BooleanField::new('isVisible', 'Package Visible?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
+        yield BooleanField::new('isEnabled', 'Package Enabled?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
         yield CollectionField::new('durationToPrice')->setHelp("Elements should be entered as \"Duration:Price\", one element per line, e.g. \"30:9.99\"")->hideOnIndex();
         yield CollectionField::new('customJSON', 'Custom JSON')->setHelp('Saved as a JSON array, values can be anything but objects/arrays will be double-encoded')->hideOnIndex();
 
         yield FormField::addPanel('Licensing');
-        yield BooleanField::new('isKeyEnabled', 'Enabled?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
+        yield BooleanField::new('isKeyEnabled', 'Keys Enabled?')->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
         yield CollectionField::new('keyDurationToPrice')->setHelp("Elements should be entered as \"Amount:Duration:Price\", one element per line, e.g. \"1:30:9.99\"")->hideOnIndex();
-
-
     }
 }

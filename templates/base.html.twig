@@ -47,11 +47,18 @@
                                     {{ app.user.username }} {% if app.user.nickname is not null or "" %} <span class="text-dark">({{ app.user.nickname }})</span> {% endif %}
                                 </h6>
                                 <div class="dropdown-divider"></div>
+
                                 {# <a class="dropdown-item" href="#">Action</a> #}
+
                                 <a class="dropdown-item" href="{{ url("app_dashboard_account") }}">My Account</a>
+                                {% if is_granted('ROLE_SELLER') %}
+                                    <a class="dropdown-item" href="{{ url("app_dashboard_seller") }}">Seller View</a>
+                                {% endif %}
+
                                 {% if is_granted('ROLE_ADMIN') %}
                                     <a class="dropdown-item text-danger" href="{{ url("app_dashboard_admin") }}">Admin View</a>
                                 {% endif %}
+
                                 <a class="dropdown-item" href="{{ url('app_logout') }}">Log Out</a>
                             </div>
                         </li>

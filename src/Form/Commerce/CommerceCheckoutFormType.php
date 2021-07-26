@@ -9,7 +9,6 @@ use App\Form\Type\EntityHiddenType;
 use App\Model\CommerceTraitModel;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -17,11 +16,19 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 
 class CommerceCheckoutFormType extends AbstractType
 {
 
     use CommerceTraitModel;
+
+    private $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -35,24 +42,23 @@ class CommerceCheckoutFormType extends AbstractType
                     $form
                         ->add('commercePackage', EntityHiddenType::class, [
                             'class' => CommercePackage::class,
-                            'data'=>$data->getCommercePackage()
+                            'data' => $data->getCommercePackage()
                         ])
                         ->add('commercePackageDurationToPriceID', ChoiceType::class, [
-                            'choices' => array_merge(
+                            'choices' => ($this->security->getUser()->hasRole('ROLE_SELLER')) ? array_merge(
                                 $data->getCommercePackage()->getFormattedSubscriptionPrices(),
-                                $data->getCommercePackage()->getFormattedLicensePrices()
-                            ),
-                            'expanded'=>true,
-                            'choice_attr' => function($s){
-                                return ['class'=>'col-1'];
+                                $data->getCommercePackage()->getFilteredFormattedLicensePrices()
+                            ) : $data->getCommercePackage()->getFormattedSubscriptionPrices(),
+                            'expanded' => true,
+                            'choice_attr' => function ($s) {
+                                return ['class' => 'col-1'];
                             }
                         ]);
                 });
         }
 
         // form stage 2 (checkout before gateway instance chosen)
-        elseif ($options['form_stage'] == 1)
-        {
+        elseif ($options['form_stage'] == 1) {
             $builder
                 ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                     $form = $event->getForm();
@@ -66,16 +72,17 @@ class CommerceCheckoutFormType extends AbstractType
                         ->add('commerceGatewayInstance', EntityType::class, [
                             'class' => CommerceGatewayInstance::class,
                             'placeholder' => "Payment Method",
-                            'expanded'=>true,
-                            'choice_attr' => function($s) {
+                            'expanded' => true,
+                            'choice_attr' => function ($s) {
                                 return ['class' => 'col-1'];
                             }
                         ]);
                 });
 
         }
-        elseif ($options['form_stage'] == 2)
-        {
+
+        // form stage 3 (gateway instance chosen)
+        elseif ($options['form_stage'] == 2) {
             $builder
                 ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                     $form = $event->getForm();
@@ -89,8 +96,8 @@ class CommerceCheckoutFormType extends AbstractType
                         ->add('commerceGatewayInstance', EntityType::class, [
                             'class' => CommerceGatewayInstance::class,
                             'placeholder' => "Payment Method",
-                            'expanded'=>true,
-                            'choice_attr' => function($s) {
+                            'expanded' => true,
+                            'choice_attr' => function ($s) {
                                 return ['class' => 'col-1'];
                             }
                         ]);
@@ -101,16 +108,15 @@ class CommerceCheckoutFormType extends AbstractType
                         ->getClassInstance()
                         ->getFormFields();
 
-                    foreach ($fields as $element)
-                    {
-                       $form->add("gateway__" . $element->title, $element->type, array_merge($element->options, [
-                           'mapped'=>false,
-                           'row_attr' => ['class' => 'gateway_field_row' ]
-                       ]));
+                    foreach ($fields as $element) {
+                        $form->add("gateway__" . $element->title, $element->type, array_merge($element->options, [
+                            'mapped' => false,
+                            'row_attr' => ['class' => 'gateway_field_row']
+                        ]));
                     }
                     $form
                         ->add('confirm', HiddenType::class, [
-                            'data'=>true,
+                            'data' => true,
                             'mapped' => false
                         ])
                         ->add('submit', SubmitType::class, [

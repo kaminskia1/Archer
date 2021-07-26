@@ -3,6 +3,7 @@
 namespace App\Module\Commerce;
 
 use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommerceLicenseKey;
 use App\Entity\Commerce\CommercePurchase;
 use App\Entity\Commerce\CommerceUserSubscription;
 use Doctrine\ORM\EntityManager;
@@ -27,6 +28,21 @@ abstract class GatewayType extends AbstractController
 
         return [$purchase, $subscription];
 
+    }
+
+    public static function createPK(CommerceInvoice $invoice): array
+    {
+        $entityManager = $GLOBALS['kernel']->getContainer()->get('doctrine.orm.entity_manager');
+        $purchase = new CommercePurchase($invoice);
+
+
+        $keys = [];
+        for ($i=0;$i<$invoice->getNumberOfLicenses();$i++)
+        {
+            $key = new CommerceLicenseKey($invoice->getCommercePackage(), $invoice->getDurationDateInterval(), $invoice);
+            array_push($keys, $key);
+        }
+        return [$purchase, $keys];
     }
 
     abstract public function getFormFields(): array;

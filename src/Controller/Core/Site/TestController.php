@@ -7,6 +7,9 @@ use App\Entity\Core\CoreUser;
 use App\Model\CoreTraitModel;
 use App\Controller\Core\AbstractCoreController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Uid\UuidV1;
+use Symfony\Component\Uid\UuidV4;
+use Symfony\Component\Uid\UuidV6;
 
 class TestController extends AbstractCoreController
 {
@@ -24,9 +27,7 @@ class TestController extends AbstractCoreController
          */
         $user = $this->getUser();
 
-        $subscription = $this->getDoctrine()->getRepository(CommerceUserSubscription::class)->findBy(['user' => $user, 'id' => 2]);
 
-        dump($subscription);
 
         return $this->render('base.html.twig');
 

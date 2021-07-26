@@ -2,10 +2,13 @@
 
 namespace App\Controller\Core\Content\Dashboard;
 
+use App\Controller\Commerce\Dashboard\Admin\CommerceInvoiceCrudController;
+use App\Controller\Commerce\Dashboard\Admin\CommerceLicenseKeyCrudController;
 use App\Entity\Commerce\CommerceDiscountCode;
 use App\Entity\Commerce\CommerceGatewayInstance;
 use App\Entity\Commerce\CommerceGatewayType;
 use App\Entity\Commerce\CommerceInvoice;
+use App\Entity\Commerce\CommerceLicenseKey;
 use App\Entity\Commerce\CommercePackage;
 use App\Entity\Commerce\CommercePackageGroup;
 use App\Entity\Commerce\CommercePurchase;
@@ -19,7 +22,6 @@ use App\Entity\Logger\LoggerCommandAuth;
 use App\Entity\Logger\LoggerCommandUserInfraction;
 use App\Entity\Logger\LoggerCommandUserSubscription;
 use App\Entity\Logger\LoggerSiteAuthLogin;
-use App\Entity\Logger\LoggerSiteRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -58,7 +60,7 @@ class CoreAdminDashboardController extends AbstractDashboardController
      */
     public function index(): Response
     {
-        return $this->render('dashboard/dashboard_landing.html.twig');
+        return $this->render('dashboard/dashboard_admin_landing.html.twig');
     }
 
     public function configureDashboard(): Dashboard
@@ -90,7 +92,8 @@ class CoreAdminDashboardController extends AbstractDashboardController
             yield MenuItem::section('Commerce');
             yield MenuItem::linkToCrud('Package Groups', 'fas fa-list', CommercePackageGroup::class);
             yield MenuItem::linkToCrud('Packages', 'fas fa-list', CommercePackage::class);
-            yield MenuItem::linkToCrud('Invoices', 'fas fa-list', CommerceInvoice::class);
+            yield MenuItem::linkToCrud('Invoices', 'fas fa-list', CommerceInvoice::class)->setController(CommerceInvoiceCrudController::class);
+            yield MenuItem::linkToCrud('License Keys', 'fas fa-list', CommerceLicenseKey::class)->setController(CommerceLicenseKeyCrudController::class);
             yield MenuItem::linkToCrud('Discount Codes', 'fas fa-list', CommerceDiscountCode::class);
             yield MenuItem::linkToCrud('Payment Gateways', 'fas fa-list', CommerceGatewayInstance::class);
             yield MenuItem::linkToCrud('Purchases', 'fas fa-list', CommercePurchase::class);

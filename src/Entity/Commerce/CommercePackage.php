@@ -210,8 +210,10 @@ class CommercePackage
         return array_flip($new);
     }
 
+
+
     /**
-     * Get formatted duration to price for keys
+     * Get formatted amount, duration, price for keys
      *  - [Amount:Duration:Price]
      *
      * @return array
@@ -225,6 +227,29 @@ class CommercePackage
             $new[self::INVOICE_LICENSE_DISCRIM . '-' . $i] = "$l[0] License" . ( $l[0] > 1 ? "s": null) . " - $l[1] Day" . ( $l[1] > 1 ? "s": null) . " ($l[2] " . $_ENV['COMMERCE_CURRENCY'] . ")";
         }
         return array_flip($new);
+    }
+
+    /**
+     * Get formatted amount, duration, price for keys and filter based on enabled & stock
+     *
+     * @return array
+     */
+    public function getFilteredFormattedLicensePrices(): array
+    {
+        if ($this->getIsEnabled())
+        {
+            $tmp = $this->getKeyDurationToPrice();
+            $new = [];
+            for ($i = 0; $i < count($tmp); $i++) {
+                $l = explode(":", $tmp[$i]);
+                if ($l[0] <= $this->stock)
+                {
+                    $new[self::INVOICE_LICENSE_DISCRIM . '-' . $i] = "$l[0] License" . ( $l[0] > 1 ? "s": null) . " - $l[1] Day" . ( $l[1] > 1 ? "s": null) . " ($l[2] " . $_ENV['COMMERCE_CURRENCY'] . ")";
+                }
+            }
+            return array_flip($new);
+        }
+        return [];
     }
 
     /**

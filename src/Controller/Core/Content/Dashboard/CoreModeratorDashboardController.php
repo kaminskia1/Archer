@@ -41,7 +41,7 @@ class CoreModeratorDashboardController extends AbstractDashboardController
      */
     public function index(): Response
     {
-        return $this->render('dashboard/dashboard_landing.html.twig');
+        return $this->render('dashboard/dashboard_moderator_landing.html.twig');
     }
 
     public function configureDashboard(): Dashboard
