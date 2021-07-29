@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} - Redeem{% endblock %}
+
+{% block body %}
+
+    <div class="text-center mb-4">
+        {% if first == true %}
+            <i class="fas fa-check text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Key Redeemed</p>
+        {% else %}
+            <i class="fas fa-times text-secondary" style="font-size: 48px"></i>
+            <p class="text-dark" style="font-size: 32px">Error</p>
+        {% endif %}
+    </div>
+
+    <div class="invoice container content-container p-0">
+
+
+        <p class="text-center pt-4">
+            {% if first == true %}
+                <strong>Thank you for your redemption.</strong><br>
+            {% else %}
+                <strong class="text-danger">You have already redeemed this key.</strong><br>
+            {% endif %}
+
+        </p>
+
+        {% if first == true %}
+        <div class="container p-3 pl-5 pr-5">
+            <div class="container with-background bg-light p-2 pl-3 pr-3">
+                <p class="text-center">
+                    {% if newuser %}Welcome to Archer. Please write down your password if you have not already{% endif %}
+                    You have successfully redeemed your key. Download the loader at the link below if you have not already,
+                    and feel free to message us if you have any concerns for us to address!
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <p class="text-center">
+            <i class="fa fa-info-circle"></i> You can download the loader <a href="https://archer.ac/files/acload.exe" target="_blank">here</a>.
+        </p>
+
+        <div class="container p-5">
+
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-left font-weight-bold" style="font-size: 16px">Review</h2>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+
+                <div class="col-9">
+                    <h2 class="card-subtitle font-weight-bold" style="font-size: 26px; line-height: 44px">
+                        License: <span class="d-inline-block pl-2 pr-2 font-weight-light with-background bg-light">{{ key.code }}</span>
+                    </h2>
+                </div>
+
+
+            </div>
+
+            <hr>
+
+
+            <div class="row">
+
+                <div class="col-5">
+
+                    <h5 class="text-dark font-weight-bold">Product Details</h5>
+
+                    <ul class="list-group-flush pl-0">
+                        <li class="list-group-item">
+                            <div>
+                                <span class="font-weight-bold">Product:</span> {{ key.package.name }}
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <span class="font-weight-bold">Duration:</span> {{ key.duration.d }} Days
+                            </div>
+                        </li>
+
+                        <li class="list-group-item">
+                            <div><span class="font-weight-bold">Expires:</span> {{ sub.expiryDateTime|date }}
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <div class="col-7">
+
+                    <h5 class="text-dark font-weight-bold">Account Summary</h5>
+
+                    <ul class="list-group-flush pl-0">
+                        <li class="list-group-item">
+                            <div>
+                                <span class="font-weight-bold">Username:</span> <code>{{ user.username }}</code>
+                            </div>
+                        </li>
+
+                        {% if password != null %}
+                            <li class="list-group-item">
+                                <div>
+                                    <span class="font-weight-bold">Password:</span> <code>{{ password }}</code>
+                                </div>
+                            </li>
+                        {% endif %}
+
+                        <li class="list-group-item">
+                            <div><span class="font-weight-bold">Registered on:</span> {{ user.registrationDate|date }}
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

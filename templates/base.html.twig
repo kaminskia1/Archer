@@ -1,101 +1,117 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Archer{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
-        {% block stylesheets %}{% endblock %}
-    </head>
-    <body>
-        <div id="app">
-            {% if is_granted('IS_IMPERSONATOR') %}
-                <div class="alert alert-primary alert-dismissible fade show fixed-top" role="alert">
-                    <a href="{{ impersonation_exit_path(path('app_dashboard_admin') ) }}">Exit impersonation</a>
-                </div>
-            {% endif %}
-            <nav class="navbar navbar-expand-lg navbar-light container">
-                <div class="navbar-brand"><a href="{{ url("app_dashboard_client") }}" class="navbar-brand-bold">Archer</a> {% if name|default(null) is not null %} > {{ name }} {% endif %}</div>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ml-auto">
+<head>
+    <meta charset="UTF-8">
+    <title>Archer{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url("app_dashboard_client") }}">home</a>
-                        </li>
+<body>
+<div id="app">
+    {% if is_granted('IS_IMPERSONATOR') %}
+        <div class="alert alert-primary alert-dismissible fade show fixed-top" role="alert">
+            <a href="{{ impersonation_exit_path(path('app_dashboard_admin') ) }}">Exit impersonation</a>
+        </div>
+    {% endif %}
+    <nav class="navbar navbar-expand-lg navbar-light container">
+        <div class="navbar-brand"><a href="{{ url("app_dashboard_client") }}"
+                                     class="navbar-brand-bold">Archer</a> {% if name|default(null) is not null %} > {{ name }} {% endif %}
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url("app_commerce_store") }}">store</a>
-                        </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">irc</a>
-                        </li>
+        {% if is_granted('ROLE_USER') %}
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">support</a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url("app_dashboard_client") }}">home</a>
+                    </li>
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fa fa-user-circle"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <h6 class="dropdown-header">
-                                    {{ app.user.username }} {% if app.user.nickname is not null or "" %} <span class="text-dark">({{ app.user.nickname }})</span> {% endif %}
-                                </h6>
-                                <div class="dropdown-divider"></div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url("app_commerce_store") }}">store</a>
+                    </li>
 
-                                {# <a class="dropdown-item" href="#">Action</a> #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">irc</a>
+                    </li>
 
-                                <a class="dropdown-item" href="{{ url("app_dashboard_account") }}">My Account</a>
-                                {% if is_granted('ROLE_SELLER') %}
-                                    <a class="dropdown-item" href="{{ url("app_dashboard_seller") }}">Seller View</a>
-                                {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">support</a>
+                    </li>
 
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <a class="dropdown-item text-danger" href="{{ url("app_dashboard_admin") }}">Admin View</a>
-                                {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-user-circle"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                            <h6 class="dropdown-header">
+                                {{ app.user.username }} {% if app.user.nickname is not null or "" %} <span
+                                        class="text-dark">({{ app.user.nickname }})</span> {% endif %}
+                            </h6>
+                            <div class="dropdown-divider"></div>
 
-                                <a class="dropdown-item" href="{{ url('app_logout') }}">Log Out</a>
-                            </div>
-                        </li>
+                            {# <a class="dropdown-item" href="#">Action</a> #}
 
+                            <a class="dropdown-item" href="{{ url("app_commerce_redeem") }}">Redeem a Code</a>
+
+                            <a class="dropdown-item" href="{{ url("app_dashboard_account") }}">My Account</a>
+
+                            {% if is_granted('ROLE_SELLER') %}
+                                <a class="dropdown-item" href="{{ url("app_dashboard_seller") }}">Seller View</a>
+                            {% endif %}
+
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a class="dropdown-item text-danger" href="{{ url("app_dashboard_admin") }}">Admin
+                                    View</a>
+                            {% endif %}
+
+                            <a class="dropdown-item" href="{{ url('app_logout') }}">Log Out</a>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+        {% endif %}
+    </nav>
+
+    <div class="container p-md-3 page-content">
+
+        {% block body %}{% endblock %}
+
+    </div>
+
+    <footer class="footer navbar-default" role="contentinfo">
+        <div class="container container">
+            <div class="row mb-5">
+                <div class="col-md-6 ">
+                    <ul class="nav-links list-unstyled nav-left">
+                        <p class="fa-copyright ">&copy; 2021 Archer Systems</p>
                     </ul>
                 </div>
-            </nav>
-
-            <div class="container p-md-3 page-content">
-
-                {% block body %}{% endblock %}
-
-            </div>
-
-            <footer class="footer navbar-default" role="contentinfo">
-                <div class="container container">
-                    <div class="row mb-5">
-                        <div class="col-md-6 ">
-                            <ul class="nav-links list-unstyled nav-left">
-                                <p class="fa-copyright ">&copy; 2021 Archer Systems</p>
-                            </ul>
-                        </div>
-                        <div class="col-md-6 text-md-right">
-                            <ul class="nav-links list-unstyled nav-right">
-                                <li class="d-inline-flex"><a class="nav-link text-muted" style="padding: 0 10px 0 10px" href="{{ url("app_terms") }}">terms</a></li>
-                                <li class="d-inline-flex"><a class="nav-link text-muted" style="padding: 0 10px 0 10px" href="{{ url("app_privacy") }}">privacy</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="col-md-6 text-md-right">
+                    <ul class="nav-links list-unstyled nav-right">
+                        <li class="d-inline-flex"><a class="nav-link text-muted" style="padding: 0 10px 0 10px"
+                                                     href="{{ url("app_terms") }}">terms</a></li>
+                        <li class="d-inline-flex"><a class="nav-link text-muted" style="padding: 0 10px 0 10px"
+                                                     href="{{ url("app_privacy") }}">privacy</a></li>
+                    </ul>
                 </div>
-            </footer>
-            {% block javascripts %}
-                <script src="{{ asset("build/runtime.js") }}"></script>
-                <script src="{{ asset("build/vendors~app.js") }}"></script>
-                <script src="{{ asset("build/app.js") }}"></script>
-            {% endblock %}
             </div>
         </div>
-    </body>
+    </footer>
+    {% block javascripts %}
+        <script src="{{ asset("build/runtime.js") }}"></script>
+        <script src="{{ asset("build/vendors~app.js") }}"></script>
+        <script src="{{ asset("build/app.js") }}"></script>
+    {% endblock %}
+</div>
+</div>
+</body>
 </html>

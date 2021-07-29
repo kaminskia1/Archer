@@ -30,6 +30,7 @@ class CommerceLicenseKey
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\JoinColumn(nullable=false)
      */
     private $code;
 
@@ -79,17 +80,16 @@ class CommerceLicenseKey
      * @param CommercePackage|null $package
      * @param DateInterval|null    $duration
      * @param CommerceInvoice|null $invoice
-     *
-     * @throws Exception
+     * @param null                 $code
      */
-    public function __construct(CommercePackage $package = null, DateInterval $duration = null, CommerceInvoice $invoice = null)
+    public function __construct(CommercePackage $package = null, DateInterval $duration = null, CommerceInvoice $invoice = null, $code = -1)
     {
-        $this->code = Uuid::v4();
+        $this->code = $code == -1 ? Uuid::v4() : null;
         $this->package = $package;
         $this->duration = $duration;
         $this->invoice = $invoice;
         $this->createdOn = new DateTime('now');
-        $this->purchasedBy = $invoice->getUser() ?? null;
+        $this->purchasedBy = $invoice != null ? $invoice->getUser() : null;
     }
 
     public function __toString(): string

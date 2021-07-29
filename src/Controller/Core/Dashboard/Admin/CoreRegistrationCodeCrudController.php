@@ -53,9 +53,11 @@ class CoreRegistrationCodeCrudController extends AbstractCrudController
     {
         yield IdField::new('id', 'ID')->hideOnForm();
         yield TextField::new('code')->setRequired(false);
-        yield BooleanField::new('enabled')->onlyOnDetail()->setFormTypeOption('disabled', true);
         yield AssociationField::new('usedBy')->hideOnForm();
         yield DatetimeField::new("usageDate")->hideOnForm();
+        yield BooleanField::new('enabled')->hideOnForm()
+            ->setFormTypeOption('disabled', true)
+            ->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
         yield TextField::new('staffMessage');
     }
 }

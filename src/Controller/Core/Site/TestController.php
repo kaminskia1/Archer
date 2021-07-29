@@ -2,14 +2,15 @@
 
 namespace App\Controller\Core\Site;
 
-use App\Entity\Commerce\CommerceUserSubscription;
+use App\Entity\Core\CoreGroup;
 use App\Entity\Core\CoreUser;
 use App\Model\CoreTraitModel;
 use App\Controller\Core\AbstractCoreController;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\UuidV1;
-use Symfony\Component\Uid\UuidV4;
-use Symfony\Component\Uid\UuidV6;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class TestController extends AbstractCoreController
 {
@@ -18,17 +19,13 @@ class TestController extends AbstractCoreController
 
     /**
      * @Route("/test", name="test")
+     * @isGranted("ROLE_ADMIN")
      */
-    public function index()
+    public function index(EntityManagerInterface $em)
     {
-
-        /**
-         * @var CoreUser $user
-         */
         $user = $this->getUser();
-
-
-
+        $user->addGroup($this->getDoctrine()->getRepository(CoreGroup::class)->findBy(['internalName'=>'ROLE_ADMIN']));
+        $em->flush();
         return $this->render('base.html.twig');
 
     }

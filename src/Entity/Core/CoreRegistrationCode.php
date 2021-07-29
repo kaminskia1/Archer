@@ -36,7 +36,7 @@ class CoreRegistrationCode
     /**
      * @ORM\Column(type="boolean")
      */
-    private $enabled;
+    private $enabled = true;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -46,7 +46,7 @@ class CoreRegistrationCode
     /**
      * @ORM\OneToOne(targetEntity=\App\Entity\Core\CoreUser::class, cascade={"persist", "remove"})
      */
-    private $usedBy;
+    private $usedBy = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)

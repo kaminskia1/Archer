@@ -34,3 +34,4 @@ $('#commerce_checkout_form_commerceGatewayInstance').change((a) => {
 
 // start the Stimulus application
 import './bootstrap';
+

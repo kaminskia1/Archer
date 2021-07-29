@@ -37,8 +37,6 @@ class CoreRegistrationCodeCrudSubscriber implements EventSubscriberInterface
         }
 
         $entity->setCode( $entity->getCode() ?? md5( random_bytes(10) ) );
-        $entity->setEnabled(true);
-        $entity->setUsageDate(null);
-        $entity->setUsedBy(null);
+        if ($entity->getUsageDate() == null) $entity->setUsageDate(null);
     }
 }

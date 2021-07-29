@@ -97,7 +97,8 @@ class CoreModuleCrudController extends AbstractCrudController
     {
         yield IdField::new('id', "Internal ID")->onlyOnDetail();
         yield TextField::new('name', "Name");
-        yield BooleanField::new('isEnabled', "Enabled?");
+        yield BooleanField::new('isEnabled', "Enabled?")
+            ->setCustomOption(BooleanField::OPTION_RENDER_AS_SWITCH, false);
         yield ArrayField::new('customEntities', "Custom Entities")->hideOnIndex();
         yield ArrayField::new('customControllers', "Custom Controllers")->hideOnIndex();
     }

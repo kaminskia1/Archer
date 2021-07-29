@@ -121,6 +121,10 @@ class LoginAuthenticator extends AbstractFormLoginAuthenticator implements Passw
         }
         $this->entityManager->flush();
 
+        if (isset($request->__specialRedirect))
+        {
+            return $request->__specialRedirect;
+        }
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
