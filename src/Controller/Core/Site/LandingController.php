@@ -5,6 +5,7 @@ namespace App\Controller\Core\Site;
 use App\Controller\Core\AbstractCoreController;
 use App\Model\CoreTraitModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
@@ -21,7 +22,7 @@ class LandingController extends AbstractCoreController
     }
 
     /**
-     * @Route("/", name="landing")
+     * @Route("/", name="app_landing")
      */
     public function index(): Response
     {
@@ -49,4 +50,11 @@ class LandingController extends AbstractCoreController
 
     }
 
+    /**
+     * @Route("/discord", name="app_discord")
+     */
+    public function discord(): Response
+    {
+        return new RedirectResponse($_ENV['DISCORD_URL']);
+    }
 }

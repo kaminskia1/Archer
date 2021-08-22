@@ -17,7 +17,7 @@ class TestController extends AbstractCoreController
 
     use CoreTraitModel;
 
-    /**
+    /**l
      * @Route("/test", name="test")
      * @isGranted("ROLE_ADMIN")
      */
